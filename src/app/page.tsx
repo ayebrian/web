@@ -10,8 +10,9 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
-import {Copy, QrCodeIcon, Save} from 'lucide-react';
+import {Copy, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
+import Link from 'next/link';
 
 const client: FriendlyClient = new FriendlyClientImpl();
 
@@ -92,13 +93,21 @@ export default function Home() {
                                         .slice(0, 2)}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <p className="font-bold text-2xl">
                                     {userDetails?.nickname}
                                 </p>
                                 <p className="text-neutral-700">
                                     {userDetails?.description}
                                 </p>
+                            </div>
+                            <div className="ml-auto">
+                                <Button variant="default" asChild>
+                                    <Link href="#">
+                                        <Pencil />
+                                        Edit profile
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                         <Separator />
