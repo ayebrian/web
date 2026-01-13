@@ -132,8 +132,16 @@ export default function Home() {
                                 </div>
                                 <Separator className="my-4" />
                                 <div className="flex flex-col gap-2">
-                                    <h3 className="text-sm font-semibold uppercase mb-2">
-                                        Friends
+                                    <h3 className="flex flex-row gap-2 mb-2">
+                                        <p className="flex-1 text-sm font-semibold uppercase">
+                                            Friends
+                                        </p>
+                                        <Link
+                                            href="#"
+                                            className="text-sm text-neutral-700 font-normal"
+                                        >
+                                            All friends
+                                        </Link>
                                     </h3>
                                     <div className="flex flex-row gap-2">
                                         {fakeFriends.slice(0, 3).map(friend => (
