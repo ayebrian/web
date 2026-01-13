@@ -111,7 +111,7 @@ export default function Home() {
                             </div>
                         </div>
                         <Separator />
-                        <div className="flex flex-row gap-2">
+                        <div className="flex flex-col md:flex-row gap-2">
                             <div className="w-full flex flex-col gap-2 p-8">
                                 <div className="flex flex-col gap-2">
                                     <h3 className="text-sm font-semibold uppercase mb-2">
@@ -164,7 +164,8 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-1/4 h-fit mt-4 mr-8 flex flex-col gap-2 p-8 rounded-xl  border border-zinc-200 bg-white text-sm">
+
+                            <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 md:bg-white text-sm">
                                 <div className="flex flex-row gap-2 items-center">
                                     <QrCodeIcon /> My QR Code
                                 </div>
