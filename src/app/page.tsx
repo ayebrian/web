@@ -150,7 +150,9 @@ export default function Home() {
                                                 className="w-40 flex flex-col items-center gap-2 bg-white rounded-xl border md:border-zinc-200  p-4"
                                             >
                                                 <Avatar className="w-16 h-16">
-                                                    <AvatarImage src="https://github.com/torvalds.png" />
+                                                    <AvatarImage
+                                                        src={`https://github.com/${friend.username}.png`}
+                                                    />
                                                     <AvatarFallback>
                                                         {friend?.username
                                                             .toString()
@@ -173,7 +175,7 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 md:bg-white text-sm">
+                            <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 md:bg-white text-sm">
                                 <div className="flex flex-row gap-2 items-center">
                                     <QrCodeIcon /> My QR Code
                                 </div>
@@ -183,7 +185,7 @@ export default function Home() {
                                 <div className="w-full flex flex-col items-center mt-6">
                                     <QRCode value="hey" className="w-36 h-36" />
                                 </div>
-                                <div className="w-full flex flex-row justify-evenly mt-6">
+                                <div className="w-full flex flex-row gap-2 justify-evenly mt-6">
                                     <Button variant="outline" className="w-fit">
                                         <Copy /> Copy
                                     </Button>
