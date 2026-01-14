@@ -10,9 +10,10 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
-import {Copy, Loader2, Pencil, QrCodeIcon, Save} from 'lucide-react';
+import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
+import {getCookie, removeCookie} from '@/lib/cookies';
 
 const client: FriendlyClient = new FriendlyClientImpl();
 
@@ -52,8 +53,10 @@ const fakeFriends: Friend[] = [
 
 function ProfileHeader({
     userDetails,
+    logOut,
 }: {
     userDetails: UserDetailsResponse | null;
+    logOut: () => void;
 }) {
     return (
         <div className="flex flex-row gap-6 w-full p-8">
@@ -74,12 +77,25 @@ function ProfileHeader({
                 </p>
             </div>
             {/* TODO: Impl profile editing and enable this btn */}
-            <div className="ml-auto" hidden={true}>
-                <Button className="cursor-pointer" variant="secondary" asChild>
+            <div className="ml-auto flex flex-col gap-2">
+                <Button
+                    className="cursor-pointer"
+                    variant="secondary"
+                    asChild
+                    hidden={true}
+                >
                     <Link href="#">
                         <Pencil className="w-4 h-4 sm:mr-2" />
                         <p className="hidden sm:block">Edit profile</p>
                     </Link>
+                </Button>
+                <Button
+                    className="cursor-pointer"
+                    variant="secondary"
+                    onClick={logOut}
+                >
+                    <LogOut className="w-4 h-4 sm:mr-2" />
+                    <p className="hidden sm:block">LogOut</p>
                 </Button>
             </div>
         </div>
@@ -187,30 +203,34 @@ function QrCodeCard() {
 }
 
 export default function Home() {
+    const userId = getCookie<string>('userId');
+    const authToken = getCookie<string>('token');
+
     const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
         null,
     );
 
     const loadData = async () => {
-        const auth = await client.generateAccount({
-            nickname: 'kotleni',
-            description:
-                '23 y.o. dude, programmer, linux user, engineer and sometimes - human.',
-            interests: ['typescript', 'kotlin', 'linux', 'cats', 'catgirls'],
-            avatar: null,
-            socialLink: null,
-        });
-        console.log(auth);
-        client.setAuthToken(auth.token, auth.id.toString());
+        client.setAuthToken(authToken, userId);
         const details = await client.getUserDetails();
         console.log(details);
 
         setUserDetails(details);
     };
 
+    const logOut = async () => {
+        removeCookie('userId');
+        removeCookie('token');
+        document.location.href = '/signIn';
+    };
+
     useEffect(() => {
         void loadData();
     }, []);
+
+    if (userId === null || authToken === null) {
+        document.location.href = '/signIn';
+    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
@@ -222,7 +242,10 @@ export default function Home() {
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2 pb-12">
-                            <ProfileHeader userDetails={userDetails} />
+                            <ProfileHeader
+                                userDetails={userDetails}
+                                logOut={logOut}
+                            />
                             <Separator className="dark:bg-zinc-800" />
 
                             <div className="flex flex-col md:flex-row gap-2">
