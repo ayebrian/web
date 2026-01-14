@@ -24,31 +24,31 @@ interface Friend {
 }
 
 const fakeFriends: Friend[] = [
-    {
-        username: 'Mark Zukeberg',
-        description: 'CEO of Winux',
-        avatar: null,
-    },
-    {
-        username: 'dorivan',
-        description: 'Python enjoyer, car master and just your friend.',
-        avatar: null,
-    },
-    {
-        username: 'nikita8888',
-        description: 'i am so dumb',
-        avatar: null,
-    },
-    {
-        username: 'oclikk',
-        description: 'Youtuber and programmer',
-        avatar: null,
-    },
-    {
-        username: 'y9san9',
-        description: 'Founder of Friendly',
-        avatar: null,
-    },
+    // {
+    //     username: 'Mark Zukeberg',
+    //     description: 'CEO of Winux',
+    //     avatar: null,
+    // },
+    // {
+    //     username: 'dorivan',
+    //     description: 'Python enjoyer, car master and just your friend.',
+    //     avatar: null,
+    // },
+    // {
+    //     username: 'nikita8888',
+    //     description: 'i am so dumb',
+    //     avatar: null,
+    // },
+    // {
+    //     username: 'oclikk',
+    //     description: 'Youtuber and programmer',
+    //     avatar: null,
+    // },
+    // {
+    //     username: 'y9san9',
+    //     description: 'Founder of Friendly',
+    //     avatar: null,
+    // },
 ];
 
 function ProfileHeader({
@@ -155,6 +155,7 @@ function FriendsBlock() {
                 <Link
                     href="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
+                    hidden={fakeFriends.length < 1}
                 >
                     All friends
                 </Link>
@@ -163,6 +164,9 @@ function FriendsBlock() {
                 {fakeFriends.slice(0, 3).map(friend => (
                     <FriendCard key={friend.username} friend={friend} />
                 ))}
+                <p hidden={fakeFriends.length > 0}>
+                    Nobody likes you, you have no friends.
+                </p>
             </div>
         </div>
     );
