@@ -10,7 +10,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
-import {Copy, Pencil, QrCodeIcon, Save} from 'lucide-react';
+import {Copy, Loader2, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -108,10 +108,7 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
 function FriendCard({friend}: {friend: Friend}) {
     return (
-        <div
-            key={friend.username}
-            className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm"
-        >
+        <div className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm">
             <Avatar className="w-16 h-16">
                 <AvatarImage
                     src={`https://github.com/${friend.username}.png`}
@@ -145,9 +142,9 @@ function FriendsBlock() {
                     All friends
                 </Link>
             </h3>
-            <div className="flex flex-row gap-2 flex-wrap">
+            <div className="flex flex-row gap-2 flex-nowrap">
                 {fakeFriends.slice(0, 3).map(friend => (
-                    <FriendCard friend={friend} />
+                    <FriendCard key={friend.username} friend={friend} />
                 ))}
             </div>
         </div>
@@ -215,25 +212,28 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
-                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden pb-12 transition-colors">
-                    <div
-                        className="flex flex-col gap-2"
-                        hidden={userDetails === null}
-                    >
-                        <ProfileHeader userDetails={userDetails} />
-                        <Separator className="dark:bg-zinc-800" />
-
-                        <div className="flex flex-col md:flex-row gap-2">
-                            <div className="w-full flex flex-col gap-2 p-8">
-                                <InterestsBlock
-                                    interests={userDetails?.interests ?? []}
-                                />
-                                <Separator className="my-4 dark:bg-zinc-800" />
-                                <FriendsBlock />
-                            </div>
-                            <QrCodeCard />
+                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden pb-12 md:pb-0 transition-colors">
+                    {!userDetails ? (
+                        <div className="flex h-[50vh] w-full items-center justify-center">
+                            <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
                         </div>
-                    </div>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            <ProfileHeader userDetails={userDetails} />
+                            <Separator className="dark:bg-zinc-800" />
+
+                            <div className="flex flex-col md:flex-row gap-2">
+                                <div className="w-full flex flex-col gap-2 p-8">
+                                    <InterestsBlock
+                                        interests={userDetails?.interests ?? []}
+                                    />
+                                    <Separator className="my-4 dark:bg-zinc-800" />
+                                    <FriendsBlock />
+                                </div>
+                                <QrCodeCard />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
