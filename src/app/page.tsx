@@ -75,16 +75,17 @@ export default function Home() {
     useEffect(() => {
         void loadData();
     }, []);
+
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
-                <div className="bg-white md:rounded-xl md:border md:border-zinc-200 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden pb-12">
+                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden pb-12 transition-colors">
                     <div
                         className="flex flex-col gap-2"
                         hidden={userDetails === null}
                     >
                         <div className="flex flex-row gap-6 w-full p-8">
-                            <Avatar className="w-24 h-24">
+                            <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
                                 <AvatarImage
                                     src={`https://github.com/${userDetails?.nickname}.png`}
                                 />
@@ -95,35 +96,38 @@ export default function Home() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-1 flex-col gap-2">
-                                <p className="font-bold text-2xl">
+                                <p className="font-bold text-2xl dark:text-zinc-100">
                                     {userDetails?.nickname}
                                 </p>
-                                <p className="text-neutral-700">
+                                <p className="text-neutral-700 dark:text-zinc-400">
                                     {userDetails?.description}
                                 </p>
                             </div>
                             <div className="ml-auto">
                                 <Button variant="default" asChild>
                                     <Link href="#">
-                                        <Pencil />
+                                        <Pencil className="w-4 h-4 mr-2" />
                                         Edit profile
                                     </Link>
                                 </Button>
                             </div>
                         </div>
-                        <Separator />
+
+                        <Separator className="dark:bg-zinc-800" />
+
                         <div className="flex flex-col md:flex-row gap-2">
                             <div className="w-full flex flex-col gap-2 p-8">
                                 <div className="flex flex-col gap-2">
-                                    <h3 className="text-sm font-semibold uppercase mb-2">
+                                    <h3 className="text-sm font-semibold uppercase mb-2 text-zinc-900 dark:text-zinc-100">
                                         Interests
                                     </h3>
-                                    <div className="flex flex-row gap-2">
+                                    <div className="flex flex-row gap-2 flex-wrap">
                                         {userDetails?.interests.map(
                                             interest => (
                                                 <Badge
                                                     key={interest}
                                                     variant="secondary"
+                                                    className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                                                 >
                                                     {interest}
                                                 </Badge>
@@ -131,24 +135,26 @@ export default function Home() {
                                         )}
                                     </div>
                                 </div>
-                                <Separator className="my-4" />
+
+                                <Separator className="my-4 dark:bg-zinc-800" />
+
                                 <div className="flex flex-col gap-2">
                                     <h3 className="flex flex-row gap-2 mb-2">
-                                        <p className="flex-1 text-sm font-semibold uppercase">
+                                        <p className="flex-1 text-sm font-semibold uppercase text-zinc-900 dark:text-zinc-100">
                                             Friends
                                         </p>
                                         <Link
                                             href="#"
-                                            className="text-sm text-neutral-700 font-normal"
+                                            className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
                                         >
                                             All friends
                                         </Link>
                                     </h3>
-                                    <div className="flex flex-row gap-2">
+                                    <div className="flex flex-row gap-2 flex-wrap">
                                         {fakeFriends.slice(0, 3).map(friend => (
                                             <div
                                                 key={friend.username}
-                                                className="w-40 flex flex-col items-center gap-2 bg-white rounded-xl border md:border-zinc-200  p-4"
+                                                className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm"
                                             >
                                                 <Avatar className="w-16 h-16">
                                                     <AvatarImage
@@ -160,10 +166,10 @@ export default function Home() {
                                                             .slice(0, 2)}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <p className="text-sm font-semibold">
+                                                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                                                     {friend?.username}
                                                 </p>
-                                                <p className="text-sm">
+                                                <p className="text-sm text-neutral-500 dark:text-zinc-400 text-center">
                                                     {friend?.description.substring(
                                                         0,
                                                         16,
@@ -176,22 +182,34 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 md:bg-white text-sm">
-                                <div className="flex flex-row gap-2 items-center">
-                                    <QrCodeIcon /> My QR Code
+                            <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
+                                <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
+                                    <QrCodeIcon className="w-4 h-4" /> My QR
+                                    Code
                                 </div>
-                                <p className="text-neutral-700">
+                                <p className="text-neutral-700 dark:text-zinc-400">
                                     Share your profile to make connections.
                                 </p>
                                 <div className="w-full flex flex-col items-center mt-6">
-                                    <QRCode value="hey" className="w-36 h-36" />
+                                    <div className="bg-white p-4 rounded-xl border border-zinc-200">
+                                        <QRCode
+                                            value="hey"
+                                            className="w-32 h-32"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="w-full flex flex-row gap-2 justify-evenly mt-6">
-                                    <Button variant="outline" className="w-fit">
-                                        <Copy /> Copy
+                                    <Button
+                                        variant="outline"
+                                        className="w-fit dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                                    >
+                                        <Copy className="w-4 h-4 mr-2" /> Copy
                                     </Button>
-                                    <Button variant="outline">
-                                        <Save /> Save
+                                    <Button
+                                        variant="outline"
+                                        className="dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                                    >
+                                        <Save className="w-4 h-4 mr-2" /> Save
                                     </Button>
                                 </div>
                             </div>
