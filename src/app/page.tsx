@@ -73,11 +73,12 @@ function ProfileHeader({
                     {userDetails?.description}
                 </p>
             </div>
-            <div className="ml-auto">
-                <Button variant="default" asChild>
+            {/* TODO: Impl profile editing and enable this btn */}
+            <div className="ml-auto" hidden={true}>
+                <Button variant="secondary" asChild>
                     <Link href="#">
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit profile
+                        <Pencil className="w-4 h-4 sm:mr-2" />
+                        <p className="hidden sm:block">Edit profile</p>
                     </Link>
                 </Button>
             </div>
