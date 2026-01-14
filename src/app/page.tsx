@@ -75,7 +75,7 @@ function ProfileHeader({
             </div>
             {/* TODO: Impl profile editing and enable this btn */}
             <div className="ml-auto" hidden={true}>
-                <Button variant="secondary" asChild>
+                <Button className="cursor-pointer" variant="secondary" asChild>
                     <Link href="#">
                         <Pencil className="w-4 h-4 sm:mr-2" />
                         <p className="hidden sm:block">Edit profile</p>
@@ -109,7 +109,7 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
 function FriendCard({friend}: {friend: Friend}) {
     return (
-        <div className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm">
+        <div className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
             <Avatar className="w-16 h-16">
                 <AvatarImage
                     src={`https://github.com/${friend.username}.png`}
@@ -171,13 +171,13 @@ function QrCodeCard() {
             <div className="w-full flex flex-row gap-2">
                 <Button
                     variant="outline"
-                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                 >
                     <Copy className="w-4 h-4 mr-2" /> Copy
                 </Button>
                 <Button
                     variant="outline"
-                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                 >
                     <Save className="w-4 h-4 mr-2" /> Save
                 </Button>
