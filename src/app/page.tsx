@@ -225,7 +225,7 @@ export default function Home() {
     const logOut = async () => {
         removeCookie('userId');
         removeCookie('token');
-        document.location.href = '/signIn';
+        if (document) document.location.href = '/signIn';
     };
 
     useEffect(() => {
@@ -233,7 +233,7 @@ export default function Home() {
     }, []);
 
     if (userId === null || authToken === null) {
-        document.location.href = '/signIn';
+        if (document) document.location.href = '/signIn';
     }
 
     return (

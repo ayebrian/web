@@ -45,7 +45,7 @@ export default function SignInPage() {
         setCookie('userId', auth.id.toString());
         setCookie('token', auth.token);
 
-        document.location.href = '/';
+        if (document) document.location.href = '/';
     };
 
     return (
