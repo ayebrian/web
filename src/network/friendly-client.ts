@@ -175,6 +175,7 @@ export interface GenerateAccountRequest {
     description: string;
     interests: string[];
     avatar: string | null;
+    socialLink: string | null;
 }
 
 export interface GenerateAccountResponse {

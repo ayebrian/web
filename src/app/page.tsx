@@ -62,6 +62,7 @@ export default function Home() {
                 '23 y.o. dude, programmer, linux user, engineer and sometimes - human.',
             interests: ['typescript', 'kotlin', 'linux', 'cats', 'catgirls'],
             avatar: null,
+            socialLink: null,
         });
         console.log(auth);
         client.setAuthToken(auth.token, auth.id.toString());
