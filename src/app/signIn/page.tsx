@@ -11,6 +11,7 @@ import {
     ItemDescription,
     ItemTitle,
 } from '@/components/ui/item';
+import {useRouter} from 'next/navigation';
 
 const client: FriendlyClient = new FriendlyClientImpl();
 
@@ -21,6 +22,8 @@ interface PageState {
 }
 
 export default function SignInPage() {
+    const router = useRouter();
+
     const [state, setState] = useState<PageState>({
         nickname: '',
         description: '',
@@ -45,7 +48,7 @@ export default function SignInPage() {
         setCookie('userId', auth.id.toString());
         setCookie('token', auth.token);
 
-        if (document) document.location.href = '/';
+        router.push('/');
     };
 
     return (

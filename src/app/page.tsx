@@ -14,6 +14,7 @@ import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import {getCookie, removeCookie} from '@/lib/cookies';
+import {useRouter} from 'next/navigation';
 
 const client: FriendlyClient = new FriendlyClientImpl();
 
@@ -207,14 +208,21 @@ function QrCodeCard() {
 }
 
 export default function Home() {
-    const userId = getCookie<string>('userId');
-    const authToken = getCookie<string>('token');
+    const router = useRouter();
 
     const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
         null,
     );
 
     const loadData = async () => {
+        const userId = getCookie<string>('userId');
+        const authToken = getCookie<string>('token');
+
+        if (userId === null || authToken === null) {
+            await logOut();
+            return;
+        }
+
         client.setAuthToken(authToken, userId);
         const details = await client.getUserDetails();
         console.log(details);
@@ -225,16 +233,12 @@ export default function Home() {
     const logOut = async () => {
         removeCookie('userId');
         removeCookie('token');
-        if (document) document.location.href = '/signIn';
+        router.push('/signIn');
     };
 
     useEffect(() => {
         void loadData();
     }, []);
-
-    if (userId === null || authToken === null) {
-        if (document) document.location.href = '/signIn';
-    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
