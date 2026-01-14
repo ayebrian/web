@@ -22,7 +22,7 @@ export default function RootLayout({
                 />
                 <title>Friendly Web</title>
             </head>
-            <body>
+            <body className="bg-[#fafafa]">
                 <Suspense>
                     <RootContainer>{children}</RootContainer>
                 </Suspense>
