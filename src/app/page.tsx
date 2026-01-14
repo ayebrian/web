@@ -153,28 +153,30 @@ function FriendsBlock() {
 
 function QrCodeCard() {
     return (
-        <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-2 p-8 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
-            <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
-                <QrCodeIcon className="w-4 h-4" /> My QR Code
+        <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-6 p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
+            <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
+                <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
+                    <QrCodeIcon className="w-4 h-4" /> My QR Code
+                </div>
+                <p className="text-neutral-700 dark:text-zinc-400">
+                    Share your profile to make connections.
+                </p>
             </div>
-            <p className="text-neutral-700 dark:text-zinc-400">
-                Share your profile to make connections.
-            </p>
-            <div className="w-full flex flex-col items-center mt-6">
+            <div className="w-full flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl border border-zinc-200">
                     <QRCode value="hey" className="w-32 h-32" />
                 </div>
             </div>
-            <div className="w-full flex flex-row gap-2 justify-evenly mt-6">
+            <div className="w-full flex flex-row gap-2">
                 <Button
                     variant="outline"
-                    className="w-fit dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800"
                 >
                     <Copy className="w-4 h-4 mr-2" /> Copy
                 </Button>
                 <Button
                     variant="outline"
-                    className="dark:bg-zinc-950 dark:hover:bg-zinc-800"
+                    className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800"
                 >
                     <Save className="w-4 h-4 mr-2" /> Save
                 </Button>
@@ -212,13 +214,13 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
-                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden pb-12 md:pb-0 transition-colors">
+                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
                     {!userDetails ? (
                         <div className="flex h-[50vh] w-full items-center justify-center">
                             <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 pb-12">
                             <ProfileHeader userDetails={userDetails} />
                             <Separator className="dark:bg-zinc-800" />
 
