@@ -19,6 +19,7 @@ interface PageState {
     nickname: string;
     description: string;
     interests: string;
+    socialLink: string;
 }
 
 export default function SignInPage() {
@@ -28,6 +29,7 @@ export default function SignInPage() {
         nickname: '',
         description: '',
         interests: '',
+        socialLink: '',
     });
 
     const registerAccount = async () => {
@@ -38,7 +40,7 @@ export default function SignInPage() {
                 .split(',')
                 .map(interest => interest.trim()),
             avatar: null,
-            socialLink: null,
+            socialLink: state.socialLink.length > 0 ? state.socialLink : null,
         });
         console.log(auth);
         client.setAuthToken(auth.token, auth.id.toString());
@@ -73,12 +75,17 @@ export default function SignInPage() {
                 value={state.interests}
                 onChange={e => setState({...state, interests: e.target.value})}
             />
-
+            <Input
+                type="text"
+                placeholder="Social link (Optinal)"
+                value={state.socialLink}
+                onChange={e => setState({...state, socialLink: e.target.value})}
+            />
             <Item variant="outline">
                 <ItemContent>
                     <ItemTitle>TODO</ItemTitle>
                     <ItemDescription>
-                        Avatar and socialLink fields is missing.
+                        Avatar field is missing.
                     </ItemDescription>
                 </ItemContent>
             </Item>
