@@ -84,7 +84,9 @@ export default function SignInPage() {
             <Item variant="outline">
                 <ItemContent>
                     <ItemTitle>TODO</ItemTitle>
-                    <ItemDescription>Avatar field is missing.</ItemDescription>
+                    <ItemDescription>
+                        Avatar field is missing.
+                    </ItemDescription>
                 </ItemContent>
             </Item>
 
