@@ -25,7 +25,7 @@ export class FriendlyClientImpl implements FriendlyClient {
     private baseUrl: string;
     private authToken: string | null = null;
 
-    constructor(baseUrl: string = 'https://meetacy.app/friendly') {
+    constructor(baseUrl: string = 'https://api.getfriend.ly/') {
         this.baseUrl = baseUrl;
         this.client = axios.create({
             baseURL: this.baseUrl,
