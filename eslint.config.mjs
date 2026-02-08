@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-    globalIgnores(['**/build/', 'test/fixtures/', '**/template/', '.next/']),
+    globalIgnores(['**/build/', 'test/fixtures/', '**/template/', '.next/', 'next-env.d.ts']),
     {
         extends: compat.extends(
             'eslint:recommended',
