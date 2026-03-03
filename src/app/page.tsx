@@ -15,8 +15,7 @@ import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import {getCookie, removeCookie} from '@/lib/cookies';
 import {useRouter} from 'next/navigation';
-
-const client: FriendlyClient = new FriendlyClientImpl();
+import {useBackend} from "@/backend.context";
 
 interface Friend {
     username: string;
@@ -209,24 +208,21 @@ function QrCodeCard() {
 
 export default function Home() {
     const router = useRouter();
+    const backend = useBackend();
 
     const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
         null,
     );
 
     const loadData = async () => {
-        const userId = getCookie<string>('userId');
-        const authToken = getCookie<string>('token');
+        const isAuthenticated = backend.restoreAuthorizationIsPossible();
 
-        if (userId === null || authToken === null) {
+        if (!isAuthenticated) {
             await logOut();
             return;
         }
 
-        client.setAuthToken(authToken, userId);
-        const details = await client.getUserDetails();
-        console.log(details);
-
+        const details = await backend.getUserDetails();
         setUserDetails(details);
     };
 
