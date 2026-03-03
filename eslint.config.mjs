@@ -71,7 +71,7 @@ export default defineConfig([
 
             parserOptions: {
                 projectService: true,
-                tsconfigRootDir: '/',
+                tsconfigRootDir: __dirname,
             },
         },
 
