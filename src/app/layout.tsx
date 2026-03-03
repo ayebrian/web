@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import {Suspense} from 'react';
 import {RootContainer} from '@/components/root-container';
+import {BackendProvider} from '@/backend.context';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -24,7 +25,9 @@ export default function RootLayout({
             </head>
             <body className="bg-[#fafafa]">
                 <Suspense>
-                    <RootContainer>{children}</RootContainer>
+                    <BackendProvider>
+                        <RootContainer>{children}</RootContainer>
+                    </BackendProvider>
                 </Suspense>
             </body>
         </html>

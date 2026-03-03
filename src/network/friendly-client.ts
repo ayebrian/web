@@ -1,4 +1,5 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, {AxiosError, AxiosInstance} from 'axios';
+import {UnauthorizedError, UnknownError} from '@/network/errors';
 
 export interface FriendlyClient {
     setAuthToken(token: string | null, userId: string | null): void;
@@ -33,6 +34,30 @@ export class FriendlyClientImpl implements FriendlyClient {
                 'Content-Type': 'application/json',
             },
         });
+        this.client.interceptors.response.use(
+            response => response,
+            (error: AxiosError) => {
+                if (error.response) {
+                    const status = error.response.status;
+
+                    if (status === 401) {
+                        return Promise.reject(new UnauthorizedError());
+                    }
+
+                    return Promise.reject(
+                        new UnknownError(
+                            `status = ${status}, data = ${error.response.data}`,
+                        ),
+                    );
+                }
+
+                // if (error.request) {
+                //     return Promise.reject(new NetworkError());
+                // }
+
+                return Promise.reject(new UnknownError(error.message));
+            },
+        );
     }
 
     setAuthToken(token: string | null, userId: string | null) {
