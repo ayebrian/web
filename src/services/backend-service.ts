@@ -1,8 +1,8 @@
-import {getCookie} from "@/lib/cookies";
-import {FriendlyClient} from "@/network/friendly-client";
+import {getCookie} from '@/lib/cookies';
+import {FriendlyClient} from '@/network/friendly-client';
 
 export class BackendService {
-    constructor(private client: FriendlyClient) { }
+    constructor(private client: FriendlyClient) {}
 
     /**
      * Try to restore auth from cookies if possible.

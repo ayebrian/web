@@ -1,10 +1,6 @@
 'use client';
 
-import {
-    FriendlyClient,
-    FriendlyClientImpl,
-    UserDetailsResponse,
-} from '@/network/friendly-client';
+import {UserDetailsResponse} from '@/network/friendly-client';
 import {useEffect, useState} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
@@ -13,9 +9,9 @@ import QRCode from 'react-qr-code';
 import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
-import {getCookie, removeCookie} from '@/lib/cookies';
+import {removeCookie} from '@/lib/cookies';
 import {useRouter} from 'next/navigation';
-import {useBackend} from "@/backend.context";
+import {useBackend} from '@/backend.context';
 
 interface Friend {
     username: string;

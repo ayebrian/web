@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosInstance} from 'axios';
-import {UnauthorizedError, UnknownError} from "@/network/errors";
+import {UnauthorizedError, UnknownError} from '@/network/errors';
 
 export interface FriendlyClient {
     setAuthToken(token: string | null, userId: string | null): void;
@@ -45,7 +45,9 @@ export class FriendlyClientImpl implements FriendlyClient {
                     }
 
                     return Promise.reject(
-                        new UnknownError(`status = ${status}, data = ${error.response.data}`)
+                        new UnknownError(
+                            `status = ${status}, data = ${error.response.data}`,
+                        ),
                     );
                 }
 
@@ -54,7 +56,7 @@ export class FriendlyClientImpl implements FriendlyClient {
                 // }
 
                 return Promise.reject(new UnknownError(error.message));
-            }
+            },
         );
     }
 
