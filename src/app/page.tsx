@@ -12,6 +12,8 @@ import Link from 'next/link';
 import {removeCookie} from '@/lib/cookies';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
+import {useUserStore} from "@/stores/user.store";
+import {log} from "next/dist/server/typescript/utils";
 
 interface Friend {
     username: string;
@@ -206,52 +208,58 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
 
-    const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
-        null,
-    );
+    const { user, loading, load, logout } = useUserStore();
 
-    const loadData = async () => {
-        const isAuthenticated = backend.restoreAuthorizationIsPossible();
+    // const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
+    //     null,
+    // );
 
-        if (!isAuthenticated) {
-            await logOut();
-            return;
-        }
-
-        const details = await backend.getUserDetails();
-        setUserDetails(details);
-    };
-
-    const logOut = async () => {
-        removeCookie('userId');
-        removeCookie('token');
-        router.push('/signIn');
-    };
+    // const loadData = async () => {
+    //     const isAuthenticated = backend.restoreAuthorizationIsPossible();
+    //
+    //     if (!isAuthenticated) {
+    //         await logOut();
+    //         return;
+    //     }
+    //
+    //     const details = await backend.getUserDetails();
+    //     setUserDetails(details);
+    // };
+    //
+    // const logOut = async () => {
+    //     removeCookie('userId');
+    //     removeCookie('token');
+    //     router.push('/signIn');
+    // };
 
     useEffect(() => {
-        void loadData();
+        void load(backend, () => {
+            logout(router);
+        });
     }, []);
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
                 <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {!userDetails ? (
+                    {loading ? (
                         <div className="flex h-[50vh] w-full items-center justify-center">
                             <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2 pb-12">
                             <ProfileHeader
-                                userDetails={userDetails}
-                                logOut={logOut}
+                                userDetails={user}
+                                logOut={() => {
+                                    logout(router);
+                                }}
                             />
                             <Separator className="dark:bg-zinc-800" />
 
                             <div className="flex flex-col md:flex-row gap-2">
                                 <div className="w-full flex flex-col gap-2 p-8">
                                     <InterestsBlock
-                                        interests={userDetails?.interests ?? []}
+                                        interests={user?.interests ?? []}
                                     />
                                     <Separator className="my-4 dark:bg-zinc-800" />
                                     <FriendsBlock />
