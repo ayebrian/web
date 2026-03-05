@@ -12,6 +12,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {useUserStore} from '@/stores/user.store';
+import {createFriendInviteLink} from '@/lib/utils';
 
 interface Friend {
     username: string;
@@ -181,7 +182,11 @@ function QrCodeCard({url}: {url: string}) {
             </div>
             <div className="w-full flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl border border-zinc-200">
-                    <QRCode value={url} className="w-32 h-32" />
+                    {url ? (
+                        <QRCode value={url} className="w-32 h-32" />
+                    ) : (
+                        <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+                    )}
                 </div>
             </div>
             <div className="w-full flex flex-row gap-2">
@@ -209,7 +214,9 @@ export default function Home() {
     const {user, inviteToken, loading, load, logout} = useUserStore();
     const qrCodeUrl = useMemo(
         () =>
-            `https://friendly-social.github.io/landing/#/%23?reference=add/${user?.id}/${inviteToken}`,
+            user?.id && inviteToken
+                ? createFriendInviteLink(user.id, inviteToken)
+                : null,
         [inviteToken],
     );
 
