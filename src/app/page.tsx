@@ -1,7 +1,7 @@
 'use client';
 
 import {UserDetailsResponse} from '@/network/friendly-client';
-import {useEffect} from 'react';
+import {use, useEffect, useMemo, useState} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -168,7 +168,7 @@ function FriendsBlock() {
     );
 }
 
-function QrCodeCard() {
+function QrCodeCard({url}: {url: string}) {
     return (
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-6 p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
             <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
@@ -181,7 +181,7 @@ function QrCodeCard() {
             </div>
             <div className="w-full flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl border border-zinc-200">
-                    <QRCode value="hey" className="w-32 h-32" />
+                    <QRCode value={url} className="w-32 h-32" />
                 </div>
             </div>
             <div className="w-full flex flex-row gap-2">
@@ -206,7 +206,12 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
 
-    const {user, loading, load, logout} = useUserStore();
+    const {user, inviteToken, loading, load, logout} = useUserStore();
+    const qrCodeUrl = useMemo(
+        () =>
+            `https://friendly-social.github.io/landing/#/%23?reference=add/${user?.id}/${inviteToken}`,
+        [inviteToken],
+    );
 
     // const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
     //     null,
@@ -262,7 +267,7 @@ export default function Home() {
                                     <Separator className="my-4 dark:bg-zinc-800" />
                                     <FriendsBlock />
                                 </div>
-                                <QrCodeCard />
+                                <QrCodeCard url={qrCodeUrl} />
                             </div>
                         </div>
                     )}
