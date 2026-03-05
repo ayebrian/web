@@ -47,4 +47,9 @@ export class BackendService {
             socialLink,
         });
     }
+
+    async generateFriendInvitationToken(): Promise<string | null> {
+        const result = await this.client.generateFriendInvitationToken();
+        return result.token;
+    }
 }
