@@ -1,7 +1,7 @@
 'use client';
 
 import {UserDetailsResponse} from '@/network/friendly-client';
-import {use, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
