@@ -1,7 +1,5 @@
 'use client';
 
-import {FriendlyClient, FriendlyClientImpl} from '@/network/friendly-client';
-import {setCookie} from '@/lib/cookies';
 import {Button} from '@/components/ui/button';
 import {useState} from 'react';
 import {Input} from '@/components/ui/input';
@@ -12,7 +10,7 @@ import {
     ItemTitle,
 } from '@/components/ui/item';
 import {useRouter} from 'next/navigation';
-import { useBackend } from '@/backend.context';
+import {useBackend} from '@/backend.context';
 
 interface PageState {
     nickname: string;
@@ -24,7 +22,7 @@ interface PageState {
 export default function SignInPage() {
     const router = useRouter();
     const backend = useBackend();
-    
+
     const [state, setState] = useState<PageState>({
         nickname: '',
         description: '',
@@ -36,9 +34,7 @@ export default function SignInPage() {
         const auth = await backend.generateAccount(
             state.nickname,
             state.description,
-            state.interests
-                .split(',')
-                .map(interest => interest.trim()),
+            state.interests.split(',').map(interest => interest.trim()),
             null, // Avatar
             state.socialLink.length > 0 ? state.socialLink : null,
         );

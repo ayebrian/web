@@ -1,7 +1,7 @@
 'use client';
 
 import {UserDetailsResponse} from '@/network/friendly-client';
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -9,11 +9,9 @@ import QRCode from 'react-qr-code';
 import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
-import {removeCookie} from '@/lib/cookies';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
-import {useUserStore} from "@/stores/user.store";
-import {log} from "next/dist/server/typescript/utils";
+import {useUserStore} from '@/stores/user.store';
 
 interface Friend {
     username: string;
@@ -208,7 +206,7 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
 
-    const { user, loading, load, logout } = useUserStore();
+    const {user, loading, load, logout} = useUserStore();
 
     // const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
     //     null,
