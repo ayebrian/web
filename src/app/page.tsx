@@ -169,7 +169,7 @@ function FriendsBlock() {
     );
 }
 
-function QrCodeCard({url}: {url: string}) {
+function QrCodeCard({url}: {url: string | null}) {
     return (
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-6 p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
             <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
