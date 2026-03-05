@@ -12,8 +12,7 @@ import {
     ItemTitle,
 } from '@/components/ui/item';
 import {useRouter} from 'next/navigation';
-
-const client: FriendlyClient = new FriendlyClientImpl();
+import { useBackend } from '@/backend.context';
 
 interface PageState {
     nickname: string;
@@ -24,7 +23,8 @@ interface PageState {
 
 export default function SignInPage() {
     const router = useRouter();
-
+    const backend = useBackend();
+    
     const [state, setState] = useState<PageState>({
         nickname: '',
         description: '',
@@ -33,22 +33,19 @@ export default function SignInPage() {
     });
 
     const registerAccount = async () => {
-        const auth = await client.generateAccount({
-            nickname: state.nickname,
-            description: state.description,
-            interests: state.interests
+        const auth = await backend.generateAccount(
+            state.nickname,
+            state.description,
+            state.interests
                 .split(',')
                 .map(interest => interest.trim()),
-            avatar: null,
-            socialLink: state.socialLink.length > 0 ? state.socialLink : null,
-        });
+            null, // Avatar
+            state.socialLink.length > 0 ? state.socialLink : null,
+        );
         console.log(auth);
-        client.setAuthToken(auth.token, auth.id.toString());
-        const details = await client.getUserDetails();
+        backend.storeAuthorization(auth.token, auth.id.toString());
+        const details = await backend.getUserDetails();
         console.log(details);
-
-        setCookie('userId', auth.id.toString());
-        setCookie('token', auth.token);
 
         router.push('/');
     };
