@@ -193,10 +193,16 @@ function QrCodeCard({url}: {url: string | null}) {
                 <Button
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
+                    onClick={() => {
+                        // TODO: Show toast about successful copying
+                        void navigator.clipboard.writeText(url ?? '');
+                    }}
                 >
                     <Copy className="w-4 h-4 mr-2" /> Copy
                 </Button>
+                {/* TODO: Impl saving QR as file (Do we really need this?) */}
                 <Button
+                    hidden={true}
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                 >
