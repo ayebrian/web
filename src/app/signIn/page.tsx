@@ -1,7 +1,6 @@
 'use client';
 
 import {Button} from '@/components/ui/button';
-import {useState} from 'react';
 import {Input} from '@/components/ui/input';
 import {
     Item,
@@ -11,32 +10,31 @@ import {
 } from '@/components/ui/item';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
-
-interface PageState {
-    nickname: string;
-    description: string;
-    interests: string;
-    socialLink: string;
-}
+import {useSignUpStore} from '@/stores/signup.store';
 
 export default function SignInPage() {
     const router = useRouter();
     const backend = useBackend();
 
-    const [state, setState] = useState<PageState>({
-        nickname: '',
-        description: '',
-        interests: '',
-        socialLink: '',
-    });
+    const {
+        nickname,
+        description,
+        interests,
+        socialLink,
+
+        setNickname,
+        setDescription,
+        setInterests,
+        setSocialLink,
+    } = useSignUpStore();
 
     const registerAccount = async () => {
         const auth = await backend.generateAccount(
-            state.nickname,
-            state.description,
-            state.interests.split(',').map(interest => interest.trim()),
+            nickname,
+            description,
+            interests.split(',').map(interest => interest.trim()),
             null, // Avatar
-            state.socialLink.length > 0 ? state.socialLink : null,
+            socialLink.length > 0 ? socialLink : null,
         );
         console.log(auth);
         backend.storeAuthorization(auth.token, auth.id.toString());
@@ -51,28 +49,26 @@ export default function SignInPage() {
             <Input
                 type="text"
                 placeholder="Nickname"
-                value={state.nickname}
-                onChange={e => setState({...state, nickname: e.target.value})}
+                value={nickname}
+                onChange={e => setNickname(e.target.value)}
             />
             <Input
                 type="text"
                 placeholder="Description"
-                value={state.description}
-                onChange={e =>
-                    setState({...state, description: e.target.value})
-                }
+                value={description}
+                onChange={e => setDescription(e.target.value)}
             />
             <Input
                 type="text"
                 placeholder="Interests (separated by ,)"
-                value={state.interests}
-                onChange={e => setState({...state, interests: e.target.value})}
+                value={interests}
+                onChange={e => setInterests(e.target.value)}
             />
             <Input
                 type="text"
                 placeholder="Social link (Optinal)"
-                value={state.socialLink}
-                onChange={e => setState({...state, socialLink: e.target.value})}
+                value={socialLink}
+                onChange={e => setSocialLink(e.target.value)}
             />
             <Item variant="outline">
                 <ItemContent>
@@ -87,9 +83,9 @@ export default function SignInPage() {
                     void registerAccount();
                 }}
                 disabled={
-                    state.nickname.length < 3 ||
-                    state.description.length < 3 ||
-                    state.interests.length < 1
+                    nickname.length < 3 ||
+                    description.length < 3 ||
+                    interests.length < 1
                 }
             >
                 Create account
