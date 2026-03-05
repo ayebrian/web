@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
 interface SignUpState {
     nickname: string;
@@ -17,8 +17,8 @@ export const useSignUpStore = create<SignUpState>(set => ({
     interests: '',
     socialLink: '',
 
-    setNickname: nickname => set({ nickname }),
-    setDescription: description => set({ description }),
-    setInterests: interests => set({ interests }),
-    setSocialLink: socialLink => set({ socialLink }),
+    setNickname: nickname => set({nickname}),
+    setDescription: description => set({description}),
+    setInterests: interests => set({interests}),
+    setSocialLink: socialLink => set({socialLink}),
 }));
