@@ -6,6 +6,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 
 interface UserState {
     user: UserDetailsResponse | null;
+    inviteToken: string | null;
     loading: boolean;
     load: (
         backend: BackendService,
@@ -16,6 +17,7 @@ interface UserState {
 
 export const useUserStore = create<UserState>(set => ({
     user: null,
+    inviteToken: null,
     loading: true,
 
     load: async (backend, onUnauthorized) => {
@@ -27,9 +29,11 @@ export const useUserStore = create<UserState>(set => ({
         }
 
         const details = await backend.getUserDetails();
+        const inviteToken = await backend.generateFriendInvitationToken();
 
         set({
             user: details,
+            inviteToken: inviteToken,
             loading: false,
         });
     },

@@ -11,7 +11,7 @@ export interface FriendlyClient {
         id: number,
         accessHash: string,
     ): Promise<UserDetailsResponse>;
-    uploadFile(file: File): Promise<UploadFileResponse>;
+    uploadFile(file: File): Promise<FileDescriptor>;
     downloadFile(id: number, accessHash: string): Promise<Blob>;
     generateFriendInvitationToken(): Promise<GenerateFriendInvitationTokenResponse>;
     addFriend(request: AddFriendRequest): Promise<string>;
@@ -102,11 +102,11 @@ export class FriendlyClientImpl implements FriendlyClient {
         return response.data;
     }
 
-    async uploadFile(file: File): Promise<UploadFileResponse> {
+    async uploadFile(file: File): Promise<FileDescriptor> {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await this.client.post<UploadFileResponse>(
+        const response = await this.client.post<FileDescriptor>(
             '/files/upload',
             formData,
             {
@@ -215,10 +215,11 @@ export interface UserDetailsResponse {
     nickname: string;
     description: string;
     interests: string[];
-    avatar: string | null;
+    avatar: FileDescriptor | null;
+    socialLink: string | null;
 }
 
-export interface UploadFileResponse {
+export interface FileDescriptor {
     id: number;
     accessHash: string;
 }
@@ -243,9 +244,7 @@ export interface DeclineFriendRequest {
 }
 
 export interface NetworkDetailsResponse {
-    friendCount: number;
-    commonFriends: number;
-    mutualConnections: number;
+    friends: UserDetailsResponse[];
 }
 
 export interface FeedItem {
