@@ -8,16 +8,17 @@
 An official frontend for Friendly.
 
 ## Support table
-| Feature | State |
-| -- | -- |
-| Account registering | Partial |
-| Profile information | Partial |
-| Profile editing | - |
-| Network profiles | - |
-| Feed | - |
-| Handling invite links | - |
+
+| Feature               | FED                                                                                                                                         | State |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| Profile               | [fed-00002-profile-mvp.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00002-profile-mvp.md)   | Partial |
+| Profile Edit          | [fed-00001-profile-edit.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00001-profile-edit.md) | -       |
+| Network profiles      | _In progress_                                                                                                     | -       |
+| Feed                  | _In progress_                                                                                                     | -       |
+| Handling invite links | _In progress_                                                                                                     | -       |
 
 ## Quick start
+
 ```bash
 git clone https://github.com/friendly-social/web.git
 cd web
