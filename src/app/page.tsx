@@ -12,7 +12,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {useUserStore} from '@/stores/user.store';
-import {createFriendInviteLink} from '@/lib/utils';
+import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useNetworkStore} from '@/stores/network.store';
 
 function ProfileHeader({
@@ -88,12 +88,15 @@ function InterestsBlock({interests}: {interests: string[]}) {
 }
 
 function FriendCard({friend}: {friend: UserDetailsResponse}) {
+    const avatarUrl = useMemo(
+        () => (friend.avatar ? createFileLink(friend.avatar) : ''),
+        [friend],
+    );
+
     return (
         <div className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
             <Avatar className="w-16 h-16">
-                <AvatarImage
-                    src={`https://github.com/${friend.nickname}.png`}
-                />
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
                     {friend?.nickname.toString().slice(0, 2)}
                 </AvatarFallback>
