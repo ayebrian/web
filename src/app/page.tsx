@@ -22,12 +22,15 @@ function ProfileHeader({
     userDetails: UserDetailsResponse | null;
     logOut: () => void;
 }) {
+    const avatarUrl = useMemo(
+        () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
+        [userDetails],
+    );
+
     return (
         <div className="flex flex-row gap-6 w-full p-8">
             <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
-                <AvatarImage
-                    src={`https://github.com/${userDetails?.nickname}.png`}
-                />
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
                     {userDetails?.nickname.toString().slice(0, 2)}
                 </AvatarFallback>
