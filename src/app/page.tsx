@@ -12,41 +12,8 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {useUserStore} from '@/stores/user.store';
-import {createFriendInviteLink} from '@/lib/utils';
-
-interface Friend {
-    username: string;
-    description: string;
-    avatar: string | null;
-}
-
-const fakeFriends: Friend[] = [
-    // {
-    //     username: 'Mark Zukeberg',
-    //     description: 'CEO of Winux',
-    //     avatar: null,
-    // },
-    // {
-    //     username: 'dorivan',
-    //     description: 'Python enjoyer, car master and just your friend.',
-    //     avatar: null,
-    // },
-    // {
-    //     username: 'nikita8888',
-    //     description: 'i am so dumb',
-    //     avatar: null,
-    // },
-    // {
-    //     username: 'oclikk',
-    //     description: 'Youtuber and programmer',
-    //     avatar: null,
-    // },
-    // {
-    //     username: 'y9san9',
-    //     description: 'Founder of Friendly',
-    //     avatar: null,
-    // },
-];
+import {createFileLink, createFriendInviteLink} from '@/lib/utils';
+import {useNetworkStore} from '@/stores/network.store';
 
 function ProfileHeader({
     userDetails,
@@ -120,19 +87,22 @@ function InterestsBlock({interests}: {interests: string[]}) {
     );
 }
 
-function FriendCard({friend}: {friend: Friend}) {
+function FriendCard({friend}: {friend: UserDetailsResponse}) {
+    const avatarUrl = useMemo(
+        () => (friend.avatar ? createFileLink(friend.avatar) : ''),
+        [friend],
+    );
+
     return (
         <div className="w-40 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
             <Avatar className="w-16 h-16">
-                <AvatarImage
-                    src={`https://github.com/${friend.username}.png`}
-                />
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
-                    {friend?.username.toString().slice(0, 2)}
+                    {friend?.nickname.toString().slice(0, 2)}
                 </AvatarFallback>
             </Avatar>
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                {friend?.username}
+                {friend?.nickname}
             </p>
             <p className="text-sm text-neutral-500 dark:text-zinc-400 text-center">
                 {friend?.description.substring(0, 16)}
@@ -143,6 +113,13 @@ function FriendCard({friend}: {friend: Friend}) {
 }
 
 function FriendsBlock() {
+    const backend = useBackend();
+    const networkDetails = useNetworkStore();
+
+    useEffect(() => {
+        void networkDetails.load(backend);
+    }, []);
+
     return (
         <div className="flex flex-col gap-2">
             <h3 className="flex flex-row gap-2 mb-2">
@@ -152,18 +129,19 @@ function FriendsBlock() {
                 <Link
                     href="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
-                    hidden={fakeFriends.length < 1}
+                    hidden={networkDetails.friends.length < 1}
                 >
                     All friends
                 </Link>
             </h3>
             <div className="flex flex-row gap-2 flex-nowrap">
-                {fakeFriends.slice(0, 3).map(friend => (
-                    <FriendCard key={friend.username} friend={friend} />
+                {networkDetails.friends.slice(0, 3).map(friend => (
+                    <FriendCard key={friend.id} friend={friend} />
                 ))}
-                <p hidden={fakeFriends.length > 0}>
-                    Nobody likes you, you have no friends.
+                <p hidden={networkDetails.friends.length > 0}>
+                    You have no any frieds yet.
                 </p>
+                <p hidden={!networkDetails.loading}>Loading...</p>
             </div>
         </div>
     );
