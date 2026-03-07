@@ -1,5 +1,8 @@
 import {getCookie, setCookie} from '@/lib/cookies';
-import {FriendlyClient} from '@/network/friendly-client';
+import {
+    FriendlyClient,
+    NetworkDetailsResponse,
+} from '@/network/friendly-client';
 
 export class BackendService {
     constructor(private client: FriendlyClient) {}
@@ -51,5 +54,9 @@ export class BackendService {
     async generateFriendInvitationToken(): Promise<string | null> {
         const result = await this.client.generateFriendInvitationToken();
         return result.token;
+    }
+
+    async getNetworkDetails(): Promise<NetworkDetailsResponse> {
+        return this.client.getNetworkDetails();
     }
 }

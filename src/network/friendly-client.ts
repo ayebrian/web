@@ -216,6 +216,7 @@ export interface UserDetailsResponse {
     description: string;
     interests: string[];
     avatar: string | null;
+    socialLink: string | null;
 }
 
 export interface UploadFileResponse {
@@ -243,9 +244,7 @@ export interface DeclineFriendRequest {
 }
 
 export interface NetworkDetailsResponse {
-    friendCount: number;
-    commonFriends: number;
-    mutualConnections: number;
+    friends: UserDetailsResponse[];
 }
 
 export interface FeedItem {
