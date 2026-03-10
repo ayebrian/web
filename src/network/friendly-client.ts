@@ -1,5 +1,6 @@
 import axios, {AxiosError, AxiosInstance} from 'axios';
 import {UnauthorizedError, UnknownError} from '@/network/errors';
+import {backendConfig} from './backend-config';
 
 export interface FriendlyClient {
     setAuthToken(token: string | null, userId: string | null): void;
@@ -26,7 +27,7 @@ export class FriendlyClientImpl implements FriendlyClient {
     private baseUrl: string;
     private authToken: string | null = null;
 
-    constructor(baseUrl: string = 'https://api.getfriend.ly/') {
+    constructor(baseUrl: string = backendConfig.prod) {
         this.baseUrl = baseUrl;
         this.client = axios.create({
             baseURL: this.baseUrl,
