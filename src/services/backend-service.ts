@@ -1,5 +1,6 @@
 import {getCookie, setCookie} from '@/lib/cookies';
 import {
+    FileDescriptor,
     FriendlyClient,
     NetworkDetailsResponse,
 } from '@/network/friendly-client';
@@ -39,7 +40,7 @@ export class BackendService {
         nickname: string,
         description: string,
         interests: string[],
-        avatar: string | null,
+        avatar: FileDescriptor | null,
         socialLink: string | null,
     ) {
         return this.client.generateAccount({
@@ -58,5 +59,9 @@ export class BackendService {
 
     async getNetworkDetails(): Promise<NetworkDetailsResponse> {
         return this.client.getNetworkDetails();
+    }
+
+    async uploadFile(file: File): Promise<FileDescriptor> {
+        return this.client.uploadFile(file);
     }
 }
