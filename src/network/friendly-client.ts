@@ -200,7 +200,7 @@ export interface GenerateAccountRequest {
     nickname: string;
     description: string;
     interests: string[];
-    avatar: string | null;
+    avatar: FileDescriptor | null;
     socialLink: string | null;
 }
 
