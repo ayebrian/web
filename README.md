@@ -7,6 +7,8 @@
 
 An official frontend for Friendly.
 
+[CONTRIBUTION](docs/CONTRIBUTION.md)
+
 ## Support table
 
 | Feature               | FED                                                                                                                                         | State |
