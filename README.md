@@ -16,7 +16,7 @@ An official frontend for Friendly.
 | Profile               | [fed-00002-profile-mvp.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00002-profile-mvp.md)   | Partial |
 | Profile Edit          | [fed-00001-profile-edit.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00001-profile-edit.md) | -       |
 | Network profiles      | _In progress_                                                                                                     | -       |
-| Feed                  | _In progress_                                                                                                     | -       |
+| Feed                  | [fed-00003-feed.md](https://github.com/friendly-social/knowledge/blob/main/fed/fed-00003-feed.md)                 | -       |
 | Handling invite links | _In progress_                                                                                                     | -       |
 
 ## Quick start
