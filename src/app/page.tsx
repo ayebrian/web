@@ -207,28 +207,6 @@ export default function Home() {
         [inviteToken],
     );
 
-    // const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
-    //     null,
-    // );
-
-    // const loadData = async () => {
-    //     const isAuthenticated = backend.restoreAuthorizationIsPossible();
-    //
-    //     if (!isAuthenticated) {
-    //         await logOut();
-    //         return;
-    //     }
-    //
-    //     const details = await backend.getUserDetails();
-    //     setUserDetails(details);
-    // };
-    //
-    // const logOut = async () => {
-    //     removeCookie('userId');
-    //     removeCookie('token');
-    //     router.push('/signIn');
-    // };
-
     useEffect(() => {
         void load(backend, () => {
             logout(router);
