@@ -212,7 +212,7 @@ export default function Home() {
             user?.id && inviteToken
                 ? createFriendInviteLink(user.id, inviteToken)
                 : null,
-        [inviteToken],
+        [inviteToken, user?.id],
     );
 
     useEffect(() => {
