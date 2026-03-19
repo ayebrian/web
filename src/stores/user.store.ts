@@ -7,7 +7,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 interface UserState {
     user: UserDetailsResponse | null;
     inviteToken: string | null;
-    loading: boolean;
+    status: 'idle' | 'loading' | 'error';
     load: (
         backend: BackendService,
         onUnauthorized: () => void,
@@ -18,7 +18,7 @@ interface UserState {
 export const useUserStore = create<UserState>(set => ({
     user: null,
     inviteToken: null,
-    loading: true,
+    status: 'loading',
 
     load: async (backend, onUnauthorized) => {
         const isAuthenticated = backend.restoreAuthorizationIsPossible();
@@ -28,14 +28,21 @@ export const useUserStore = create<UserState>(set => ({
             return;
         }
 
-        const details = await backend.getUserDetails();
-        const inviteToken = await backend.generateFriendInvitationToken();
+        try {
+            const details = await backend.getUserDetails();
+            const inviteToken = await backend.generateFriendInvitationToken();
 
-        set({
-            user: details,
-            inviteToken: inviteToken,
-            loading: false,
-        });
+            set({
+                user: details,
+                inviteToken: inviteToken,
+                status: 'idle',
+            });
+        } catch (error) {
+            console.error(error);
+            set({
+                status: 'error',
+            });
+        }
     },
 
     logout: router => {

@@ -6,7 +6,15 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
-import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
+import {
+    Activity,
+    Copy,
+    Loader2,
+    LogOut,
+    Pencil,
+    QrCodeIcon,
+    Save,
+} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -198,7 +206,7 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
 
-    const {user, inviteToken, loading, load, logout} = useUserStore();
+    const {user, inviteToken, status, load, logout} = useUserStore();
     const qrCodeUrl = useMemo(
         () =>
             user?.id && inviteToken
@@ -213,36 +221,49 @@ export default function Home() {
         });
     }, []);
 
+    let content;
+
+    if (status === 'loading') {
+        content = (
+            <div className="flex h-[50vh] w-full items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+            </div>
+        );
+    } else if (status === 'error') {
+        content = (
+            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+                <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
+                <h3>Something wrong...</h3>
+            </div>
+        );
+    } else {
+        content = (
+            <div className="flex flex-col gap-2 pb-12">
+                <ProfileHeader
+                    userDetails={user}
+                    logOut={() => {
+                        logout(router);
+                    }}
+                />
+                <Separator className="dark:bg-zinc-800" />
+
+                <div className="flex flex-col md:flex-row gap-2">
+                    <div className="w-full flex flex-col gap-2 p-8">
+                        <InterestsBlock interests={user?.interests ?? []} />
+                        <Separator className="my-4 dark:bg-zinc-800" />
+                        <FriendsBlock />
+                    </div>
+                    <QrCodeCard url={qrCodeUrl} />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
                 <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {loading ? (
-                        <div className="flex h-[50vh] w-full items-center justify-center">
-                            <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-2 pb-12">
-                            <ProfileHeader
-                                userDetails={user}
-                                logOut={() => {
-                                    logout(router);
-                                }}
-                            />
-                            <Separator className="dark:bg-zinc-800" />
-
-                            <div className="flex flex-col md:flex-row gap-2">
-                                <div className="w-full flex flex-col gap-2 p-8">
-                                    <InterestsBlock
-                                        interests={user?.interests ?? []}
-                                    />
-                                    <Separator className="my-4 dark:bg-zinc-800" />
-                                    <FriendsBlock />
-                                </div>
-                                <QrCodeCard url={qrCodeUrl} />
-                            </div>
-                        </div>
-                    )}
+                    {content}
                 </div>
             </div>
         </div>
