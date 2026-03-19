@@ -40,7 +40,7 @@ export default function SignInPage() {
         let avatarFileDescriptor: FileDescriptor | null = null;
 
         if (avatarFile) {
-            console.log('Uploading file...', avatarFile.bytes(), 'bytes');
+            console.log('Uploading file:', avatarFile.name);
             avatarFileDescriptor = await backend.uploadFile(avatarFile);
 
             if (avatarFileDescriptor)
@@ -99,12 +99,7 @@ export default function SignInPage() {
                     onChange={e => {
                         const files = e.target.files;
                         if (files) {
-                            console.log(
-                                'Avatar file selected:',
-                                files[0].name,
-                                files[0].bytes(),
-                                'bytes',
-                            );
+                            console.log('Avatar file selected:', files[0].name);
 
                             setAvatarFile(files[0]);
                         }
