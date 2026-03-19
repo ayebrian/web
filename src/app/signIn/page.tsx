@@ -7,7 +7,7 @@ import {useBackend} from '@/backend.context';
 import {useSignUpStore} from '@/stores/signup.store';
 import {FileDescriptor} from '@/network/friendly-client';
 import {Avatar, AvatarImage} from '@/components/ui/avatar';
-import {useMemo, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {UploadIcon} from 'lucide-react';
 import {cn} from '@/lib/utils';
 
@@ -31,9 +31,14 @@ export default function SignInPage() {
 
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
-    const avatarBlobUrl = useMemo(() => {
+    const [avatarBlobUrl, setAvatarBlobUrl] = useState<string | null>(null);
+    useEffect(() => {
         // eslint-disable-next-line n/no-unsupported-features/node-builtins
-        return avatarFile ? URL.createObjectURL(avatarFile) : null;
+        if (avatarFile) setAvatarBlobUrl(URL.createObjectURL(avatarFile));
+        return () => {
+            // eslint-disable-next-line n/no-unsupported-features/node-builtins
+            if (avatarBlobUrl) URL.revokeObjectURL(avatarBlobUrl);
+        };
     }, [avatarFile]);
 
     const registerAccount = async () => {
