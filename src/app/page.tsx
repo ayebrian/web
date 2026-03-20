@@ -6,14 +6,22 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
-import {Copy, Loader2, LogOut, Pencil, QrCodeIcon, Save} from 'lucide-react';
+import {
+    Activity,
+    Copy,
+    Loader2,
+    LogOut,
+    Pencil,
+    QrCodeIcon,
+    Save,
+} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
-import {useUserStore} from '@/stores/user.store';
 import {createFileLink, createFriendInviteLink} from '@/lib/utils';
-import {useNetworkStore} from '@/stores/network.store';
+import {useQuery} from '@tanstack/react-query';
+import {removeCookie} from '@/lib/cookies';
 
 function ProfileHeader({
     userDetails,
@@ -115,14 +123,7 @@ function FriendCard({friend}: {friend: UserDetailsResponse}) {
     );
 }
 
-function FriendsBlock() {
-    const backend = useBackend();
-    const networkDetails = useNetworkStore();
-
-    useEffect(() => {
-        void networkDetails.load(backend);
-    }, []);
-
+function FriendsBlock({friends}: {friends: UserDetailsResponse[]}) {
     return (
         <div className="flex flex-col gap-2">
             <h3 className="flex flex-row gap-2 mb-2">
@@ -132,19 +133,16 @@ function FriendsBlock() {
                 <Link
                     href="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
-                    hidden={networkDetails.friends.length < 1}
+                    hidden={friends.length < 1}
                 >
                     All friends
                 </Link>
             </h3>
             <div className="flex flex-row gap-2 flex-nowrap">
-                {networkDetails.friends.slice(0, 3).map(friend => (
+                {friends.slice(0, 3).map(friend => (
                     <FriendCard key={friend.id} friend={friend} />
                 ))}
-                <p hidden={networkDetails.friends.length > 0}>
-                    You have no any frieds yet.
-                </p>
-                <p hidden={!networkDetails.loading}>Loading...</p>
+                <p hidden={friends.length > 0}>You have no any frieds yet.</p>
             </div>
         </div>
     );
@@ -198,73 +196,97 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
 
-    const {user, inviteToken, loading, load, logout} = useUserStore();
+    const isAuthed = useMemo(
+        () => backend.restoreAuthorizationIsPossible(),
+        [backend],
+    );
+
+    useEffect(() => {
+        if (!isAuthed) router.push('/signIn');
+    }, [isAuthed, router]);
+
+    const logOut = () => {
+        removeCookie('userId');
+        removeCookie('token');
+        router.push('/signIn');
+    };
+
+    const userQuery = useQuery({
+        queryKey: ['userDetails'],
+        queryFn: () => backend.getUserDetails(),
+        enabled: isAuthed,
+    });
+
+    const inviteQuery = useQuery({
+        queryKey: ['inviteToken'],
+        queryFn: () => backend.generateFriendInvitationToken(),
+        enabled: isAuthed,
+    });
+
+    const networkQuery = useQuery({
+        queryKey: ['networkDetails'],
+        queryFn: () => backend.getNetworkDetails(),
+        enabled: isAuthed,
+    });
+
+    const isLoading = userQuery.isLoading || inviteQuery.isLoading;
+    const isError = userQuery.isError || inviteQuery.isError;
+
+    const user = userQuery.data ?? null;
+    const inviteToken = inviteQuery.data ?? null;
+    const friends = networkQuery.data?.friends ?? [];
+
     const qrCodeUrl = useMemo(
         () =>
             user?.id && inviteToken
                 ? createFriendInviteLink(user.id, inviteToken)
                 : null,
-        [inviteToken],
+        [inviteToken, user?.id],
     );
 
-    // const [userDetails, setUserDetails] = useState<UserDetailsResponse | null>(
-    //     null,
-    // );
+    let content;
 
-    // const loadData = async () => {
-    //     const isAuthenticated = backend.restoreAuthorizationIsPossible();
-    //
-    //     if (!isAuthenticated) {
-    //         await logOut();
-    //         return;
-    //     }
-    //
-    //     const details = await backend.getUserDetails();
-    //     setUserDetails(details);
-    // };
-    //
-    // const logOut = async () => {
-    //     removeCookie('userId');
-    //     removeCookie('token');
-    //     router.push('/signIn');
-    // };
+    if (isLoading) {
+        content = (
+            <div className="flex h-[50vh] w-full items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+            </div>
+        );
+    } else if (isError) {
+        content = (
+            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+                <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
+                <h3>Something wrong...</h3>
+            </div>
+        );
+    } else {
+        content = (
+            <div className="flex flex-col gap-2 pb-12">
+                <ProfileHeader
+                    userDetails={user}
+                    logOut={() => {
+                        logOut();
+                    }}
+                />
+                <Separator className="dark:bg-zinc-800" />
 
-    useEffect(() => {
-        void load(backend, () => {
-            logout(router);
-        });
-    }, []);
+                <div className="flex flex-col md:flex-row gap-2">
+                    <div className="w-full flex flex-col gap-2 p-8">
+                        <InterestsBlock interests={user?.interests ?? []} />
+                        <Separator className="my-4 dark:bg-zinc-800" />
+                        <FriendsBlock friends={friends} />
+                    </div>
+                    <QrCodeCard url={qrCodeUrl} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
                 <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {loading ? (
-                        <div className="flex h-[50vh] w-full items-center justify-center">
-                            <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-2 pb-12">
-                            <ProfileHeader
-                                userDetails={user}
-                                logOut={() => {
-                                    logout(router);
-                                }}
-                            />
-                            <Separator className="dark:bg-zinc-800" />
-
-                            <div className="flex flex-col md:flex-row gap-2">
-                                <div className="w-full flex flex-col gap-2 p-8">
-                                    <InterestsBlock
-                                        interests={user?.interests ?? []}
-                                    />
-                                    <Separator className="my-4 dark:bg-zinc-800" />
-                                    <FriendsBlock />
-                                </div>
-                                <QrCodeCard url={qrCodeUrl} />
-                            </div>
-                        </div>
-                    )}
+                    {content}
                 </div>
             </div>
         </div>

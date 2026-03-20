@@ -10,14 +10,14 @@ An official frontend for Friendly.
 [CONTRIBUTION](docs/CONTRIBUTION.md)
 
 ## Support table
-
 | Feature               | FED                                                                                                                                         | State |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| Profile               | [fed-00002-profile-mvp.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00002-profile-mvp.md)   | Partial |
-| Profile Edit          | [fed-00001-profile-edit.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00001-profile-edit.md) | -       |
-| Network profiles      | _In progress_                                                                                                     | -       |
-| Feed                  | _In progress_                                                                                                     | -       |
-| Handling invite links | _In progress_                                                                                                     | -       |
+| Profile               | [fed-00002-profile-mvp.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00002-profile-mvp.md)      | Partial |
+| Profile edit          | [fed-00001-profile-edit.md](https://github.com/friendly-social/knowledge/tree/main/fed/fed-00001-profile-edit.md)    | -       |
+| Linking email         | [fed-00006-email.md](https://github.com/friendly-social/knowledge/blob/main/fed/fed-00006-email.md)                  | -       |
+| Network profiles      | _In progress_                                                                                                        | -       |
+| Add friend using QR   | [fed-00004-add-friend-qr.md](https://github.com/friendly-social/knowledge/blob/main/fed/fed-00004-add-friend-qr.md)  | Done    |
+| Feed                  | [fed-00003-feed.md](https://github.com/friendly-social/knowledge/blob/main/fed/fed-00003-feed.md)                    | -       |
 
 ## Quick start
 

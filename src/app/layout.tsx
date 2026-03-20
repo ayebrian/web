@@ -3,6 +3,7 @@ import './globals.css';
 import {Suspense} from 'react';
 import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
+import {QueryProvider} from '@/components/query-provider';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -26,7 +27,9 @@ export default function RootLayout({
             <body className="bg-[#fafafa]">
                 <Suspense>
                     <BackendProvider>
-                        <RootContainer>{children}</RootContainer>
+                        <QueryProvider>
+                            <RootContainer>{children}</RootContainer>
+                        </QueryProvider>
                     </BackendProvider>
                 </Suspense>
             </body>
