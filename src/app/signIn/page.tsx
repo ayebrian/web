@@ -4,30 +4,21 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
-import {useSignUpStore} from '@/stores/signup.store';
-import {FileDescriptor} from '@/network/friendly-client';
 import {Avatar, AvatarImage} from '@/components/ui/avatar';
 import {useEffect, useRef, useState} from 'react';
 import {UploadIcon} from 'lucide-react';
 import {cn} from '@/lib/utils';
+import {useMutation} from '@tanstack/react-query';
 
 export default function SignInPage() {
     const router = useRouter();
     const backend = useBackend();
 
-    const {
-        nickname,
-        description,
-        interests,
-        socialLink,
-        avatarFile,
-
-        setNickname,
-        setDescription,
-        setInterests,
-        setSocialLink,
-        setAvatarFile,
-    } = useSignUpStore();
+    const [nickname, setNickname] = useState('');
+    const [description, setDescription] = useState('');
+    const [interests, setInterests] = useState('');
+    const [socialLink, setSocialLink] = useState('');
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -41,35 +32,29 @@ export default function SignInPage() {
         };
     }, [avatarFile]);
 
-    const registerAccount = async () => {
-        let avatarFileDescriptor: FileDescriptor | null = null;
+    const uploadMutation = useMutation({
+        mutationFn: (file: File) => backend.uploadFile(file),
+    });
 
-        if (avatarFile) {
-            console.log('Uploading file:', avatarFile.name);
-            avatarFileDescriptor = await backend.uploadFile(avatarFile);
+    const createAccountMutation = useMutation({
+        mutationFn: async () => {
+            const avatarFileDescriptor = avatarFile
+                ? await uploadMutation.mutateAsync(avatarFile)
+                : null;
 
-            if (avatarFileDescriptor)
-                console.log(
-                    'Avatar file uploaded. id =',
-                    avatarFileDescriptor.id,
-                );
-            else console.warn('Avatar file not uploaded. Why?');
-        }
-
-        const auth = await backend.generateAccount(
-            nickname,
-            description,
-            interests.split(',').map(interest => interest.trim()),
-            avatarFileDescriptor,
-            socialLink.length > 0 ? socialLink : null,
-        );
-        console.log(auth);
-        backend.storeAuthorization(auth.token, auth.id.toString());
-        const details = await backend.getUserDetails();
-        console.log(details);
-
-        router.push('/');
-    };
+            return backend.generateAccount(
+                nickname,
+                description,
+                interests.split(',').map(interest => interest.trim()),
+                avatarFileDescriptor,
+                socialLink.length > 0 ? socialLink : null,
+            );
+        },
+        onSuccess: auth => {
+            backend.storeAuthorization(auth.token, auth.id.toString());
+            router.push('/');
+        },
+    });
 
     return (
         <div className="p-8 md:p-64 flex flex-col gap-4">
@@ -135,25 +120,19 @@ export default function SignInPage() {
                 value={socialLink}
                 onChange={e => setSocialLink(e.target.value)}
             />
-            {/* <Item variant="outline"> */}
-            {/* <ItemContent> */}
-            {/* <ItemTitle>TODO</ItemTitle> */}
-            {/* <ItemDescription>Avatar field is missing.</ItemDescription> */}
-            {/* </ItemContent> */}
-            {/* </Item> */}
-
             <Button
                 className="cursor-pointer"
-                onClick={() => {
-                    void registerAccount();
-                }}
+                onClick={() => createAccountMutation.mutate()}
                 disabled={
+                    createAccountMutation.isPending ||
                     nickname.length < 3 ||
                     description.length < 3 ||
                     interests.length < 1
                 }
             >
-                Create account
+                {createAccountMutation.isPending
+                    ? 'Loading...'
+                    : 'Create account'}
             </Button>
         </div>
     );
