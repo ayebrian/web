@@ -21,7 +21,7 @@ import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
-import {removeCookie} from '@/lib/cookies';
+import {useSession} from '@/components/session-provider';
 
 function ProfileHeader({
     userDetails,
@@ -195,41 +195,39 @@ function QrCodeCard({url}: {url: string | null}) {
 export default function Home() {
     const router = useRouter();
     const backend = useBackend();
-
-    const isAuthed = useMemo(
-        () => backend.restoreAuthorizationIsPossible(),
-        [backend],
-    );
+    const session = useSession();
 
     useEffect(() => {
-        if (!isAuthed) router.push('/signIn');
-    }, [isAuthed, router]);
+        if (session.status === 'guest') router.push('/signIn');
+    }, [session.status, router]);
 
     const logOut = () => {
-        removeCookie('userId');
-        removeCookie('token');
+        session.logOut();
         router.push('/signIn');
     };
 
     const userQuery = useQuery({
         queryKey: ['userDetails'],
         queryFn: () => backend.getUserDetails(),
-        enabled: isAuthed,
+        enabled: session.status === 'authed',
     });
 
     const inviteQuery = useQuery({
         queryKey: ['inviteToken'],
         queryFn: () => backend.generateFriendInvitationToken(),
-        enabled: isAuthed,
+        enabled: session.status === 'authed',
     });
 
     const networkQuery = useQuery({
         queryKey: ['networkDetails'],
         queryFn: () => backend.getNetworkDetails(),
-        enabled: isAuthed,
+        enabled: session.status === 'authed',
     });
 
-    const isLoading = userQuery.isLoading || inviteQuery.isLoading;
+    const isLoading =
+        session.status === 'loading' ||
+        userQuery.isLoading ||
+        inviteQuery.isLoading;
     const isError = userQuery.isError || inviteQuery.isError;
 
     const user = userQuery.data ?? null;
@@ -246,7 +244,9 @@ export default function Home() {
 
     let content;
 
-    if (isLoading) {
+    if (session.status === 'guest') {
+        content = null;
+    } else if (isLoading) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />

@@ -1,4 +1,4 @@
-import {getCookie, setCookie} from '@/lib/cookies';
+import {getCookie, removeCookie, setCookie} from '@/lib/cookies';
 import {
     FileDescriptor,
     FriendlyClient,
@@ -30,6 +30,12 @@ export class BackendService {
 
         setCookie('token', token);
         setCookie('userId', userId);
+    }
+
+    clearAuthorization() {
+        this.client.setAuthToken(null, null);
+        removeCookie('token');
+        removeCookie('userId');
     }
 
     async getUserDetails() {
