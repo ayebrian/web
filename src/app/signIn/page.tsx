@@ -9,10 +9,12 @@ import {useEffect, useRef, useState} from 'react';
 import {UploadIcon} from 'lucide-react';
 import {cn} from '@/lib/utils';
 import {useMutation} from '@tanstack/react-query';
+import {useSession} from '@/components/session-provider';
 
 export default function SignInPage() {
     const router = useRouter();
     const backend = useBackend();
+    const session = useSession();
 
     const [nickname, setNickname] = useState('');
     const [description, setDescription] = useState('');
@@ -52,6 +54,7 @@ export default function SignInPage() {
         },
         onSuccess: auth => {
             backend.storeAuthorization(auth.token, auth.id.toString());
+            session.setAuthed();
             router.push('/');
         },
     });

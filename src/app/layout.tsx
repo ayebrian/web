@@ -4,6 +4,7 @@ import {Suspense} from 'react';
 import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
 import {QueryProvider} from '@/components/query-provider';
+import {SessionProvider} from '@/components/session-provider';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -27,9 +28,11 @@ export default function RootLayout({
             <body className="bg-[#fafafa]">
                 <Suspense>
                     <BackendProvider>
-                        <QueryProvider>
-                            <RootContainer>{children}</RootContainer>
-                        </QueryProvider>
+                        <SessionProvider>
+                            <QueryProvider>
+                                <RootContainer>{children}</RootContainer>
+                            </QueryProvider>
+                        </SessionProvider>
                     </BackendProvider>
                 </Suspense>
             </body>
