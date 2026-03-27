@@ -19,6 +19,7 @@ import {Button} from '@/components/ui/button';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
+import {formatNetworkError} from '@/services/backend-service';
 import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
@@ -224,15 +225,33 @@ export default function Home() {
         enabled: session.status === 'authed',
     });
 
+    const userResult = userQuery.data ?? null;
+    const inviteResult = inviteQuery.data ?? null;
+    const networkResult = networkQuery.data ?? null;
+
+    const hasResultError =
+        (userResult && !userResult.ok) ||
+        (inviteResult && !inviteResult.ok) ||
+        (networkResult && !networkResult.ok);
+
+    const errorMessage =
+        userResult && !userResult.ok
+            ? formatNetworkError(userResult.error)
+            : inviteResult && !inviteResult.ok
+              ? formatNetworkError(inviteResult.error)
+              : networkResult && !networkResult.ok
+                ? formatNetworkError(networkResult.error)
+                : null;
+
     const isLoading =
         session.status === 'loading' ||
         userQuery.isLoading ||
         inviteQuery.isLoading;
-    const isError = userQuery.isError || inviteQuery.isError;
+    const isError = userQuery.isError || inviteQuery.isError || hasResultError;
 
-    const user = userQuery.data ?? null;
-    const inviteToken = inviteQuery.data ?? null;
-    const friends = networkQuery.data?.friends ?? [];
+    const user = userResult?.ok ? userResult.data : null;
+    const inviteToken = inviteResult?.ok ? inviteResult.data : null;
+    const friends = networkResult?.ok ? networkResult.data.friends : [];
 
     const qrCodeUrl = useMemo(
         () =>
@@ -256,7 +275,7 @@ export default function Home() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3>Something wrong...</h3>
+                <h3>{errorMessage ?? 'Something wrong...'}</h3>
             </div>
         );
     } else {

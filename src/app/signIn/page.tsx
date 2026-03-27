@@ -10,6 +10,8 @@ import {UploadIcon} from 'lucide-react';
 import {cn} from '@/lib/utils';
 import {useMutation} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
+import {err} from '@/network/result';
+import {formatNetworkError} from '@/services/backend-service';
 
 export default function SignInPage() {
     const router = useRouter();
@@ -21,6 +23,7 @@ export default function SignInPage() {
     const [interests, setInterests] = useState('');
     const [socialLink, setSocialLink] = useState('');
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,16 +47,27 @@ export default function SignInPage() {
                 ? await uploadMutation.mutateAsync(avatarFile)
                 : null;
 
+            if (avatarFile && avatarFileDescriptor && !avatarFileDescriptor.ok) {
+                return err(avatarFileDescriptor.error);
+            }
+
             return backend.generateAccount(
                 nickname,
                 description,
                 interests.split(',').map(interest => interest.trim()),
-                avatarFileDescriptor,
+                avatarFileDescriptor && avatarFileDescriptor.ok
+                    ? avatarFileDescriptor.data
+                    : null,
                 socialLink.length > 0 ? socialLink : null,
             );
         },
+        onMutate: () => setFormError(null),
         onSuccess: auth => {
-            backend.storeAuthorization(auth.token, auth.id.toString());
+            if (!auth.ok) {
+                setFormError(formatNetworkError(auth.error));
+                return;
+            }
+            backend.storeAuthorization(auth.data.token, auth.data.id.toString());
             session.setAuthed();
             router.push('/');
         },
@@ -61,6 +75,9 @@ export default function SignInPage() {
 
     return (
         <div className="p-8 md:p-64 flex flex-col gap-4">
+            {formError ? (
+                <div className="text-sm text-red-500">{formError}</div>
+            ) : null}
             <div className="w-full flex justify-center">
                 <button
                     className="relative cursor-pointer group"

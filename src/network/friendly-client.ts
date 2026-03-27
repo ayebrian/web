@@ -1,25 +1,35 @@
-import axios, {AxiosError, AxiosInstance} from 'axios';
-import {UnauthorizedError, UnknownError} from '@/network/errors';
+import axios, {AxiosInstance} from 'axios';
+import {NetworkError} from '@/network/errors';
 import {backendConfig} from './backend-config';
+import {err, ok, Result} from './result';
 
 export interface FriendlyClient {
     setAuthToken(token: string | null, userId: string | null): void;
     generateAccount(
         request: GenerateAccountRequest,
-    ): Promise<GenerateAccountResponse>;
-    getUserDetails(): Promise<UserDetailsResponse>;
+    ): Promise<Result<GenerateAccountResponse, NetworkError>>;
+    getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>>;
     getUserDetailsById(
         id: number,
         accessHash: string,
-    ): Promise<UserDetailsResponse>;
-    uploadFile(file: File): Promise<FileDescriptor>;
-    downloadFile(id: number, accessHash: string): Promise<Blob>;
-    generateFriendInvitationToken(): Promise<GenerateFriendInvitationTokenResponse>;
-    addFriend(request: AddFriendRequest): Promise<string>;
-    sendFriendRequest(request: SendFriendRequest): Promise<void>;
-    declineFriendRequest(request: DeclineFriendRequest): Promise<void>;
-    getNetworkDetails(): Promise<NetworkDetailsResponse>;
-    getFeedQueue(): Promise<FeedQueueResponse>;
+    ): Promise<Result<UserDetailsResponse, NetworkError>>;
+    uploadFile(file: File): Promise<Result<FileDescriptor, NetworkError>>;
+    downloadFile(
+        id: number,
+        accessHash: string,
+    ): Promise<Result<Blob, NetworkError>>;
+    generateFriendInvitationToken(): Promise<
+        Result<GenerateFriendInvitationTokenResponse, NetworkError>
+    >;
+    addFriend(request: AddFriendRequest): Promise<Result<string, NetworkError>>;
+    sendFriendRequest(
+        request: SendFriendRequest,
+    ): Promise<Result<void, NetworkError>>;
+    declineFriendRequest(
+        request: DeclineFriendRequest,
+    ): Promise<Result<void, NetworkError>>;
+    getNetworkDetails(): Promise<Result<NetworkDetailsResponse, NetworkError>>;
+    getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -35,30 +45,41 @@ export class FriendlyClientImpl implements FriendlyClient {
                 'Content-Type': 'application/json',
             },
         });
-        this.client.interceptors.response.use(
-            response => response,
-            (error: AxiosError) => {
-                if (error.response) {
-                    const status = error.response.status;
+    }
 
-                    if (status === 401) {
-                        return Promise.reject(new UnauthorizedError());
+    private async safeRequest<T>(
+        promise: Promise<T>,
+    ): Promise<Result<T, NetworkError>> {
+        try {
+            const data = await promise;
+            return ok(data);
+        } catch (e) {
+            if (axios.isAxiosError(e)) {
+                if (e.response) {
+                    if (e.response.status === 401) {
+                        return err({
+                            type: 'unauthorized',
+                            status: e.response.status,
+                        });
                     }
 
-                    return Promise.reject(
-                        new UnknownError(
-                            `status = ${status}, data = ${error.response.data}`,
-                        ),
-                    );
+                    return err({
+                        type: 'unknown',
+                        message: `status=${e.response.status}`,
+                    });
                 }
 
-                // if (error.request) {
-                //     return Promise.reject(new NetworkError());
-                // }
+                return err({
+                    type: 'network',
+                    message: e.message,
+                });
+            }
 
-                return Promise.reject(new UnknownError(error.message));
-            },
-        );
+            return err({
+                type: 'unknown',
+                message: e instanceof Error ? e.message : 'unknown',
+            });
+        }
     }
 
     setAuthToken(token: string | null, userId: string | null) {
@@ -74,125 +95,113 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async generateAccount(
         request: GenerateAccountRequest,
-    ): Promise<GenerateAccountResponse> {
-        const response = await this.client.post<GenerateAccountResponse>(
-            '/auth/generate',
-            request,
+    ): Promise<Result<GenerateAccountResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post<GenerateAccountResponse>('/auth/generate', request)
+                .then(r => r.data),
         );
-        return response.data;
     }
 
-    async getUserDetails(): Promise<UserDetailsResponse> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        const response =
-            await this.client.get<UserDetailsResponse>('/users/details');
-        return response.data;
+    async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .get<UserDetailsResponse>('/users/details')
+                .then(r => r.data),
+        );
     }
 
     async getUserDetailsById(
         id: number,
         accessHash: string,
-    ): Promise<UserDetailsResponse> {
-        const response = await this.client.get<UserDetailsResponse>(
-            `/users/details/${id}/${accessHash}`,
+    ): Promise<Result<UserDetailsResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .get<UserDetailsResponse>(`/users/details/${id}/${accessHash}`)
+                .then(r => r.data),
         );
-        return response.data;
     }
 
-    async uploadFile(file: File): Promise<FileDescriptor> {
+    async uploadFile(
+        file: File,
+    ): Promise<Result<FileDescriptor, NetworkError>> {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await this.client.post<FileDescriptor>(
-            '/files/upload',
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            },
+        return this.safeRequest(
+            this.client
+                .post<FileDescriptor>('/files/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                })
+                .then(r => r.data),
         );
-        return response.data;
     }
 
-    async downloadFile(id: number, accessHash: string): Promise<Blob> {
-        const response = await this.client.get<Blob>(
-            `/files/download/${id}/${accessHash}`,
-            {
-                responseType: 'blob',
-            },
+    async downloadFile(
+        id: number,
+        accessHash: string,
+    ): Promise<Result<Blob, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .get<Blob>(`/files/download/${id}/${accessHash}`, {
+                    responseType: 'blob',
+                })
+                .then(r => r.data),
         );
-        return response.data;
     }
 
-    async generateFriendInvitationToken(): Promise<GenerateFriendInvitationTokenResponse> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        const response =
-            await this.client.post<GenerateFriendInvitationTokenResponse>(
-                '/friends/generate',
-            );
-        return response.data;
-    }
-
-    async addFriend(request: AddFriendRequest): Promise<string> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        const response = await this.client.post<string>(
-            '/friends/add',
-            request,
+    async generateFriendInvitationToken(): Promise<
+        Result<GenerateFriendInvitationTokenResponse, NetworkError>
+    > {
+        return this.safeRequest(
+            this.client
+                .post<GenerateFriendInvitationTokenResponse>(
+                    '/friends/generate',
+                )
+                .then(r => r.data),
         );
-        return response.data;
     }
 
-    async sendFriendRequest(request: SendFriendRequest): Promise<void> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        await this.client.post('/friends/request', request);
+    async addFriend(
+        request: AddFriendRequest,
+    ): Promise<Result<string, NetworkError>> {
+        return this.safeRequest(
+            this.client.post<string>('/friends/add', request).then(r => r.data),
+        );
     }
 
-    async declineFriendRequest(request: DeclineFriendRequest): Promise<void> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        await this.client.post('/friends/decline', request);
+    async sendFriendRequest(
+        request: SendFriendRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client.post('/friends/request', request).then(() => undefined),
+        );
     }
 
-    async getNetworkDetails(): Promise<NetworkDetailsResponse> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        const response =
-            await this.client.get<NetworkDetailsResponse>('/network/details');
-        return response.data;
+    async declineFriendRequest(
+        request: DeclineFriendRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client.post('/friends/decline', request).then(() => undefined),
+        );
     }
 
-    async getFeedQueue(): Promise<FeedQueueResponse> {
-        if (!this.authToken) {
-            throw new Error(
-                'Authorization token is required for this endpoint.',
-            );
-        }
-        const response =
-            await this.client.get<FeedQueueResponse>('/feed/queue');
-        return response.data;
+    async getNetworkDetails(): Promise<
+        Result<NetworkDetailsResponse, NetworkError>
+    > {
+        return this.safeRequest(
+            this.client
+                .get<NetworkDetailsResponse>('/network/details')
+                .then(r => r.data),
+        );
+    }
+
+    async getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client.get<FeedQueueResponse>('/feed/queue').then(r => r.data),
+        );
     }
 }
 
