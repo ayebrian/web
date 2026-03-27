@@ -7,7 +7,6 @@ import {
     QueryClientProvider,
 } from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
-import {UnauthorizedError} from '@/network/errors';
 import {useSession} from '@/components/session-provider';
 import {useRouter} from 'next/navigation';
 
@@ -30,20 +29,20 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
         () =>
             new QueryClient({
                 queryCache: new QueryCache({
-                    onError: error => {
-                        if (error instanceof UnauthorizedError) {
-                            sessionRef.current.logOut();
-                            routerRef.current.push('/signIn');
-                        }
-                    },
+                    // onError: error => {
+                    //     if (error instanceof UnauthorizedError) {
+                    //         sessionRef.current.logOut();
+                    //         routerRef.current.push('/signIn');
+                    //     }
+                    // },
                 }),
                 mutationCache: new MutationCache({
-                    onError: error => {
-                        if (error instanceof UnauthorizedError) {
-                            sessionRef.current.logOut();
-                            routerRef.current.push('/signIn');
-                        }
-                    },
+                    // onError: error => {
+                    // if (error instanceof UnauthorizedError) {
+                    // sessionRef.current.logOut();
+                    // routerRef.current.push('/signIn');
+                    // }
+                    // },
                 }),
             }),
     );

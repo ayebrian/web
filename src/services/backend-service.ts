@@ -2,8 +2,33 @@ import {getCookie, removeCookie, setCookie} from '@/lib/cookies';
 import {
     FileDescriptor,
     FriendlyClient,
+    GenerateAccountResponse,
     NetworkDetailsResponse,
+    UserDetailsResponse,
 } from '@/network/friendly-client';
+import {NetworkError} from '@/network/errors';
+import {err, ok, Result} from '@/network/result';
+
+export function formatNetworkError(error: NetworkError): string {
+    switch (error.type) {
+        case 'unauthorized':
+            return `Unauthorized (status ${error.status})`;
+        case 'network':
+            return `Network error: ${error.message}`;
+        case 'parse':
+            return `Parse error: ${error.message}`;
+        case 'unknown':
+        default:
+            return `Unknown error: ${error.message}`;
+    }
+}
+
+export function mapResult<T, U>(
+    result: Result<T, NetworkError>,
+    map: (value: T) => U,
+): Result<U, NetworkError> {
+    return result.ok ? ok(map(result.data)) : err(result.error);
+}
 
 export class BackendService {
     constructor(private client: FriendlyClient) {}
@@ -38,7 +63,7 @@ export class BackendService {
         removeCookie('userId');
     }
 
-    async getUserDetails() {
+    async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
         return await this.client.getUserDetails();
     }
 
@@ -48,7 +73,7 @@ export class BackendService {
         interests: string[],
         avatar: FileDescriptor | null,
         socialLink: string | null,
-    ) {
+    ): Promise<Result<GenerateAccountResponse, NetworkError>> {
         return this.client.generateAccount({
             nickname,
             description,
@@ -58,16 +83,22 @@ export class BackendService {
         });
     }
 
-    async generateFriendInvitationToken(): Promise<string | null> {
+    async generateFriendInvitationToken(): Promise<
+        Result<string, NetworkError>
+    > {
         const result = await this.client.generateFriendInvitationToken();
-        return result.token;
+        return mapResult(result, data => data.token);
     }
 
-    async getNetworkDetails(): Promise<NetworkDetailsResponse> {
-        return this.client.getNetworkDetails();
+    async getNetworkDetails(): Promise<
+        Result<NetworkDetailsResponse, NetworkError>
+    > {
+        return await this.client.getNetworkDetails();
     }
 
-    async uploadFile(file: File): Promise<FileDescriptor> {
-        return this.client.uploadFile(file);
+    async uploadFile(
+        file: File,
+    ): Promise<Result<FileDescriptor, NetworkError>> {
+        return await this.client.uploadFile(file);
     }
 }
