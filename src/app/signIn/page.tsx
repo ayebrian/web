@@ -112,6 +112,7 @@ export default function SignInPage() {
                     className="hidden"
                     ref={avatarInputRef}
                     type="file"
+                    accept="image/*"
                     placeholder="Avatar"
                     onChange={e => {
                         const files = e.target.files;
