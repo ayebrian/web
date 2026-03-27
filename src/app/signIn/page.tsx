@@ -47,7 +47,11 @@ export default function SignInPage() {
                 ? await uploadMutation.mutateAsync(avatarFile)
                 : null;
 
-            if (avatarFile && avatarFileDescriptor && !avatarFileDescriptor.ok) {
+            if (
+                avatarFile &&
+                avatarFileDescriptor &&
+                !avatarFileDescriptor.ok
+            ) {
                 return err(avatarFileDescriptor.error);
             }
 
@@ -67,7 +71,10 @@ export default function SignInPage() {
                 setFormError(formatNetworkError(auth.error));
                 return;
             }
-            backend.storeAuthorization(auth.data.token, auth.data.id.toString());
+            backend.storeAuthorization(
+                auth.data.token,
+                auth.data.id.toString(),
+            );
             session.setAuthed();
             router.push('/');
         },
