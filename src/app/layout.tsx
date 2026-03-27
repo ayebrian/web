@@ -23,7 +23,6 @@ export default function RootLayout({
                     name="viewport"
                     content="initial-scale=1, width=device-width"
                 />
-                <title>Friendly Web</title>
             </head>
             <body className="bg-[#fafafa]">
                 <Suspense>
