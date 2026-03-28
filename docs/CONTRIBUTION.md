@@ -2,9 +2,7 @@
 All work on Friendly Web happens directly on GitHub. Both core team members and external contributors submit pull requests which go through the same review process.
 
 # Semantic Versioning
-This project follows <a href="https://semver.org/">semantic versioning</a>. We release patch versions for critical bug fixes, minor versions for new features or non-essential changes, and major versions for any breaking or major changes.
-
-Full version format: `major.minor.patch-branch+commit`
+<a href="https://github.com/friendly-social/knowledge/blob/main/PROCESS.md#releases">https://github.com/friendly-social/knowledge/blob/main/PROCESS.md#releases</a>
 
 # Branch Organisation
 Submit all changes only to the <a href="https://github.com/friendly-social/web/tree/dev">dev branch</a>. Code that lands in the `dev` branch can contain any kind of changes related to project and its goals. Core team can create alternative branches based on the dev branch instead of working in forks.
