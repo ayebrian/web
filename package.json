@@ -5,6 +5,8 @@
   "packageManager": "bun@1.3.0",
   "scripts": {
     "dev": "next dev --turbopack",
+    "compile": "tsc -p tsconfig.json --noEmit --pretty false",
+    "watch": "tsc -p tsconfig.json --noEmit --pretty false -w",
     "build": "next build",
     "start": "next start",
     "format": "eslint --fix '**/*.ts*'",
