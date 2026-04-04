@@ -1,6 +1,8 @@
 # How To Contribute
 All work on Friendly Web happens directly on GitHub. Both core team members and external contributors submit pull requests which go through the same review process.
 
+P.S. If you're on Windows - don't forget to force EOL replacing for git: `git config --global core.autocrlf true`
+
 # Semantic Versioning
 <a href="https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases">https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases</a>
 
