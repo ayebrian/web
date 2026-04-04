@@ -9,6 +9,7 @@ import {SessionProvider} from '@/components/session-provider';
 export const metadata: Metadata = {
     title: 'Friendly Web',
     description: 'Web client for Friendly',
+    manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -23,6 +24,7 @@ export default function RootLayout({
                     name="viewport"
                     content="initial-scale=1, width=device-width"
                 />
+                <link rel="manifest" href="manifest.json" />
             </head>
             <body className="bg-[#fafafa]">
                 <Suspense>
