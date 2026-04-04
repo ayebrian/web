@@ -2,7 +2,7 @@
 All work on Friendly Web happens directly on GitHub. Both core team members and external contributors submit pull requests which go through the same review process.
 
 # Semantic Versioning
-<a href="https://github.com/friendly-social/knowledge/blob/main/PROCESS.md#releases">https://github.com/friendly-social/knowledge/blob/main/PROCESS.md#releases</a>
+<a href="https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases">https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases</a>
 
 # Branch Organisation
 Submit all changes only to the <a href="https://github.com/friendly-social/web/tree/dev">dev branch</a>. Code that lands in the `dev` branch can contain any kind of changes related to project and its goals. Core team can create alternative branches based on the dev branch instead of working in forks.
