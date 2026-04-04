@@ -7,7 +7,7 @@ export function setCookie<T>(key: string, value: T, days: number = 7): void {
     const expires = `expires=${date.toUTCString()}`;
     const stringValue = JSON.stringify(value);
 
-    document.cookie = `${key}=${encodeURIComponent(stringValue)}; ${expires}; path=/; SameSite=Lax`;
+    document.cookie = `${key}=${encodeURIComponent(stringValue)}; ${expires}; path=/; SameSite=None; Secure`;
 }
 
 export function getCookie<T>(key: string): T | null {
