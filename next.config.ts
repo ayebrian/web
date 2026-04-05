@@ -1,6 +1,7 @@
 import type {NextConfig} from 'next';
 import manifest from './package.json';
 import {execSync} from 'child_process';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 function run(cmd: string) {
     return execSync(cmd).toString().trim();
@@ -17,7 +18,8 @@ function getCommitHash(): string {
 
 const longVersionName = `${manifest.version}-${getGitBranchFormatted()}+${getCommitHash()}`;
 
-const nextConfig: NextConfig = {
+const withNextIntl = createNextIntlPlugin();
+const nextConfig: NextConfig = withNextIntl({
     output: 'export',
     basePath: '',
     images: {
@@ -26,6 +28,6 @@ const nextConfig: NextConfig = {
     env: {
         NEXT_PUBLIC_APP_VERSION: longVersionName,
     },
-};
+});
 
 export default nextConfig;
