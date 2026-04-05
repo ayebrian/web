@@ -5,7 +5,8 @@ import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
 import {QueryProvider} from '@/components/query-provider';
 import {SessionProvider} from '@/components/session-provider';
-import {NextIntlClientProvider, useLocale} from 'next-intl';
+import {useLocale} from 'next-intl';
+import IntlProvider from '@/components/intl-provider';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -37,9 +38,9 @@ export default function RootLayout({
                     <BackendProvider>
                         <SessionProvider>
                             <QueryProvider>
-                                <NextIntlClientProvider>
+                                <IntlProvider>
                                     <RootContainer>{children}</RootContainer>
-                                </NextIntlClientProvider>
+                                </IntlProvider>
                             </QueryProvider>
                         </SessionProvider>
                     </BackendProvider>
