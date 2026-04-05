@@ -5,7 +5,7 @@ import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
 import {QueryProvider} from '@/components/query-provider';
 import {SessionProvider} from '@/components/session-provider';
-import {NextIntlClientProvider} from 'next-intl';
+import {NextIntlClientProvider, useLocale} from 'next-intl';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -18,8 +18,10 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const locale = useLocale();
+
     return (
-        <html suppressHydrationWarning>
+        <html lang={locale} suppressHydrationWarning>
             <head>
                 <meta
                     name="viewport"
