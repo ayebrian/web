@@ -1,7 +1,12 @@
 import {getRequestConfig} from 'next-intl/server';
 
 export default getRequestConfig(async () => {
-    const locale = 'en'; // TODO: Get locale from headers or cookies
+    // const headerList = await headers();
+    // const acceptLanguage = headerList.get('accept-language');
+    // const locale = acceptLanguage?.split(',')[0].split('-')[0] || 'en';
+
+    // console.log(`Detected locale: ${locale}`);
+    const locale = 'en';
 
     return {
         locale,
