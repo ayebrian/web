@@ -187,7 +187,7 @@ function QrCodeCard({url}: {url: string | null}) {
                         void navigator.clipboard.writeText(url ?? '');
                     }}
                 >
-                    <Copy className="w-4 h-4 mr-2" /> ${t('qr_copy')}
+                    <Copy className="w-4 h-4 mr-2" /> {t('qr_copy')}
                 </Button>
                 {/* TODO: Impl saving QR as file (Do we really need this?) */}
                 <Button
