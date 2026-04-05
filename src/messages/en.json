@@ -1,5 +1,5 @@
 {
-    "signIn" : {
+    "sign_in" : {
         "loading" : "Loading...",
         "create_account": "Create account",
         "nickname" : "Nickname",

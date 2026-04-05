@@ -15,7 +15,7 @@ import {formatNetworkError} from '@/services/backend-service';
 import {useTranslations} from 'next-intl';
 
 export default function SignInPage() {
-    const t = useTranslations('signIn');
+    const t = useTranslations('sign_in');
 
     const router = useRouter();
     const backend = useBackend();
