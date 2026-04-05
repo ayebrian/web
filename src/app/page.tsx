@@ -23,7 +23,7 @@ import {formatNetworkError} from '@/services/backend-service';
 import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 
 function ProfileHeader({
     userDetails,
