@@ -11,13 +11,17 @@
         "edit_profile" : "Edit",
         "log_out" : "Log out",
         "interests" : "Interests",
-        "friends" : "Friends",
-        "see_all" : "All friends",
-        "no_friends" : "You have no any friends yet.",
-        "friend_invite_qr" : "QR code",
-        "friend_invite_qr_desc" : "Share your profile to make connections.",
-        "qr_copy" : "Copy",
-        "qr_save" : "Save",
+        "friends" : {
+            "title" : "Friends",
+            "see_all" : "All friends",
+            "no_friends" : "You have no any friends yet."
+        },
+        "qr" : {
+            "title" : "QR code",
+            "desc" : "Share your profile to make connections.",
+            "copy" : "Copy",
+            "save" : "Save"
+        },
         "unknown_error" : "An unknown error occurred."
     }
 }
