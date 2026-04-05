@@ -5,6 +5,7 @@ import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
 import {QueryProvider} from '@/components/query-provider';
 import {SessionProvider} from '@/components/session-provider';
+import {NextIntlClientProvider} from 'next-intl';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -18,7 +19,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html suppressHydrationWarning>
             <head>
                 <meta
                     name="viewport"
@@ -34,7 +35,9 @@ export default function RootLayout({
                     <BackendProvider>
                         <SessionProvider>
                             <QueryProvider>
-                                <RootContainer>{children}</RootContainer>
+                                <NextIntlClientProvider>
+                                    <RootContainer>{children}</RootContainer>
+                                </NextIntlClientProvider>
                             </QueryProvider>
                         </SessionProvider>
                     </BackendProvider>
