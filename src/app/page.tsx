@@ -136,21 +136,21 @@ function FriendsBlock({friends}: {friends: UserDetailsResponse[]}) {
         <div className="flex flex-col gap-2">
             <h3 className="flex flex-row gap-2 mb-2">
                 <p className="flex-1 text-sm font-semibold uppercase text-zinc-900 dark:text-zinc-100">
-                    {t('friends')}
+                    {t('friends.title')}
                 </p>
                 <Link
                     href="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
                     hidden={friends.length < 1}
                 >
-                    {t('see_all')}
+                    {t('friends.see_all')}
                 </Link>
             </h3>
             <div className="flex flex-row gap-2 flex-nowrap">
                 {friends.slice(0, 3).map(friend => (
                     <FriendCard key={friend.id} friend={friend} />
                 ))}
-                <p hidden={friends.length > 0}>{t('no_friends')}</p>
+                <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>
             </div>
         </div>
     );
@@ -163,10 +163,10 @@ function QrCodeCard({url}: {url: string | null}) {
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-6 p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
             <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
                 <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
-                    <QrCodeIcon className="w-4 h-4" /> {t('friend_invite_qr')}
+                    <QrCodeIcon className="w-4 h-4" /> {t('qr.title')}
                 </div>
                 <p className="text-neutral-700 dark:text-zinc-400">
-                    {t('friend_invite_qr_desc')}
+                    {t('qr.desc')}
                 </p>
             </div>
             <div className="w-full flex flex-col items-center">
@@ -187,7 +187,7 @@ function QrCodeCard({url}: {url: string | null}) {
                         void navigator.clipboard.writeText(url ?? '');
                     }}
                 >
-                    <Copy className="w-4 h-4 mr-2" /> {t('qr_copy')}
+                    <Copy className="w-4 h-4 mr-2" /> {t('qr.copy')}
                 </Button>
                 {/* TODO: Impl saving QR as file (Do we really need this?) */}
                 <Button
@@ -195,7 +195,7 @@ function QrCodeCard({url}: {url: string | null}) {
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                 >
-                    <Save className="w-4 h-4 mr-2" /> {t('qr_save')}
+                    <Save className="w-4 h-4 mr-2" /> {t('qr.save')}
                 </Button>
             </div>
         </div>
