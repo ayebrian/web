@@ -12,8 +12,11 @@ import {useMutation} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {err} from '@/network/result';
 import {formatNetworkError} from '@/services/backend-service';
+import {useTranslations} from 'next-intl';
 
 export default function SignInPage() {
+    const t = useTranslations('sign_in');
+
     const router = useRouter();
     const backend = useBackend();
     const session = useSession();
@@ -126,25 +129,25 @@ export default function SignInPage() {
             </div>
             <Input
                 type="text"
-                placeholder="Nickname"
+                placeholder={t('nickname')}
                 value={nickname}
                 onChange={e => setNickname(e.target.value)}
             />
             <Input
                 type="text"
-                placeholder="Description"
+                placeholder={t('description')}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
             />
             <Input
                 type="text"
-                placeholder="Interests (separated by ,)"
+                placeholder={t('interests')}
                 value={interests}
                 onChange={e => setInterests(e.target.value)}
             />
             <Input
                 type="text"
-                placeholder="Social link (Optinal)"
+                placeholder={t('social_link')}
                 value={socialLink}
                 onChange={e => setSocialLink(e.target.value)}
             />
@@ -159,8 +162,8 @@ export default function SignInPage() {
                 }
             >
                 {createAccountMutation.isPending
-                    ? 'Loading...'
-                    : 'Create account'}
+                    ? t('loading')
+                    : t('create_account')}
             </Button>
         </div>
     );

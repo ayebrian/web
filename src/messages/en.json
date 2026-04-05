@@ -1,0 +1,27 @@
+{
+    "sign_in" : {
+        "loading" : "Loading...",
+        "create_account": "Create account",
+        "nickname" : "Nickname",
+        "description" : "Description",
+        "interests" : "Interests (Separated by comma)",
+        "social_link" : "Social link (Optional)"
+    },
+    "profile" : {
+        "edit_profile" : "Edit",
+        "log_out" : "Log out",
+        "interests" : "Interests",
+        "friends" : {
+            "title" : "Friends",
+            "see_all" : "All friends",
+            "no_friends" : "You have no any friends yet."
+        },
+        "qr" : {
+            "title" : "QR code",
+            "desc" : "Share your profile to make connections.",
+            "copy" : "Copy",
+            "save" : "Save"
+        },
+        "unknown_error" : "An unknown error occurred."
+    }
+}

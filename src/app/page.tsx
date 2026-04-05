@@ -23,6 +23,7 @@ import {formatNetworkError} from '@/services/backend-service';
 import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
+import {useTranslations} from 'next-intl';
 
 function ProfileHeader({
     userDetails,
@@ -31,6 +32,8 @@ function ProfileHeader({
     userDetails: UserDetailsResponse | null;
     logOut: () => void;
 }) {
+    const t = useTranslations('profile');
+
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -62,7 +65,7 @@ function ProfileHeader({
                 >
                     <Link href="#">
                         <Pencil className="w-4 h-4 sm:mr-2" />
-                        <p className="hidden sm:block">Edit profile</p>
+                        <p className="hidden sm:block">{t('edit_profile')}</p>
                     </Link>
                 </Button>
                 <Button
@@ -71,7 +74,7 @@ function ProfileHeader({
                     onClick={logOut}
                 >
                     <LogOut className="w-4 h-4 sm:mr-2" />
-                    <p className="hidden sm:block">LogOut</p>
+                    <p className="hidden sm:block">{t('log_out')}</p>
                 </Button>
             </div>
         </div>
@@ -79,10 +82,12 @@ function ProfileHeader({
 }
 
 function InterestsBlock({interests}: {interests: string[]}) {
+    const t = useTranslations('profile');
+
     return (
         <div className="flex flex-col gap-2">
             <h3 className="text-sm font-semibold uppercase mb-2 text-zinc-900 dark:text-zinc-100">
-                Interests
+                {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
                 {interests.map(interest => (
@@ -125,39 +130,43 @@ function FriendCard({friend}: {friend: UserDetailsResponse}) {
 }
 
 function FriendsBlock({friends}: {friends: UserDetailsResponse[]}) {
+    const t = useTranslations('profile');
+
     return (
         <div className="flex flex-col gap-2">
             <h3 className="flex flex-row gap-2 mb-2">
                 <p className="flex-1 text-sm font-semibold uppercase text-zinc-900 dark:text-zinc-100">
-                    Friends
+                    {t('friends.title')}
                 </p>
                 <Link
                     href="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
                     hidden={friends.length < 1}
                 >
-                    All friends
+                    {t('friends.see_all')}
                 </Link>
             </h3>
             <div className="flex flex-row gap-2 flex-nowrap">
                 {friends.slice(0, 3).map(friend => (
                     <FriendCard key={friend.id} friend={friend} />
                 ))}
-                <p hidden={friends.length > 0}>You have no any frieds yet.</p>
+                <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>
             </div>
         </div>
     );
 }
 
 function QrCodeCard({url}: {url: string | null}) {
+    const t = useTranslations('profile');
+
     return (
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start gap-6 p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
             <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
                 <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
-                    <QrCodeIcon className="w-4 h-4" /> My QR Code
+                    <QrCodeIcon className="w-4 h-4" /> {t('qr.title')}
                 </div>
                 <p className="text-neutral-700 dark:text-zinc-400">
-                    Share your profile to make connections.
+                    {t('qr.desc')}
                 </p>
             </div>
             <div className="w-full flex flex-col items-center">
@@ -178,7 +187,7 @@ function QrCodeCard({url}: {url: string | null}) {
                         void navigator.clipboard.writeText(url ?? '');
                     }}
                 >
-                    <Copy className="w-4 h-4 mr-2" /> Copy
+                    <Copy className="w-4 h-4 mr-2" /> {t('qr.copy')}
                 </Button>
                 {/* TODO: Impl saving QR as file (Do we really need this?) */}
                 <Button
@@ -186,7 +195,7 @@ function QrCodeCard({url}: {url: string | null}) {
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                 >
-                    <Save className="w-4 h-4 mr-2" /> Save
+                    <Save className="w-4 h-4 mr-2" /> {t('qr.save')}
                 </Button>
             </div>
         </div>
@@ -194,6 +203,8 @@ function QrCodeCard({url}: {url: string | null}) {
 }
 
 export default function Home() {
+    const t = useTranslations('profile');
+
     const router = useRouter();
     const backend = useBackend();
     const session = useSession();
@@ -275,7 +286,7 @@ export default function Home() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3>{errorMessage ?? 'Something wrong...'}</h3>
+                <h3>{errorMessage ?? t('unknown_error')}</h3>
             </div>
         );
     } else {
