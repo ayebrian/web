@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+from minishell import shell
+
+branch = shell["git rev-parse --abbrev-ref HEAD"]
+if branch == "dev":
+    shell.exit("[rebase] Already on dev, can't rebase")
+
+print("[rebase] Fetching dev branch...")
+shell["git fetch origin dev:dev -q"]
+
+_, is_ancestor = shell.read("git merge-base --is-ancestor dev HEAD")
+if not is_ancestor:
+    shell.exit("[rebase] No new commits in dev", code=0)
+
+print("[rebase] New commits available, rebasing...")
+
+_, has_changes = shell.read("git diff-index --quiet HEAD")
+if has_changes:
+    print("[rebase] Stashing local changes...")
+    shell("git stash -q")
+
+shell("git rebase dev")
+
+if has_changes:
+    print("[rebase] Restoring local changes...")
+    shell("git stash pop -q")

@@ -8,6 +8,7 @@ import {
 import {NetworkError} from '@/network/errors';
 import {err, ok, Result} from '@/network/result';
 
+// FIXME: this is not localized
 export function formatNetworkError(error: NetworkError): string {
     switch (error.type) {
         case 'unauthorized':
@@ -65,6 +66,10 @@ export class BackendService {
     async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
         return await this.client.getUserDetails();
     }
+
+    usersEdit: typeof this.client.usersEdit = (...args) => {
+        return this.client.usersEdit(...args);
+    };
 
     async generateAccount(
         nickname: string,
