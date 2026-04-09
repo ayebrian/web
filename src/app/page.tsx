@@ -1,7 +1,7 @@
 'use client';
 
 import {UserDetailsResponse} from '@/network/friendly-client';
-import {useEffect, useMemo} from 'react';
+import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -24,6 +24,7 @@ import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
+import {EditProfileDialog} from '@/app/edit/dialog';
 
 function ProfileHeader({
     userDetails,
@@ -39,8 +40,18 @@ function ProfileHeader({
         [userDetails],
     );
 
+    const [openEdit, setOpenEdit] = useState(false);
+    const onEditClick = useCallback(() => setOpenEdit(true), [setOpenEdit]);
+
     return (
         <div className="flex flex-row gap-6 w-full p-8">
+            {userDetails && (
+                <EditProfileDialog
+                    open={openEdit}
+                    setOpen={setOpenEdit}
+                    userDetails={userDetails}
+                />
+            )}
             <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
                 <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
@@ -55,25 +66,21 @@ function ProfileHeader({
                     {userDetails?.description}
                 </p>
             </div>
-            {/* TODO: Impl profile editing and enable this btn */}
             <div className="ml-auto flex flex-col gap-2">
                 <Button
                     className="cursor-pointer"
                     variant="secondary"
-                    asChild
-                    hidden={true}
+                    onClick={onEditClick}
                 >
-                    <Link href="#">
-                        <Pencil className="w-4 h-4 sm:mr-2" />
-                        <p className="hidden sm:block">{t('edit_profile')}</p>
-                    </Link>
+                    <Pencil className="w-4 h-4" />
+                    <p className="hidden sm:block">{t('edit_profile')}</p>
                 </Button>
                 <Button
                     className="cursor-pointer"
                     variant="secondary"
                     onClick={logOut}
                 >
-                    <LogOut className="w-4 h-4 sm:mr-2" />
+                    <LogOut className="w-4 h-4" />
                     <p className="hidden sm:block">{t('log_out')}</p>
                 </Button>
             </div>
@@ -292,12 +299,7 @@ export default function Home() {
     } else {
         content = (
             <div className="flex flex-col gap-2 pb-12">
-                <ProfileHeader
-                    userDetails={user}
-                    logOut={() => {
-                        logOut();
-                    }}
-                />
+                <ProfileHeader userDetails={user} logOut={logOut} />
                 <Separator className="dark:bg-zinc-800" />
 
                 <div className="flex flex-col md:flex-row gap-2">

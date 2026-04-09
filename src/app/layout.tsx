@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import {Suspense} from 'react';
+import {Toaster} from '@/components/ui/sonner';
 import {RootContainer} from '@/components/root-container';
 import {BackendProvider} from '@/backend.context';
 import {QueryProvider} from '@/components/query-provider';
@@ -39,7 +40,10 @@ export default function RootLayout({
                         <SessionProvider>
                             <QueryProvider>
                                 <IntlProvider>
-                                    <RootContainer>{children}</RootContainer>
+                                    <RootContainer>
+                                        {children}
+                                        <Toaster />
+                                    </RootContainer>
                                 </IntlProvider>
                             </QueryProvider>
                         </SessionProvider>

@@ -13,6 +13,7 @@ export interface FriendlyClient {
         id: number,
         accessHash: string,
     ): Promise<Result<UserDetailsResponse, NetworkError>>;
+    usersEdit(request: UsersEditRequest): Promise<Result<void, NetworkError>>;
     uploadFile(file: File): Promise<Result<FileDescriptor, NetworkError>>;
     downloadFile(
         id: number,
@@ -122,6 +123,12 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
+    async usersEdit(
+        request: UsersEditRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(this.client.patch('/users/edit', request));
+    }
+
     async uploadFile(
         file: File,
     ): Promise<Result<FileDescriptor, NetworkError>> {
@@ -227,6 +234,14 @@ export interface UserDetailsResponse {
     interests: string[];
     avatar: FileDescriptor | null;
     socialLink: string | null;
+}
+
+export interface UsersEditRequest {
+    nickname: EditField<string>;
+}
+
+export interface EditField<T> {
+    value: T;
 }
 
 export interface FileDescriptor {

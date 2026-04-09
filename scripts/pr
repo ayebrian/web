@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+from minishell import shell
+
+HELP = """
+Create pr on GitHub and don't forget about all the chores.
+
+Usage: pr
+""".strip()
+
+if shell.args.h or shell.args.help:
+    shell.exit(HELP)
+
+print("[pr] Rebasing on dev branch...")
+shell("scripts/rebase")
+
+print("[pr] Formatting project...")
+shell("bun run format")
+
+print("[pr] Building just to make sure everything's ok...")
+shell("bun run compile")
+
+_, has_changes = shell.read("git diff-index --quiet HEAD")
+if has_changes:
+    print("[pr] Awaiting interactive add...")
+    shell("git add -i")
+
+    print("[pr] Awaiting commit message...")
+    shell("git commit")
+else:
+    print("[pr] No changes detected to create a commit")
+
+
+print("[pr] Pushing current branch to origin...")
+shell("git push -q")
+
+print("[pr] Awaiting pr creation...")
+
+draft = "--draft" if shell.args.draft else ""
+shell(f"gh pr create {draft} -a @me --fill-verbose")
+
+shell.print("[pr] Done!", color=shell.color.green)
