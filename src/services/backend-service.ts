@@ -1,4 +1,3 @@
-import {getCookie, removeCookie, setCookie} from '@/lib/cookies';
 import {
     FileDescriptor,
     FriendlyClient,
@@ -39,8 +38,8 @@ export class BackendService {
      * @returns true if auth restored successfully.
      */
     restoreAuthorizationIsPossible(): boolean {
-        const userId = getCookie<string>('userId');
-        const authToken = getCookie<string>('token');
+        const userId = localStorage.getItem('userId');
+        const authToken = localStorage.getItem('token');
 
         if (userId === null || authToken === null) {
             return false;
@@ -53,14 +52,14 @@ export class BackendService {
     storeAuthorization(token: string, userId: string) {
         this.client.setAuthToken(token, userId);
 
-        setCookie('token', token);
-        setCookie('userId', userId);
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('token', token);
     }
 
     clearAuthorization() {
         this.client.setAuthToken(null, null);
-        removeCookie('token');
-        removeCookie('userId');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('token');
     }
 
     async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
