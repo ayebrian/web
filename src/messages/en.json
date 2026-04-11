@@ -20,7 +20,8 @@
             "title" : "QR code",
             "desc" : "Share your profile to make connections.",
             "copy" : "Copy",
-            "save" : "Save"
+            "save" : "Save",
+            "copied": "Link Copied!"
         },
         "unknown_error" : "An unknown error occurred."
     },
@@ -29,9 +30,16 @@
         "save": "Save",
         "nickname" : "Nickname",
         "nickname-empty": "Nickname cannot be empty",
-        "nickname-long": "Nickname is too long (1024 max)",
+        "nickname-long": "Nickname is too long (256 max)",
         "description" : "Description",
+        "description-empty": "Description cannot be empty",
+        "description-long" : "Description is too long (1024 max)",
         "interests" : "Interests (Separated by comma)",
-        "social_link" : "Social link (Optional)"
+        "interests-too-many" : "Max amount of interests is 100",
+        "interest-empty" : "Cannot have empty interest",
+        "interest-too-long" : "Interest too long (64 max)",
+        "interest-duplicate" : "Interest {interest} is duplicate",
+        "social_link" : "Social link (Optional)",
+        "error-connection": "Can't get to our servers :("
     }
 }
