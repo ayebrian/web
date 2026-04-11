@@ -2,6 +2,7 @@
 
 import {UserDetailsResponse} from '@/network/friendly-client';
 import {useEffect, useMemo, useState, useCallback} from 'react';
+import {toast} from 'sonner';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -190,8 +191,8 @@ function QrCodeCard({url}: {url: string | null}) {
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
                     onClick={() => {
-                        // TODO: Show toast about successful copying
                         void navigator.clipboard.writeText(url ?? '');
+                        toast.success(t('qr.copied'));
                     }}
                 >
                     <Copy className="w-4 h-4 mr-2" /> {t('qr.copy')}

@@ -42,7 +42,7 @@ export default function RootLayout({
                                 <IntlProvider>
                                     <RootContainer>
                                         {children}
-                                        <Toaster />
+                                        <Toaster richColors />
                                     </RootContainer>
                                 </IntlProvider>
                             </QueryProvider>
