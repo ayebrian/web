@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from minishell import shell
+
+HELP = """
+Add, amend commit and force push.
+
+Usage: amend [-af] [--all] [--force]
+
+Options:
+
+* -a, --all:      Use `git add .` instead of `git add -i`
+* -f, --force:    Ignore safe-guards and amend-commit to dev or production
+""".strip()
+
+if shell.args.h or shell.args.help:
+    shell.exit(HELP)
+
+_, has_changes = shell.read("git diff-index --quiet HEAD")
+if not has_changes:
+    shell.exit("Nothing to amend.", code=0)
+
+branch = shell["git rev-parse --abbrev-ref HEAD"]
+protected = ["main", "production"]
+if branch in protected and not shell.args.f and not shell.args.force:
+    shell.exit(f"Error: trying to amend {branch} branch. Use --force if are sure.")
+
+print("[amend] Formatting project...")
+shell("bun run format")
+
+print("[amend] Building just to make sure everything's ok...")
+shell("bun run compile")
+
+if shell.args.a or shell.args.all:
+    shell("git add .")
+else:
+    print("[amend] Awaiting interactive add...")
+    shell("git add -i")
+
+print("[amend] Pushing changes packed in previous commit...")
+shell("git commit --amend --no-edit -q")
+shell("git push --force-with-lease -q") # cool thingy, read about it if you don't know already
+
+shell.print("[amend] Done!", color=shell.color.green)
