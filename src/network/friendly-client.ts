@@ -272,12 +272,23 @@ export interface NetworkDetailsResponse {
     friends: UserDetailsResponse[];
 }
 
-export interface FeedItem {
+export interface CommonFriend {
     id: number;
-    type: string;
-    // content: Record<string, any>; // Content can be any JSON object
+    accessHash: string;
+    nickname: string;
+    description: string;
+    interests: string[];
+    avatar: FileDescriptor | null;
+    socialLink: string;
+}
+
+export interface FeedItem {
+    isRequest: boolean;
+    isExtendedNetwork: boolean;
+    commonFriends: CommonFriend[];
+    details: UserDetailsResponse;
 }
 
 export interface FeedQueueResponse {
-    items: FeedItem[];
+    entries: FeedItem[];
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import {UserDetailsResponse} from '@/network/friendly-client';
+import {FeedItem, UserDetailsResponse} from '@/network/friendly-client';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
@@ -8,12 +8,15 @@ import {Separator} from '@/components/ui/separator';
 import QRCode from 'react-qr-code';
 import {
     Activity,
+    Check,
     Copy,
+    Heart,
     Loader2,
     LogOut,
     Pencil,
     QrCodeIcon,
     Save,
+    X,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
@@ -25,6 +28,393 @@ import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
+import {toast} from 'sonner';
+
+type SwipeDirection = 'left' | 'right';
+
+function getFeedItemKey(item: FeedItem) {
+    return `${item.details.id}-${item.isRequest ? 'request' : 'suggested'}`;
+}
+
+function FeedEmptyState() {
+    const t = useTranslations('profile.feed');
+
+    return (
+        <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-6 text-center dark:border-zinc-800 dark:bg-zinc-900/40">
+            <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+                {t('empty_title')}
+            </h3>
+            <p className="mt-2 max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
+                {t('empty_desc')}
+            </p>
+        </div>
+    );
+}
+
+function FeedReviewDeck({
+    cards,
+    isLoading,
+    isRefetching,
+    isError,
+    errorMessage,
+    onRetry,
+    onReview,
+}: {
+    cards: FeedItem[];
+    isLoading: boolean;
+    isRefetching: boolean;
+    isError: boolean;
+    errorMessage: string | null;
+    onRetry: () => void;
+    onReview: (card: FeedItem, direction: SwipeDirection) => Promise<void>;
+}) {
+    const t = useTranslations('profile.feed');
+    const [dragX, setDragX] = useState(0);
+    const [activePointerId, setActivePointerId] = useState<number | null>(null);
+    const [pendingCardId, setPendingCardId] = useState<string | null>(null);
+    const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(
+        null,
+    );
+    const [isDraggingCard, setIsDraggingCard] = useState(false);
+
+    const topCard = cards[0] ?? null;
+    const previewCards = cards.slice(0, 3);
+    const isBusy = pendingCardId !== null;
+
+    useEffect(() => {
+        setDragX(0);
+        setActivePointerId(null);
+        setDragStart(null);
+        setIsDraggingCard(false);
+    }, [topCard ? getFeedItemKey(topCard) : null]);
+
+    const commitReview = useCallback(
+        async (direction: SwipeDirection) => {
+            if (!topCard || isBusy) {
+                return;
+            }
+
+            setPendingCardId(getFeedItemKey(topCard));
+            setDragX(direction === 'right' ? 220 : -220);
+
+            try {
+                await onReview(topCard, direction);
+            } finally {
+                setPendingCardId(null);
+                setDragX(0);
+                setDragStart(null);
+                setIsDraggingCard(false);
+            }
+        },
+        [isBusy, onReview, topCard],
+    );
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-80 items-center justify-center rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex min-h-80 flex-col items-center justify-center rounded-xl border border-red-200 bg-white px-6 text-center dark:border-red-900/60 dark:bg-zinc-950">
+                <Activity className="h-8 w-8 text-red-500" />
+                <p className="mt-4 text-sm text-zinc-700 dark:text-zinc-300">
+                    {errorMessage ?? t('queue_error')}
+                </p>
+                <Button className="mt-5 cursor-pointer" onClick={onRetry}>
+                    {t('retry')}
+                </Button>
+            </div>
+        );
+    }
+
+    if (!topCard) {
+        return <FeedEmptyState />;
+    }
+
+    const acceptLabel = topCard.isRequest ? t('accept') : t('connect');
+    const leftOpacity = Math.min(Math.abs(Math.min(dragX, 0)) / 140, 1);
+    const rightOpacity = Math.min(Math.max(dragX, 0) / 140, 1);
+
+    return (
+        <div className="flex flex-col gap-3">
+            <div className="relative min-h-80 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">
+                {previewCards
+                    .slice()
+                    .reverse()
+                    .map((card, reverseIndex) => {
+                        const index = previewCards.length - 1 - reverseIndex;
+                        const isTopCard = index === 0;
+                        const scale = 1 - index * 0.02;
+                        const translateY = index * 8;
+                        const opacity = 1 - index * 0.1;
+                        const badgeLabel = card.isRequest
+                            ? t('requests_badge')
+                            : t('suggested_badge');
+                        const hint = card.isRequest
+                            ? t('request_hint')
+                            : t('suggested_hint');
+                        const avatarUrl = card.details.avatar
+                            ? createFileLink(card.details.avatar)
+                            : '';
+                        const meta = [];
+
+                        if (card.isExtendedNetwork) {
+                            meta.push(t('extended_network'));
+                        }
+
+                        if (card.commonFriends.length > 0) {
+                            meta.push(
+                                t('common_friends', {
+                                    count: card.commonFriends.length,
+                                }),
+                            );
+                        }
+
+                        return (
+                            <div
+                                key={getFeedItemKey(card)}
+                                className="absolute inset-x-3 top-3 bottom-3"
+                                style={{
+                                    transform: isTopCard
+                                        ? `translateX(${dragX}px) rotate(${dragX / 20}deg)`
+                                        : `translateY(${translateY}px) scale(${scale})`,
+                                    opacity,
+                                    zIndex: 10 - index,
+                                    transition:
+                                        isDraggingCard && isTopCard
+                                            ? 'none'
+                                            : 'transform 200ms ease, opacity 200ms ease',
+                                    touchAction: isTopCard ? 'pan-y' : 'auto',
+                                }}
+                                onPointerDown={
+                                    isTopCard
+                                        ? event => {
+                                              if (isBusy) {
+                                                  return;
+                                              }
+
+                                              setActivePointerId(
+                                                  event.pointerId,
+                                              );
+                                              setDragStart({
+                                                  x: event.clientX,
+                                                  y: event.clientY,
+                                              });
+                                              setIsDraggingCard(false);
+                                          }
+                                        : undefined
+                                }
+                                onPointerMove={
+                                    isTopCard
+                                        ? event => {
+                                              if (
+                                                  activePointerId !==
+                                                  event.pointerId
+                                              ) {
+                                                  return;
+                                              }
+
+                                              if (!dragStart) {
+                                                  return;
+                                              }
+
+                                              const deltaX =
+                                                  event.clientX - dragStart.x;
+                                              const deltaY =
+                                                  event.clientY - dragStart.y;
+
+                                              if (!isDraggingCard) {
+                                                  if (
+                                                      Math.abs(deltaX) < 12 ||
+                                                      Math.abs(deltaX) <=
+                                                          Math.abs(deltaY)
+                                                  ) {
+                                                      return;
+                                                  }
+
+                                                  event.currentTarget.setPointerCapture(
+                                                      event.pointerId,
+                                                  );
+                                                  setIsDraggingCard(true);
+                                              }
+
+                                              event.preventDefault();
+                                              setDragX(deltaX);
+                                          }
+                                        : undefined
+                                }
+                                onPointerUp={
+                                    isTopCard
+                                        ? event => {
+                                              if (
+                                                  activePointerId !==
+                                                  event.pointerId
+                                              ) {
+                                                  return;
+                                              }
+
+                                              setActivePointerId(null);
+                                              setDragStart(null);
+
+                                              if (!isDraggingCard) {
+                                                  setDragX(0);
+                                                  return;
+                                              }
+
+                                              setIsDraggingCard(false);
+
+                                              if (dragX > 96) {
+                                                  void commitReview('right');
+                                                  return;
+                                              }
+
+                                              if (dragX < -96) {
+                                                  void commitReview('left');
+                                                  return;
+                                              }
+
+                                              setDragX(0);
+                                          }
+                                        : undefined
+                                }
+                                onPointerCancel={
+                                    isTopCard
+                                        ? () => {
+                                              setActivePointerId(null);
+                                              setDragStart(null);
+                                              setIsDraggingCard(false);
+                                              setDragX(0);
+                                          }
+                                        : undefined
+                                }
+                            >
+                                <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+                                    {isTopCard && (
+                                        <>
+                                            <div
+                                                className="absolute left-4 top-4 rounded-md border border-red-200 bg-white px-2 py-1 text-[10px] font-medium uppercase text-red-500 transition-opacity dark:border-red-900/60 dark:bg-zinc-950"
+                                                style={{opacity: leftOpacity}}
+                                            >
+                                                {t('skip')}
+                                            </div>
+                                            <div
+                                                className="absolute right-4 top-4 rounded-md border border-emerald-200 bg-white px-2 py-1 text-[10px] font-medium uppercase text-emerald-600 transition-opacity dark:border-emerald-900/60 dark:bg-zinc-950"
+                                                style={{opacity: rightOpacity}}
+                                            >
+                                                {acceptLabel}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="flex items-start justify-between gap-4">
+                                        <Badge
+                                            variant="secondary"
+                                            className="rounded-md text-xs"
+                                        >
+                                            {badgeLabel}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
+                                        <div className="flex items-start gap-3">
+                                            <Avatar className="h-14 w-14 border border-zinc-200 dark:border-zinc-800">
+                                                <AvatarImage src={avatarUrl} />
+                                                <AvatarFallback className="text-sm font-semibold">
+                                                    {card.details.nickname
+                                                        .slice(0, 2)
+                                                        .toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="truncate text-lg font-semibold text-zinc-950 dark:text-zinc-50">
+                                                    {card.details.nickname}
+                                                </h3>
+                                                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                                    {hint}
+                                                </p>
+                                                {meta.length > 0 ? (
+                                                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                                        {meta.join(' • ')}
+                                                    </p>
+                                                ) : null}
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4">
+                                            <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                                                {card.details.description ||
+                                                    t('no_description')}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            {card.details.interests
+                                                .slice(0, 4)
+                                                .map(interest => (
+                                                    <Badge
+                                                        key={`${card.details.id}-${interest}`}
+                                                        variant="secondary"
+                                                        className="rounded-md text-xs"
+                                                    >
+                                                        {interest}
+                                                    </Badge>
+                                                ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 grid shrink-0 grid-cols-2 gap-2">
+                                        <Button
+                                            variant="outline"
+                                            className="h-9 cursor-pointer"
+                                            disabled={isBusy}
+                                            onPointerDown={event => {
+                                                event.stopPropagation();
+                                            }}
+                                            onClick={() => {
+                                                void commitReview('left');
+                                            }}
+                                        >
+                                            <X className="h-4 w-4" />
+                                            {t('skip')}
+                                        </Button>
+                                        <Button
+                                            className="h-9 cursor-pointer"
+                                            disabled={isBusy}
+                                            onPointerDown={event => {
+                                                event.stopPropagation();
+                                            }}
+                                            onClick={() => {
+                                                void commitReview('right');
+                                            }}
+                                        >
+                                            {topCard.isRequest ? (
+                                                <Check className="h-4 w-4" />
+                                            ) : (
+                                                <Heart className="h-4 w-4" />
+                                            )}
+                                            {acceptLabel}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+            </div>
+
+            <div className="flex items-center justify-between px-1 text-xs text-zinc-500 dark:text-zinc-400">
+                <span>{cards.length} cards</span>
+                <span>
+                    {isRefetching ? t('retry') : topCard.details.nickname}
+                </span>
+            </div>
+        </div>
+    );
+}
 
 function ProfileHeader({
     userDetails,
@@ -160,6 +550,99 @@ function FriendsBlock({friends}: {friends: UserDetailsResponse[]}) {
                 <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>
             </div>
         </div>
+    );
+}
+
+function DiscoveryFeedBlock() {
+    const t = useTranslations('profile.feed');
+    const backend = useBackend();
+
+    const feedQuery = useQuery({
+        queryKey: ['feedQueue'],
+        queryFn: () => backend.getFeedQueue(),
+    });
+
+    const [cards, setCards] = useState<FeedItem[]>([]);
+
+    useEffect(() => {
+        if (!feedQuery.data?.ok) {
+            return;
+        }
+
+        setCards(feedQuery.data.data.entries);
+    }, [feedQuery.data]);
+
+    const feedErrorMessage =
+        feedQuery.data && !feedQuery.data.ok
+            ? formatNetworkError(feedQuery.data.error)
+            : null;
+
+    const onReview = useCallback(
+        async (card: FeedItem, direction: SwipeDirection) => {
+            const request = {
+                userId: card.details.id,
+                userAccessHash: card.details.accessHash,
+            };
+
+            const result =
+                direction === 'right'
+                    ? await backend.sendFriendRequest(request)
+                    : await backend.declineFriendRequest(request);
+
+            if (!result.ok) {
+                toast.error(formatNetworkError(result.error));
+                throw new Error(formatNetworkError(result.error));
+            }
+
+            setCards(current =>
+                current.filter(
+                    item =>
+                        item.details.id !== card.details.id ||
+                        item.isRequest !== card.isRequest,
+                ),
+            );
+
+            toast.success(
+                direction === 'right'
+                    ? card.isRequest
+                        ? t('request_success')
+                        : t('accept_success')
+                    : t('skip_success'),
+            );
+        },
+        [backend, t],
+    );
+
+    return (
+        <section className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-secondary p-2 text-secondary-foreground">
+                        <Heart className="h-4 w-4" />
+                    </div>
+                    <div>
+                        <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+                            {t('title')}
+                        </h2>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                            {t('desc')}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <FeedReviewDeck
+                cards={cards}
+                isLoading={feedQuery.isLoading}
+                isRefetching={feedQuery.isRefetching}
+                isError={feedQuery.isError || Boolean(feedErrorMessage)}
+                errorMessage={feedErrorMessage}
+                onRetry={() => {
+                    void feedQuery.refetch();
+                }}
+                onReview={onReview}
+            />
+        </section>
     );
 }
 
@@ -303,10 +786,12 @@ export default function Home() {
                 <Separator className="dark:bg-zinc-800" />
 
                 <div className="flex flex-col md:flex-row gap-2">
-                    <div className="w-full flex flex-col gap-2 p-8">
+                    <div className="w-full flex flex-col gap-8 p-8">
                         <InterestsBlock interests={user?.interests ?? []} />
                         <Separator className="my-4 dark:bg-zinc-800" />
                         <FriendsBlock friends={friends} />
+                        <Separator className="dark:bg-zinc-800" />
+                        <DiscoveryFeedBlock />
                     </div>
                     <QrCodeCard url={qrCodeUrl} />
                 </div>
