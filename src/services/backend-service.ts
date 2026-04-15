@@ -1,8 +1,11 @@
 import {
+    DeclineFriendRequest,
     FileDescriptor,
+    FeedQueueResponse,
     FriendlyClient,
     GenerateAccountResponse,
     NetworkDetailsResponse,
+    SendFriendRequest,
     UserDetailsResponse,
 } from '@/network/friendly-client';
 import {NetworkError} from '@/network/errors';
@@ -98,6 +101,22 @@ export class BackendService {
         Result<NetworkDetailsResponse, NetworkError>
     > {
         return await this.client.getNetworkDetails();
+    }
+
+    async getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>> {
+        return await this.client.getFeedQueue();
+    }
+
+    async sendFriendRequest(
+        request: SendFriendRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return await this.client.sendFriendRequest(request);
+    }
+
+    async declineFriendRequest(
+        request: DeclineFriendRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return await this.client.declineFriendRequest(request);
     }
 
     async uploadFile(
