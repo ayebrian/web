@@ -238,6 +238,8 @@ export interface UserDetailsResponse {
 
 export interface UsersEditRequest {
     nickname: EditField<string>;
+    description: EditField<string>;
+    interests: EditField<string[]>;
 }
 
 export interface EditField<T> {

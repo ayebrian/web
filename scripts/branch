@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+from minishell import shell
+
+branch = shell["git branch --sort=-committerdate | fzf"]
+shell("git checkout {branch}", branch=branch)

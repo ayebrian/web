@@ -1,5 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import {UsersEditRequest} from '@/network/friendly-client';
 import {Input} from '@/components/ui/input';
+import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
 import {Save, X} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -29,6 +31,10 @@ interface EditProfileProps {
     userDetails: UserDetailsResponse;
 }
 
+// TODO:
+// * Refresh underlying page once edit is successful
+// * Support avatar and social link
+// * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
 export function EditProfileDialog({
     open,
     setOpen,
@@ -41,37 +47,94 @@ export function EditProfileDialog({
     const [nickname, setNickname] = useState(userDetails.nickname);
     const [nicknameError, setNicknameError] = useState<string | null>();
 
+    const [description, setDescription] = useState(userDetails.description);
+    const [descriptionError, setDescriptionError] = useState<string | null>();
+
+    const [interests, setInterests] = useState(
+        userDetails.interests.join(', '),
+    );
+    const [interestsError, setInterestsError] = useState<string | null>();
+
     const backend = useBackend();
 
-    function validateNickname(): boolean {
-        const value = nickname?.trim();
+    function validateNickname(): string | undefined {
         setNicknameError(null);
+        const value = nickname?.trim();
         if (!value) {
             setNicknameError(t('nickname-empty'));
-            return false;
+            return;
         }
-        if (value.length > 1024) {
+        if (value.length > 256) {
             setNicknameError(t('nickname-long'));
-            return false;
+            return;
         }
-        return true;
+        return value;
     }
 
-    function validate(): boolean {
-        let valid = true;
-        valid = valid && validateNickname();
-        return valid;
+    function validateDescription(): string | undefined {
+        setDescriptionError(null);
+        const value = description.trim();
+        if (value.length === 0) {
+            setDescriptionError(t('description-empty'));
+            return;
+        }
+        if (value.length > 1024) {
+            setDescriptionError(t('description-long'));
+            return;
+        }
+        return value;
+    }
+
+    function validateInterests(): [boolean, string[]] {
+        setInterestsError(null);
+        const value = interests.trim().split(',');
+        if (value.length > 100) {
+            setInterestsError(t('interests-too-many'));
+            return [false, []];
+        }
+        const validated: string[] = [];
+        for (let interest of value) {
+            interest = interest.trim();
+            if (interest.length === 0) {
+                setInterestsError(t('interest-empty'));
+                return [false, []];
+            }
+            if (interest.length > 64) {
+                setInterestsError(t('interest-too-long'));
+                return [false, []];
+            }
+            if (validated.includes(interest)) {
+                setInterestsError(t('interest-duplicate', {interest}));
+                return [false, []];
+            }
+            validated.push(interest);
+        }
+        console.log(validated);
+        return [true, validated];
+    }
+
+    function validate(): UsersEditRequest | undefined {
+        const nickname = validateNickname();
+        const description = validateDescription();
+        const [interestsValid, interests] = validateInterests();
+        if (!nickname || !description || !interestsValid) return;
+        return {
+            nickname: {value: nickname},
+            description: {value: description},
+            interests: {value: interests},
+        };
     }
 
     async function onSave() {
-        if (!validate()) return;
+        const validated = validate();
+        if (!validated) return;
         setLoading(true);
-        const result = await backend.usersEdit({
-            nickname: {value: nickname},
-        });
+        const result = await backend.usersEdit(validated);
         setLoading(false);
-        if (!result.ok) {
-            toast.error('Hi');
+        if (result.ok) {
+            setOpen(false);
+        } else {
+            toast.error(t('error-connection'));
         }
     }
 
@@ -116,16 +179,8 @@ export function EditProfileDialog({
                     {/*         {userDetails?.nickname.toString().slice(0, 2)} */}
                     {/*     </AvatarFallback> */}
                     {/* </Avatar> */}
-                    {/* <div className="flex flex-1 flex-col gap-2"> */}
-                    {/*     <p className="font-bold text-2xl dark:text-zinc-100"> */}
-                    {/*         {userDetails?.nickname} */}
-                    {/*     </p> */}
-                    {/*     <p className="text-neutral-700 dark:text-zinc-400"> */}
-                    {/*         {userDetails?.description} */}
-                    {/*     </p> */}
-                    {/* </div> */}
                     <div className="p-4 space-y-4">
-                        <FieldGroup>
+                        <FieldGroup className="gap-4">
                             <Field>
                                 <FieldLabel htmlFor="nickname">
                                     {t('nickname')}
@@ -137,6 +192,31 @@ export function EditProfileDialog({
                                     onChange={e => setNickname(e.target.value)}
                                 />
                                 <FieldError>{nicknameError}</FieldError>
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="description">
+                                    {t('description')}
+                                </FieldLabel>
+                                <Textarea
+                                    id="description"
+                                    value={description}
+                                    onChange={e =>
+                                        setDescription(e.target.value)
+                                    }
+                                />
+                                <FieldError>{descriptionError}</FieldError>
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="interests">
+                                    {t('interests')}
+                                </FieldLabel>
+                                <Input
+                                    id="interests"
+                                    type="text"
+                                    value={interests}
+                                    onChange={e => setInterests(e.target.value)}
+                                />
+                                <FieldError>{interestsError}</FieldError>
                             </Field>
                         </FieldGroup>
                         <div className="ml-auto flex flex-col gap-2">
