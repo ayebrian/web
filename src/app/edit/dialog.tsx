@@ -31,7 +31,17 @@ interface EditProfileProps {
     userDetails: UserDetailsResponse;
 }
 
+// This regex is not meant to be a valid check for URL.
+//
+// URL check according to specification is not applicable in this case, because
+// users will paste URLs like 'x.com/y9san9'.
+//
+// This check is meant to save from most typos made by users
+const socialLinkRegex = /^(https?:\/\/)?\S+\.\S+$/;
+
 // TODO:
+// * Migrate all validation to another file, so it can be reused in signIn page
+// * Add icons to fields
 // * Refresh underlying page once edit is successful
 // * Support avatar and social link
 // * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
@@ -50,6 +60,9 @@ export function EditProfileDialog({
     const [description, setDescription] = useState(userDetails.description);
     const [descriptionError, setDescriptionError] = useState<string | null>();
 
+    const [socialLink, setSocialLink] = useState(userDetails.socialLink ?? '');
+    const [socialLinkError, setSocialLinkError] = useState<string | null>();
+
     const [interests, setInterests] = useState(
         userDetails.interests.join(', '),
     );
@@ -59,7 +72,7 @@ export function EditProfileDialog({
 
     function validateNickname(): string | undefined {
         setNicknameError(null);
-        const value = nickname?.trim();
+        const value = nickname.trim();
         if (!value) {
             setNicknameError(t('nickname-empty'));
             return;
@@ -85,8 +98,28 @@ export function EditProfileDialog({
         return value;
     }
 
+    function validateSocialLink(): [boolean, string | null] {
+        setSocialLinkError(null);
+        const value = socialLink.trim();
+        if (value.length === 0) {
+            return [true, null];
+        }
+        if (!socialLinkRegex.test(value)) {
+            setSocialLinkError(t('social-link-invalid'));
+            return [false, null];
+        }
+        if (value.length > 2048) {
+            setSocialLinkError(t('social-link-too-long'));
+            return [false, null];
+        }
+        return [true, value];
+    }
+
     function validateInterests(): [boolean, string[]] {
         setInterestsError(null);
+        if (interests.trim().length === 0) {
+            return [true, []];
+        }
         const value = interests.trim().split(',');
         if (value.length > 100) {
             setInterestsError(t('interests-too-many'));
@@ -116,11 +149,15 @@ export function EditProfileDialog({
     function validate(): UsersEditRequest | undefined {
         const nickname = validateNickname();
         const description = validateDescription();
+        const [socialLinkValid, socialLink] = validateSocialLink();
         const [interestsValid, interests] = validateInterests();
-        if (!nickname || !description || !interestsValid) return;
+        if (!nickname || !description || !interestsValid || !socialLinkValid) {
+            return;
+        }
         return {
             nickname: {value: nickname},
             description: {value: description},
+            socialLink: {value: socialLink},
             interests: {value: interests},
         };
     }
@@ -207,6 +244,21 @@ export function EditProfileDialog({
                                 <FieldError>{descriptionError}</FieldError>
                             </Field>
                             <Field>
+                                <FieldLabel htmlFor="socialLink">
+                                    {t('social-link')}
+                                </FieldLabel>
+                                <Input
+                                    id="socialLink"
+                                    type="text"
+                                    value={socialLink}
+                                    placeholder="https://example.org"
+                                    onChange={e =>
+                                        setSocialLink(e.target.value)
+                                    }
+                                />
+                                <FieldError>{socialLinkError}</FieldError>
+                            </Field>
+                            <Field>
                                 <FieldLabel htmlFor="interests">
                                     {t('interests')}
                                 </FieldLabel>
@@ -214,6 +266,7 @@ export function EditProfileDialog({
                                     id="interests"
                                     type="text"
                                     value={interests}
+                                    placeholder={t('interests-placeholder')}
                                     onChange={e => setInterests(e.target.value)}
                                 />
                                 <FieldError>{interestsError}</FieldError>

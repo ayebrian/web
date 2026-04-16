@@ -240,6 +240,7 @@ export interface UsersEditRequest {
     nickname: EditField<string>;
     description: EditField<string>;
     interests: EditField<string[]>;
+    socialLink: EditField<string | null>;
 }
 
 export interface EditField<T> {
