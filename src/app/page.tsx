@@ -24,12 +24,17 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
-import {createFileLink, createFriendInviteLink} from '@/lib/utils';
+import {
+    createFileLink,
+    createFriendInviteLink,
+    truncateString,
+} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {toast} from 'sonner';
+import * as Dialog from '@radix-ui/react-dialog';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -55,7 +60,7 @@ function FeedEmptyState() {
 function FeedReviewDeck({
     cards,
     isLoading,
-    isRefetching,
+    isRefetching: _isRefetching, // eslint-disable-line @typescript-eslint/no-unused-vars
     isError,
     errorMessage,
     onRetry,
@@ -70,45 +75,47 @@ function FeedReviewDeck({
     onReview: (card: FeedItem, direction: SwipeDirection) => Promise<void>;
 }) {
     const t = useTranslations('profile.feed');
-    const [dragX, setDragX] = useState(0);
-    const [activePointerId, setActivePointerId] = useState<number | null>(null);
+    const [selectedCard, setSelectedCard] = useState<FeedItem | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [pendingCardId, setPendingCardId] = useState<string | null>(null);
-    const [dragStart, setDragStart] = useState<{x: number; y: number} | null>(
-        null,
-    );
-    const [isDraggingCard, setIsDraggingCard] = useState(false);
-
-    const topCard = cards[0] ?? null;
-    const previewCards = cards.slice(0, 3);
+    const [isAnimating, setIsAnimating] = useState(false);
     const isBusy = pendingCardId !== null;
 
-    useEffect(() => {
-        setDragX(0);
-        setActivePointerId(null);
-        setDragStart(null);
-        setIsDraggingCard(false);
-    }, [topCard ? getFeedItemKey(topCard) : null]);
+    const handleCardClick = (card: FeedItem) => {
+        setSelectedCard(card);
+        setIsDialogOpen(true);
+    };
 
-    const commitReview = useCallback(
-        async (direction: SwipeDirection) => {
-            if (!topCard || isBusy) {
-                return;
+    const handleReview = async (direction: SwipeDirection) => {
+        if (!selectedCard || isBusy) return;
+
+        setPendingCardId(getFeedItemKey(selectedCard));
+        setIsAnimating(true);
+
+        try {
+            await onReview(selectedCard, direction);
+
+            // Wait for fade out animation
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            // Find the current card index and show the next card
+            const currentIndex = cards.findIndex(
+                card => getFeedItemKey(card) === getFeedItemKey(selectedCard),
+            );
+            const nextIndex = currentIndex + 1;
+
+            if (nextIndex < cards.length) {
+                setSelectedCard(cards[nextIndex]);
+                setIsAnimating(false);
+            } else {
+                // No more cards, close the dialog
+                setIsDialogOpen(false);
+                setSelectedCard(null);
             }
-
-            setPendingCardId(getFeedItemKey(topCard));
-            setDragX(direction === 'right' ? 220 : -220);
-
-            try {
-                await onReview(topCard, direction);
-            } finally {
-                setPendingCardId(null);
-                setDragX(0);
-                setDragStart(null);
-                setIsDraggingCard(false);
-            }
-        },
-        [isBusy, onReview, topCard],
-    );
+        } finally {
+            setPendingCardId(null);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -132,288 +139,189 @@ function FeedReviewDeck({
         );
     }
 
-    if (!topCard) {
+    if (cards.length === 0) {
         return <FeedEmptyState />;
     }
 
-    const acceptLabel = topCard.isRequest ? t('accept') : t('connect');
-    const leftOpacity = Math.min(Math.abs(Math.min(dragX, 0)) / 140, 1);
-    const rightOpacity = Math.min(Math.max(dragX, 0) / 140, 1);
-
     return (
-        <div className="flex flex-col gap-3">
-            <div className="relative min-h-80 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">
-                {previewCards
-                    .slice()
-                    .reverse()
-                    .map((card, reverseIndex) => {
-                        const index = previewCards.length - 1 - reverseIndex;
-                        const isTopCard = index === 0;
-                        const scale = 1 - index * 0.02;
-                        const translateY = index * 8;
-                        const opacity = 1 - index * 0.1;
-                        const badgeLabel = card.isRequest
-                            ? t('requests_badge')
-                            : t('suggested_badge');
-                        const hint = card.isRequest
-                            ? t('request_hint')
-                            : t('suggested_hint');
-                        const avatarUrl = card.details.avatar
-                            ? createFileLink(card.details.avatar)
-                            : '';
-                        const meta = [];
+        <>
+            <div className="flex gap-4 overflow-x-auto pb-4">
+                {cards.map(card => {
+                    const badgeLabel = card.isRequest
+                        ? t('requests_badge')
+                        : t('suggested_badge');
+                    const avatarUrl = card.details.avatar
+                        ? createFileLink(card.details.avatar)
+                        : '';
+                    const meta = [];
 
-                        if (card.isExtendedNetwork) {
-                            meta.push(t('extended_network'));
-                        }
+                    if (card.isExtendedNetwork) {
+                        meta.push(t('extended_network'));
+                    }
 
-                        if (card.commonFriends.length > 0) {
-                            meta.push(
-                                t('common_friends', {
-                                    count: card.commonFriends.length,
-                                }),
-                            );
-                        }
+                    if (card.commonFriends.length > 0) {
+                        meta.push(
+                            t('common_friends', {
+                                count: card.commonFriends.length,
+                            }),
+                        );
+                    }
 
-                        return (
-                            <div
-                                key={getFeedItemKey(card)}
-                                className="absolute inset-x-3 top-3 bottom-3"
-                                style={{
-                                    transform: isTopCard
-                                        ? `translateX(${dragX}px) rotate(${dragX / 20}deg)`
-                                        : `translateY(${translateY}px) scale(${scale})`,
-                                    opacity,
-                                    zIndex: 10 - index,
-                                    transition:
-                                        isDraggingCard && isTopCard
-                                            ? 'none'
-                                            : 'transform 200ms ease, opacity 200ms ease',
-                                    touchAction: isTopCard ? 'pan-y' : 'auto',
-                                }}
-                                onPointerDown={
-                                    isTopCard
-                                        ? event => {
-                                              if (isBusy) {
-                                                  return;
-                                              }
+                    return (
+                        <div
+                            key={getFeedItemKey(card)}
+                            className="shrink-0 w-48 cursor-pointer"
+                            onClick={() => handleCardClick(card)}
+                        >
+                            <div className="flex flex-col items-center gap-3 bg-white dark:bg-zinc-950 hover:bg-zinc-50 hover:dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm transition-colors min-h-58">
+                                <Avatar className="w-16 h-16 border border-zinc-200 dark:border-zinc-800">
+                                    <AvatarImage src={avatarUrl} />
+                                    <AvatarFallback className="text-sm font-semibold">
+                                        {card.details.nickname
+                                            .slice(0, 2)
+                                            .toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="text-center min-w-0 flex-1">
+                                    <h3 className="truncate text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+                                        {card.details.nickname}
+                                    </h3>
+                                    <Badge
+                                        variant="secondary"
+                                        className="mt-1 rounded-md text-xs"
+                                    >
+                                        {badgeLabel}
+                                    </Badge>
+                                    <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
+                                        {card.details.description
+                                            ? truncateString(
+                                                  card.details.description,
+                                                  60,
+                                              )
+                                            : t('no_description')}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
 
-                                              setActivePointerId(
-                                                  event.pointerId,
-                                              );
-                                              setDragStart({
-                                                  x: event.clientX,
-                                                  y: event.clientY,
-                                              });
-                                              setIsDraggingCard(false);
-                                          }
-                                        : undefined
-                                }
-                                onPointerMove={
-                                    isTopCard
-                                        ? event => {
-                                              if (
-                                                  activePointerId !==
-                                                  event.pointerId
-                                              ) {
-                                                  return;
-                                              }
+            <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                    <Dialog.Content className="fixed left-1/2 top-0 h-screen w-full md:max-w-md lg:max-w-lg -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
+                        {selectedCard && (
+                            <>
+                                <Dialog.Title className="sr-only">
+                                    {selectedCard.details.nickname}
+                                </Dialog.Title>
 
-                                              if (!dragStart) {
-                                                  return;
-                                              }
-
-                                              const deltaX =
-                                                  event.clientX - dragStart.x;
-                                              const deltaY =
-                                                  event.clientY - dragStart.y;
-
-                                              if (!isDraggingCard) {
-                                                  if (
-                                                      Math.abs(deltaX) < 12 ||
-                                                      Math.abs(deltaX) <=
-                                                          Math.abs(deltaY)
-                                                  ) {
-                                                      return;
-                                                  }
-
-                                                  event.currentTarget.setPointerCapture(
-                                                      event.pointerId,
-                                                  );
-                                                  setIsDraggingCard(true);
-                                              }
-
-                                              event.preventDefault();
-                                              setDragX(deltaX);
-                                          }
-                                        : undefined
-                                }
-                                onPointerUp={
-                                    isTopCard
-                                        ? event => {
-                                              if (
-                                                  activePointerId !==
-                                                  event.pointerId
-                                              ) {
-                                                  return;
-                                              }
-
-                                              setActivePointerId(null);
-                                              setDragStart(null);
-
-                                              if (!isDraggingCard) {
-                                                  setDragX(0);
-                                                  return;
-                                              }
-
-                                              setIsDraggingCard(false);
-
-                                              if (dragX > 96) {
-                                                  void commitReview('right');
-                                                  return;
-                                              }
-
-                                              if (dragX < -96) {
-                                                  void commitReview('left');
-                                                  return;
-                                              }
-
-                                              setDragX(0);
-                                          }
-                                        : undefined
-                                }
-                                onPointerCancel={
-                                    isTopCard
-                                        ? () => {
-                                              setActivePointerId(null);
-                                              setDragStart(null);
-                                              setIsDraggingCard(false);
-                                              setDragX(0);
-                                          }
-                                        : undefined
-                                }
-                            >
-                                <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-                                    {isTopCard && (
-                                        <>
-                                            <div
-                                                className="absolute left-4 top-4 rounded-md border border-red-200 bg-white px-2 py-1 text-[10px] font-medium uppercase text-red-500 transition-opacity dark:border-red-900/60 dark:bg-zinc-950"
-                                                style={{opacity: leftOpacity}}
-                                            >
-                                                {t('skip')}
-                                            </div>
-                                            <div
-                                                className="absolute right-4 top-4 rounded-md border border-emerald-200 bg-white px-2 py-1 text-[10px] font-medium uppercase text-emerald-600 transition-opacity dark:border-emerald-900/60 dark:bg-zinc-950"
-                                                style={{opacity: rightOpacity}}
-                                            >
-                                                {acceptLabel}
-                                            </div>
-                                        </>
-                                    )}
-
-                                    <div className="flex items-start justify-between gap-4">
-                                        <Badge
-                                            variant="secondary"
-                                            className="rounded-md text-xs"
-                                        >
-                                            {badgeLabel}
-                                        </Badge>
-                                    </div>
-
-                                    <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
-                                        <div className="flex items-start gap-3">
-                                            <Avatar className="h-14 w-14 border border-zinc-200 dark:border-zinc-800">
-                                                <AvatarImage src={avatarUrl} />
-                                                <AvatarFallback className="text-sm font-semibold">
-                                                    {card.details.nickname
-                                                        .slice(0, 2)
-                                                        .toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-
-                                            <div className="min-w-0 flex-1">
-                                                <h3 className="truncate text-lg font-semibold text-zinc-950 dark:text-zinc-50">
-                                                    {card.details.nickname}
-                                                </h3>
-                                                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                                    {hint}
-                                                </p>
-                                                {meta.length > 0 ? (
-                                                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                                                        {meta.join(' • ')}
-                                                    </p>
-                                                ) : null}
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4">
-                                            <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                                                {card.details.description ||
-                                                    t('no_description')}
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-4 flex flex-wrap gap-2">
-                                            {card.details.interests
-                                                .slice(0, 4)
-                                                .map(interest => (
-                                                    <Badge
-                                                        key={`${card.details.id}-${interest}`}
-                                                        variant="secondary"
-                                                        className="rounded-md text-xs"
-                                                    >
-                                                        {interest}
-                                                    </Badge>
-                                                ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-4 grid shrink-0 grid-cols-2 gap-2">
+                                <div
+                                    className={`flex flex-col h-full transition-opacity duration-150 ${
+                                        isAnimating
+                                            ? 'opacity-0'
+                                            : 'opacity-100'
+                                    }`}
+                                >
+                                    <div className="absolute top-4 right-4 z-10">
                                         <Button
-                                            variant="outline"
-                                            className="h-9 cursor-pointer"
-                                            disabled={isBusy}
-                                            onPointerDown={event => {
-                                                event.stopPropagation();
-                                            }}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white"
                                             onClick={() => {
-                                                void commitReview('left');
+                                                setIsDialogOpen(false);
+                                                setSelectedCard(null);
                                             }}
                                         >
                                             <X className="h-4 w-4" />
-                                            {t('skip')}
-                                        </Button>
-                                        <Button
-                                            className="h-9 cursor-pointer"
-                                            disabled={isBusy}
-                                            onPointerDown={event => {
-                                                event.stopPropagation();
-                                            }}
-                                            onClick={() => {
-                                                void commitReview('right');
-                                            }}
-                                        >
-                                            {topCard.isRequest ? (
-                                                <Check className="h-4 w-4" />
-                                            ) : (
-                                                <Heart className="h-4 w-4" />
-                                            )}
-                                            {acceptLabel}
                                         </Button>
                                     </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-            </div>
 
-            <div className="flex items-center justify-between px-1 text-xs text-zinc-500 dark:text-zinc-400">
-                <span>{cards.length} cards</span>
-                <span>
-                    {isRefetching ? t('retry') : topCard.details.nickname}
-                </span>
-            </div>
-        </div>
+                                    <div className="w-full aspect-square shrink-0 overflow-hidden">
+                                        <Avatar className="w-full h-full rounded-none object-cover">
+                                            <AvatarImage
+                                                src={
+                                                    selectedCard.details.avatar
+                                                        ? createFileLink(
+                                                              selectedCard
+                                                                  .details
+                                                                  .avatar,
+                                                          )
+                                                        : ''
+                                                }
+                                                className="object-cover w-full h-full"
+                                            />
+                                            <AvatarFallback className="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800">
+                                                {selectedCard.details.nickname
+                                                    .slice(0, 2)
+                                                    .toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </div>
+
+                                    <div className="flex flex-col items-center justify-center flex-1 p-6">
+                                        <div className="text-center mb-6">
+                                            <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
+                                                {selectedCard.details.nickname}
+                                            </h3>
+                                            <Badge
+                                                variant="secondary"
+                                                className="rounded-md text-sm px-3 py-1"
+                                            >
+                                                {selectedCard.isRequest
+                                                    ? t('requests_badge')
+                                                    : t('suggested_badge')}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="max-w-xs text-center mb-8">
+                                            <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                                                {selectedCard.details
+                                                    .description ||
+                                                    t('no_description')}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6 pt-0">
+                                        <div className="flex gap-4">
+                                            <Button
+                                                variant="outline"
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    handleReview('left')
+                                                }
+                                            >
+                                                <X className="h-5 w-5 mr-2" />
+                                                {t('skip')}
+                                            </Button>
+                                            <Button
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    handleReview('right')
+                                                }
+                                            >
+                                                {selectedCard.isRequest ? (
+                                                    <Check className="h-5 w-5 mr-2" />
+                                                ) : (
+                                                    <Heart className="h-5 w-5 mr-2" />
+                                                )}
+                                                {selectedCard.isRequest
+                                                    ? t('accept')
+                                                    : t('connect')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+        </>
     );
 }
 
@@ -786,8 +694,8 @@ export default function Home() {
                 <ProfileHeader userDetails={user} logOut={logOut} />
                 <Separator className="dark:bg-zinc-800" />
 
-                <div className="flex flex-col md:flex-row gap-2">
-                    <div className="w-full flex flex-col gap-8 p-8">
+                <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
                         <InterestsBlock interests={user?.interests ?? []} />
                         <Separator className="my-4 dark:bg-zinc-800" />
                         <FriendsBlock friends={friends} />
