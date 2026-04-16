@@ -1,23 +1,16 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {UsersEditRequest} from '@/network/friendly-client';
-import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
-import {Save, X} from 'lucide-react';
+import {Save, X, User, Link, Heart} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {
-    Field,
-    // FieldContent,
-    // FieldDescription,
-    FieldError,
-    FieldGroup,
-    FieldLabel,
-    // FieldLegend,
-    // FieldSeparator,
-    // FieldSet,
-    // FieldTitle,
-} from '@/components/ui/field';
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
+import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 // import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState} from 'react';
 import {UserDetailsResponse} from '@/network/friendly-client';
@@ -222,12 +215,19 @@ export function EditProfileDialog({
                                 <FieldLabel htmlFor="nickname">
                                     {t('nickname')}
                                 </FieldLabel>
-                                <Input
-                                    id="nickname"
-                                    type="text"
-                                    value={nickname}
-                                    onChange={e => setNickname(e.target.value)}
-                                />
+                                <InputGroup>
+                                    <InputGroupInput
+                                        id="nickname"
+                                        type="text"
+                                        value={nickname}
+                                        onChange={e =>
+                                            setNickname(e.target.value)
+                                        }
+                                    />
+                                    <InputGroupAddon>
+                                        <User />
+                                    </InputGroupAddon>
+                                </InputGroup>
                                 <FieldError>{nicknameError}</FieldError>
                             </Field>
                             <Field>
@@ -247,28 +247,40 @@ export function EditProfileDialog({
                                 <FieldLabel htmlFor="socialLink">
                                     {t('social-link')}
                                 </FieldLabel>
-                                <Input
-                                    id="socialLink"
-                                    type="text"
-                                    value={socialLink}
-                                    placeholder="https://example.org"
-                                    onChange={e =>
-                                        setSocialLink(e.target.value)
-                                    }
-                                />
+                                <InputGroup>
+                                    <InputGroupInput
+                                        id="socialLink"
+                                        type="text"
+                                        value={socialLink}
+                                        placeholder="https://example.org"
+                                        onChange={e =>
+                                            setSocialLink(e.target.value)
+                                        }
+                                    />
+                                    <InputGroupAddon>
+                                        <Link />
+                                    </InputGroupAddon>
+                                </InputGroup>
                                 <FieldError>{socialLinkError}</FieldError>
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="interests">
                                     {t('interests')}
                                 </FieldLabel>
-                                <Input
-                                    id="interests"
-                                    type="text"
-                                    value={interests}
-                                    placeholder={t('interests-placeholder')}
-                                    onChange={e => setInterests(e.target.value)}
-                                />
+                                <InputGroup>
+                                    <InputGroupInput
+                                        id="interests"
+                                        type="text"
+                                        value={interests}
+                                        placeholder={t('interests-placeholder')}
+                                        onChange={e =>
+                                            setInterests(e.target.value)
+                                        }
+                                    />
+                                    <InputGroupAddon>
+                                        <Heart />
+                                    </InputGroupAddon>
+                                </InputGroup>
                                 <FieldError>{interestsError}</FieldError>
                             </Field>
                         </FieldGroup>
