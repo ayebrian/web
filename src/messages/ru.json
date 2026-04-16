@@ -34,12 +34,15 @@
         "description": "Описание",
         "description-empty": "Описание не может быть пустым",
         "description-long" : "Описание слишком длинное (1024 максимум)",
-        "interests": "Интересы (через запятую)",
+        "interests": "Интересы",
+        "interests-placeholder" : "Чай, котики",
         "interests-too-many" : "Максимальное количество интересов 100",
         "interest-empty" : "Нельзя добавить пустой интерес",
         "interest-too-long" : "Интерес слишком длинный (64 максимум)",
         "interest-duplicate" : "Интерес {interest} повторяется",
-        "social_link": "Ссылка на соцсеть (необязательно)",
+        "social-link" : "Ссылка для связи",
+        "social-link-too-long" : "Ссылка для связи слишком длинная (2048 максимум)",
+        "social-link-invalid" : "Ожидается ссылка",
         "error-connection": "Не можем установить связь с сервером"
     }
 }

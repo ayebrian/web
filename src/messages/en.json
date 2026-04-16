@@ -34,12 +34,15 @@
         "description" : "Description",
         "description-empty": "Description cannot be empty",
         "description-long" : "Description is too long (1024 max)",
-        "interests" : "Interests (Separated by comma)",
+        "interests" : "Interests",
+        "interests-placeholder" : "Tea, kittens",
         "interests-too-many" : "Max amount of interests is 100",
         "interest-empty" : "Cannot have empty interest",
-        "interest-too-long" : "Interest too long (64 max)",
+        "interest-too-long" : "Interest is too long (64 max)",
         "interest-duplicate" : "Interest {interest} is duplicate",
-        "social_link" : "Social link (Optional)",
+        "social-link" : "Social link",
+        "social-link-too-long" : "Social link is too long (2048 max)",
+        "social-link-invalid" : "A link is expected",
         "error-connection": "Can't get to our servers :("
     }
 }
