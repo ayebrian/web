@@ -241,6 +241,7 @@ export interface UsersEditRequest {
     description: EditField<string>;
     interests: EditField<string[]>;
     socialLink: EditField<string | null>;
+    avatar: EditField<FileDescriptor | null>;
 }
 
 export interface EditField<T> {
