@@ -32,10 +32,8 @@ export default function SignInPage() {
 
     const [avatarBlobUrl, setAvatarBlobUrl] = useState<string | null>(null);
     useEffect(() => {
-        // eslint-disable-next-line n/no-unsupported-features/node-builtins
         if (avatarFile) setAvatarBlobUrl(URL.createObjectURL(avatarFile));
         return () => {
-            // eslint-disable-next-line n/no-unsupported-features/node-builtins
             if (avatarBlobUrl) URL.revokeObjectURL(avatarBlobUrl);
         };
     }, [avatarFile]);

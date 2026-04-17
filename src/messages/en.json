@@ -43,6 +43,8 @@
         "social-link" : "Social link",
         "social-link-too-long" : "Social link is too long (2048 max)",
         "social-link-invalid" : "A link is expected",
-        "error-connection": "Can't get to our servers :("
+        "error-connection": "Can't get to our servers :(",
+        "remove-avatar": "Remove avatar",
+        "select-avatar": "Select avatar..."
     }
 }
