@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {UsersEditRequest, FileDescriptor} from '@/network/friendly-client';
+import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
@@ -30,7 +31,6 @@ import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState, useRef} from 'react';
 import {UserDetailsResponse} from '@/network/friendly-client';
-// import {createFileLink} from '@/lib/utils';
 import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
 
@@ -50,9 +50,7 @@ const socialLinkRegex = /^(https?:\/\/)?\S+\.\S+$/;
 
 // TODO:
 // * Migrate all validation to another file, so it can be reused in signIn page
-// * Add icons to fields
 // * Refresh underlying page once edit is successful
-// * Support avatar and social link
 // * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
 export function EditProfileDialog({
     open,
@@ -176,7 +174,6 @@ export function EditProfileDialog({
     }
 
     async function onSave() {
-        if (loading) return;
         const validated = validate();
         if (!validated) return;
         setLoading(true);
@@ -188,11 +185,6 @@ export function EditProfileDialog({
             toast.error(t('error-connection'));
         }
     }
-
-    // const avatarUrl = useMemo(
-    //     () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
-    //     [userDetails],
-    // );
 
     return (
         <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -223,13 +215,6 @@ export function EditProfileDialog({
                             </Button>
                         </Dialog.Close>
                     </div>
-                    {/* <div className="mt-4 space-y-3">  todo */}
-                    {/* <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm"> */}
-                    {/*     <AvatarImage src={avatarUrl} /> */}
-                    {/*     <AvatarFallback> */}
-                    {/*         {userDetails?.nickname.toString().slice(0, 2)} */}
-                    {/*     </AvatarFallback> */}
-                    {/* </Avatar> */}
                     <div className="p-4 space-y-4">
                         <AvatarContent
                             nickname={nickname}
@@ -317,6 +302,7 @@ export function EditProfileDialog({
                                 className="cursor-pointer"
                                 variant="secondary"
                                 onClick={onSave}
+                                disabled={loading || avatarLoading}
                             >
                                 {!loading && (
                                     <>
@@ -365,14 +351,23 @@ function AvatarContent({
             setAvatarUrl(null);
             return;
         }
+        const previousAvatarUrl = avatarUrl;
         setAvatarUrl(URL.createObjectURL(file));
         setLoading(true);
-        const result = await backend.uploadFile(file);
-        setLoading(false);
-        if (result.ok) {
-            setAvatar(result.data);
-        } else {
-            toast.error(t('error-connection'));
+        try {
+            const compressed = await resizeImage({
+                file,
+                maxSizeBytes: 204_800, // 200kb
+            });
+            const result = await backend.uploadFile(compressed);
+            if (result.ok) {
+                setAvatar(result.data);
+            } else {
+                toast.error(t('error-connection'));
+                setAvatarUrl(previousAvatarUrl);
+            }
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -384,7 +379,7 @@ function AvatarContent({
                         <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
                             <AvatarImage
                                 className={
-                                    loading ? 'blur-xs brightness-50' : ''
+                                    loading ? 'blur-xs brightness-80' : ''
                                 }
                                 src={avatarUrl ?? undefined}
                             />
@@ -398,7 +393,7 @@ function AvatarContent({
                             <Pencil className="size-full p-1" />
                         </div>
                         {loading && (
-                            <Spinner className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+                            <Spinner className="text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
                         )}
                     </div>
                 </DropdownMenuTrigger>
