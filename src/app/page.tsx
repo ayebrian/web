@@ -32,7 +32,7 @@ import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
-import {toast} from 'sonner';
+import {toast as toast2} from 'sonner';
 import * as Dialog from '@radix-ui/react-dialog';
 
 type SwipeDirection = 'left' | 'right';
@@ -496,7 +496,7 @@ function DiscoveryFeedBlock() {
                     : await backend.declineFriendRequest(request);
 
             if (!result.ok) {
-                toast.error(formatNetworkError(result.error));
+                toast2.error(formatNetworkError(result.error));
                 throw new Error(formatNetworkError(result.error));
             }
 
@@ -508,7 +508,7 @@ function DiscoveryFeedBlock() {
                 ),
             );
 
-            toast.success(
+            toast2.success(
                 direction === 'right'
                     ? card.isRequest
                         ? t('request_success')
