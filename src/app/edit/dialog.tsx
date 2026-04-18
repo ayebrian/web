@@ -1,18 +1,34 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {UsersEditRequest} from '@/network/friendly-client';
+import {UsersEditRequest, FileDescriptor} from '@/network/friendly-client';
+import {createFileLink} from '@/lib/utils';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
-import {Save, X, User, Link, Heart} from 'lucide-react';
+import {
+    Save,
+    X,
+    User,
+    Link,
+    Heart,
+    Pencil,
+    Trash2,
+    ImageIcon,
+} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
-// import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import {ReactNode, useState} from 'react';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import {ReactNode, useState, useRef} from 'react';
 import {UserDetailsResponse} from '@/network/friendly-client';
 // import {createFileLink} from '@/lib/utils';
 import {useTranslations} from 'next-intl';
@@ -46,6 +62,7 @@ export function EditProfileDialog({
     const t = useTranslations('edit_profile_dialog');
 
     const [loading, setLoading] = useState(false);
+    const [avatarLoading, setAvatarLoading] = useState(false);
 
     const [nickname, setNickname] = useState(userDetails.nickname);
     const [nicknameError, setNicknameError] = useState<string | null>();
@@ -60,6 +77,8 @@ export function EditProfileDialog({
         userDetails.interests.join(', '),
     );
     const [interestsError, setInterestsError] = useState<string | null>();
+
+    const [avatar, setAvatar] = useState(userDetails.avatar);
 
     const backend = useBackend();
 
@@ -152,10 +171,12 @@ export function EditProfileDialog({
             description: {value: description},
             socialLink: {value: socialLink},
             interests: {value: interests},
+            avatar: {value: avatar},
         };
     }
 
     async function onSave() {
+        if (loading) return;
         const validated = validate();
         if (!validated) return;
         setLoading(true);
@@ -189,7 +210,7 @@ export function EditProfileDialog({
                     "
                 >
                     <div className="relative flex items-center mt-1 mx-1">
-                        <Dialog.Title className="w-full text-lg font-semibold text-center pt-2">
+                        <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
                             {t('title')}
                         </Dialog.Title>
 
@@ -210,6 +231,13 @@ export function EditProfileDialog({
                     {/*     </AvatarFallback> */}
                     {/* </Avatar> */}
                     <div className="p-4 space-y-4">
+                        <AvatarContent
+                            nickname={nickname}
+                            loading={avatarLoading}
+                            setLoading={setAvatarLoading}
+                            avatar={userDetails.avatar}
+                            setAvatar={setAvatar}
+                        />
                         <FieldGroup className="gap-4">
                             <Field>
                                 <FieldLabel htmlFor="nickname">
@@ -306,4 +334,109 @@ export function EditProfileDialog({
             </Dialog.Portal>
         </Dialog.Root>
     );
+}
+
+interface AvatarContentProps {
+    nickname: string;
+    loading: boolean;
+    setLoading: (value: boolean) => void;
+    avatar: FileDescriptor | null;
+    setAvatar: (value: FileDescriptor | null) => void;
+}
+
+function AvatarContent({
+    nickname,
+    loading,
+    setLoading,
+    avatar,
+    setAvatar,
+}: AvatarContentProps): ReactNode {
+    const backend = useBackend();
+    const t = useTranslations('edit_profile_dialog');
+
+    const avatarInputRef = useRef<HTMLInputElement | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(
+        avatar ? createFileLink(avatar) : null,
+    );
+
+    async function onSelected(file: File | null) {
+        if (!file) {
+            setAvatar(null);
+            setAvatarUrl(null);
+            return;
+        }
+        setAvatarUrl(URL.createObjectURL(file));
+        setLoading(true);
+        const result = await backend.uploadFile(file);
+        setLoading(false);
+        if (result.ok) {
+            setAvatar(result.data);
+        } else {
+            toast.error(t('error-connection'));
+        }
+    }
+
+    return (
+        <div className="w-full flex justify-center">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <div className="relative cursor-pointer">
+                        <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
+                            <AvatarImage
+                                className={
+                                    loading ? 'blur-xs brightness-50' : ''
+                                }
+                                src={avatarUrl ?? undefined}
+                            />
+                            <AvatarFallback>
+                                <span className="text-xl">
+                                    {getAvatarFallbackForNickname(nickname)}
+                                </span>
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
+                            <Pencil className="size-full p-1" />
+                        </div>
+                        {loading && (
+                            <Spinner className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+                        )}
+                    </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="start">
+                    <DropdownMenuItem onClick={() => onSelected(null)}>
+                        <Trash2 className="size-4" />
+                        {t('remove-avatar')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => avatarInputRef?.current?.click()}
+                    >
+                        <ImageIcon className="size-4" />
+                        {t('select-avatar')}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <input
+                className="hidden"
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                placeholder="Avatar"
+                onChange={e => {
+                    const files = e.target.files;
+                    if (files) {
+                        void onSelected(files[0]);
+                    }
+                }}
+            />
+        </div>
+    );
+}
+
+function getAvatarFallbackForNickname(nickname: string): string {
+    if (nickname.length === 0) return '';
+    const words = nickname.toUpperCase().split(' ');
+    return words
+        .slice(0, 2)
+        .map(word => word[0])
+        .join('');
 }
