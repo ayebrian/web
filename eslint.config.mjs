@@ -86,6 +86,18 @@ export default defineConfig([
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/ban-types': 'off',
+            "@typescript-eslint/no-unused-vars": [
+            "error",
+                {
+                  args: "all",
+                  argsIgnorePattern: "^_",
+                  caughtErrors: "all",
+                  caughtErrorsIgnorePattern: "^_",
+                  destructuredArrayIgnorePattern: "^_",
+                  varsIgnorePattern: "^_",
+                  ignoreRestSiblings: true
+                }
+            ],
             '@/camelcase': 'warn',
             'n/no-missing-import': 'off',
             'n/no-empty-function': 'off',

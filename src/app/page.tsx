@@ -60,7 +60,7 @@ function FeedEmptyState() {
 function FeedReviewDeck({
     cards,
     isLoading,
-    isRefetching: _isRefetching, // eslint-disable-line @typescript-eslint/no-unused-vars
+    isRefetching: _isRefetching,
     isError,
     errorMessage,
     onRetry,
