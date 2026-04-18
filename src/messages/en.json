@@ -23,6 +23,27 @@
             "save" : "Save",
             "copied": "Link Copied!"
         },
+        "feed" : {
+            "title" : "Connection feed",
+            "desc" : "Incoming requests and new people you may want to add.",
+            "requests_badge" : "Friend request",
+            "request_hint" : "Wants to connect with you",
+            "suggested_hint" : "Looks like a strong match for your circle",
+            "extended_network" : "Extended network",
+            "network_context" : "Connection context",
+            "common_friends" : "{count} common friends",
+            "no_description" : "No profile note yet.",
+            "empty_title" : "You are all caught up",
+            "empty_desc" : "No more requests or suggestions right now.",
+            "retry" : "Retry",
+            "skip" : "Skip",
+            "accept" : "Accept",
+            "connect" : "Connect",
+            "queue_error" : "We couldn't load your connection feed.",
+            "accept_success" : "Connection request sent.",
+            "request_success" : "Friend request accepted.",
+            "skip_success" : "Card removed from your queue."
+        },
         "unknown_error" : "An unknown error occurred."
     },
     "edit_profile_dialog": {
