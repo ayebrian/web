@@ -145,7 +145,7 @@ function FeedReviewDeck({
 
     return (
         <>
-            <div className="flex gap-4 overflow-x-auto pb-4">
+            <div className="flex gap- overflow-x-auto pb-4">
                 {cards.map(card => {
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
@@ -210,7 +210,7 @@ function FeedReviewDeck({
             <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    <Dialog.Content className="fixed left-1/2 top-0 h-screen w-full md:max-w-md lg:max-w-lg -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
+                    <Dialog.Content className="fixed left-1/2 top-4 bottom-4 w-full rounded-2xl md:max-w-md lg:max-w-lg -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
                         {selectedCard && (
                             <>
                                 <Dialog.Title className="sr-only">
@@ -224,7 +224,17 @@ function FeedReviewDeck({
                                             : 'opacity-100'
                                     }`}
                                 >
-                                    <div className="absolute top-4 right-4 z-10">
+                                    <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
+                                        <div>
+                                            <Badge
+                                                variant="secondary"
+                                                className="bg-secondary/50 backdrop-blur-md border rounded-md text-sm px-3 py-1"
+                                            >
+                                                {selectedCard.isRequest
+                                                    ? t('requests_badge')
+                                                    : t('suggested_badge')}
+                                            </Badge>
+                                        </div>
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -238,7 +248,7 @@ function FeedReviewDeck({
                                         </Button>
                                     </div>
 
-                                    <div className="w-full aspect-square shrink-0 overflow-hidden">
+                                    <div className="relative w-full aspect-square shrink-0 overflow-hidden">
                                         <Avatar className="w-full h-full rounded-none object-cover">
                                             <AvatarImage
                                                 src={
@@ -248,7 +258,7 @@ function FeedReviewDeck({
                                                                   .details
                                                                   .avatar,
                                                           )
-                                                        : ''
+                                                        : undefined
                                                 }
                                                 className="object-cover w-full h-full"
                                             />
@@ -258,30 +268,31 @@ function FeedReviewDeck({
                                                     .toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
+
+                                        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">
+                                            {selectedCard.details.interests.map(
+                                                interest => (
+                                                    <Badge
+                                                        key={interest}
+                                                        variant="secondary"
+                                                        className="px-2 py-1 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                    >
+                                                        {interest}
+                                                    </Badge>
+                                                ),
+                                            )}
+                                        </div>
                                     </div>
 
-                                    <div className="flex flex-col items-center justify-center flex-1 p-6">
-                                        <div className="text-center mb-6">
-                                            <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
-                                                {selectedCard.details.nickname}
-                                            </h3>
-                                            <Badge
-                                                variant="secondary"
-                                                className="rounded-md text-sm px-3 py-1"
-                                            >
-                                                {selectedCard.isRequest
-                                                    ? t('requests_badge')
-                                                    : t('suggested_badge')}
-                                            </Badge>
-                                        </div>
+                                    <div className="flex flex-col flex-1 p-6">
+                                        <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
+                                            {selectedCard.details.nickname}
+                                        </h3>
 
-                                        <div className="max-w-xs text-center mb-8">
-                                            <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                                                {selectedCard.details
-                                                    .description ||
-                                                    t('no_description')}
-                                            </p>
-                                        </div>
+                                        <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                                            {selectedCard.details.description ||
+                                                t('no_description')}
+                                        </p>
                                     </div>
 
                                     <div className="p-6 pt-0">
@@ -576,8 +587,7 @@ function QrCodeCard({url}: {url: string | null}) {
                         <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
                     )}
                 </div>
-            </div>
-            <div className="w-full flex flex-row gap-2">
+                <div className="w-full flex flex-row gap-2"></div>
                 <Button
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
