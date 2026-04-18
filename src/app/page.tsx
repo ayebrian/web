@@ -148,23 +148,10 @@ function FeedReviewDeck({
                 {cards.map(card => {
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
-                        : t('suggested_badge');
+                        : t('extended_network');
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
-                    const meta = [];
-
-                    if (card.isExtendedNetwork) {
-                        meta.push(t('extended_network'));
-                    }
-
-                    if (card.commonFriends.length > 0) {
-                        meta.push(
-                            t('common_friends', {
-                                count: card.commonFriends.length,
-                            }),
-                        );
-                    }
 
                     return (
                         <div
@@ -231,7 +218,7 @@ function FeedReviewDeck({
                                             >
                                                 {selectedCard.isRequest
                                                     ? t('requests_badge')
-                                                    : t('suggested_badge')}
+                                                    : t('extended_network')}
                                             </Badge>
                                         </div>
                                         <Button
