@@ -66,6 +66,11 @@
         "social-link-invalid" : "Ожидается ссылка",
         "error-connection": "Не можем установить связь с сервером",
         "remove-avatar": "Удалить аватар",
-        "select-avatar": "Выбрать аватар..."
+        "select-avatar": "Выбрать аватар...",
+        "adjuster": {
+            "title": "Обрезать аватарку",
+            "cancel": "Отмена",
+            "continue": "Продолжить"
+        }
     }
 }
