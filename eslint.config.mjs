@@ -95,7 +95,10 @@ export default defineConfig([
                   caughtErrorsIgnorePattern: "^_",
                   destructuredArrayIgnorePattern: "^_",
                   varsIgnorePattern: "^_",
-                  ignoreRestSiblings: true
+                  ignoreRestSiblings: true,
+                  enableAutofixRemoval: {
+                      imports: true
+                  }
                 }
             ],
             '@/camelcase': 'warn',

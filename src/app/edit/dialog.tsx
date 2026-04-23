@@ -1,35 +1,18 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {UsersEditRequest, FileDescriptor} from '@/network/friendly-client';
-import {resizeImage} from '@/network/image';
-import {createFileLink} from '@/lib/utils';
+import {AvatarContent} from './avatar';
+import {UsersEditRequest} from '@/network/friendly-client';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
-import {
-    Save,
-    X,
-    User,
-    Link,
-    Heart,
-    Pencil,
-    Trash2,
-    ImageIcon,
-} from 'lucide-react';
+import {Save, X, User, Link, Heart} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import {ReactNode, useState, useRef} from 'react';
+import {ReactNode, useState} from 'react';
 import {UserDetailsResponse} from '@/network/friendly-client';
 import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
@@ -195,243 +178,138 @@ export function EditProfileDialog({
                     fixed left-1/2 top-1/2
                     -translate-x-1/2 -translate-y-1/2
 
-                    w-full max-w-md
-
-                    rounded-xl bg-white dark:bg-zinc-900
-                    shadow-xl
+                    w-full max-w-lg p-5
                     "
                 >
-                    <div className="relative flex items-center mt-1 mx-1">
-                        <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
-                            {t('title')}
-                        </Dialog.Title>
+                    <div
+                        className="
+                        rounded-xl bg-white dark:bg-zinc-900
+                        shadow-xl
+                        "
+                    >
+                        <div className="relative flex items-center mt-1 mx-1">
+                            <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                                {t('title')}
+                            </Dialog.Title>
 
-                        <Dialog.Close
-                            className="absolute right-0 top-0"
-                            asChild
-                        >
-                            <Button variant="ghost">
-                                <X />
-                            </Button>
-                        </Dialog.Close>
-                    </div>
-                    <div className="p-4 space-y-4">
-                        <AvatarContent
-                            nickname={nickname}
-                            loading={avatarLoading}
-                            setLoading={setAvatarLoading}
-                            avatar={userDetails.avatar}
-                            setAvatar={setAvatar}
-                        />
-                        <FieldGroup className="gap-4">
-                            <Field>
-                                <FieldLabel htmlFor="nickname">
-                                    {t('nickname')}
-                                </FieldLabel>
-                                <InputGroup>
-                                    <InputGroupInput
-                                        id="nickname"
-                                        type="text"
-                                        value={nickname}
-                                        onChange={e =>
-                                            setNickname(e.target.value)
-                                        }
-                                    />
-                                    <InputGroupAddon>
-                                        <User />
-                                    </InputGroupAddon>
-                                </InputGroup>
-                                <FieldError>{nicknameError}</FieldError>
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="description">
-                                    {t('description')}
-                                </FieldLabel>
-                                <Textarea
-                                    id="description"
-                                    value={description}
-                                    onChange={e =>
-                                        setDescription(e.target.value)
-                                    }
-                                />
-                                <FieldError>{descriptionError}</FieldError>
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="socialLink">
-                                    {t('social-link')}
-                                </FieldLabel>
-                                <InputGroup>
-                                    <InputGroupInput
-                                        id="socialLink"
-                                        type="text"
-                                        value={socialLink}
-                                        placeholder="https://example.org"
-                                        onChange={e =>
-                                            setSocialLink(e.target.value)
-                                        }
-                                    />
-                                    <InputGroupAddon>
-                                        <Link />
-                                    </InputGroupAddon>
-                                </InputGroup>
-                                <FieldError>{socialLinkError}</FieldError>
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="interests">
-                                    {t('interests')}
-                                </FieldLabel>
-                                <InputGroup>
-                                    <InputGroupInput
-                                        id="interests"
-                                        type="text"
-                                        value={interests}
-                                        placeholder={t('interests-placeholder')}
-                                        onChange={e =>
-                                            setInterests(e.target.value)
-                                        }
-                                    />
-                                    <InputGroupAddon>
-                                        <Heart />
-                                    </InputGroupAddon>
-                                </InputGroup>
-                                <FieldError>{interestsError}</FieldError>
-                            </Field>
-                        </FieldGroup>
-                        <div className="ml-auto flex flex-col gap-2">
-                            <Button
-                                className="cursor-pointer"
-                                variant="secondary"
-                                onClick={onSave}
-                                disabled={loading || avatarLoading}
+                            <Dialog.Close
+                                className="absolute right-0 top-0"
+                                asChild
                             >
-                                {!loading && (
-                                    <>
-                                        <Save className="w-4 h-4" />
-                                        <p className="hidden sm:block">
-                                            {t('save')}
-                                        </p>
-                                    </>
-                                )}
-                                {loading && <Spinner />}
-                            </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="cursor-pointer"
+                                >
+                                    <X />
+                                </Button>
+                            </Dialog.Close>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <AvatarContent
+                                nickname={nickname}
+                                loading={avatarLoading}
+                                setLoading={setAvatarLoading}
+                                avatar={userDetails.avatar}
+                                setAvatar={setAvatar}
+                            />
+                            <FieldGroup className="gap-4">
+                                <Field>
+                                    <FieldLabel htmlFor="nickname">
+                                        {t('nickname')}
+                                    </FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            id="nickname"
+                                            type="text"
+                                            value={nickname}
+                                            onChange={e =>
+                                                setNickname(e.target.value)
+                                            }
+                                        />
+                                        <InputGroupAddon>
+                                            <User />
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    <FieldError>{nicknameError}</FieldError>
+                                </Field>
+                                <Field>
+                                    <FieldLabel htmlFor="description">
+                                        {t('description')}
+                                    </FieldLabel>
+                                    <Textarea
+                                        id="description"
+                                        value={description}
+                                        onChange={e =>
+                                            setDescription(e.target.value)
+                                        }
+                                    />
+                                    <FieldError>{descriptionError}</FieldError>
+                                </Field>
+                                <Field>
+                                    <FieldLabel htmlFor="socialLink">
+                                        {t('social-link')}
+                                    </FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            id="socialLink"
+                                            type="text"
+                                            value={socialLink}
+                                            placeholder="https://example.org"
+                                            onChange={e =>
+                                                setSocialLink(e.target.value)
+                                            }
+                                        />
+                                        <InputGroupAddon>
+                                            <Link />
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    <FieldError>{socialLinkError}</FieldError>
+                                </Field>
+                                <Field>
+                                    <FieldLabel htmlFor="interests">
+                                        {t('interests')}
+                                    </FieldLabel>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            id="interests"
+                                            type="text"
+                                            value={interests}
+                                            placeholder={t(
+                                                'interests-placeholder',
+                                            )}
+                                            onChange={e =>
+                                                setInterests(e.target.value)
+                                            }
+                                        />
+                                        <InputGroupAddon>
+                                            <Heart />
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                    <FieldError>{interestsError}</FieldError>
+                                </Field>
+                            </FieldGroup>
+                            <div className="ml-auto flex flex-col gap-2">
+                                <Button
+                                    className="cursor-pointer"
+                                    variant="secondary"
+                                    onClick={onSave}
+                                    disabled={loading || avatarLoading}
+                                >
+                                    {!loading && (
+                                        <>
+                                            <Save className="w-4 h-4" />
+                                            <p className="hidden sm:block">
+                                                {t('save')}
+                                            </p>
+                                        </>
+                                    )}
+                                    {loading && <Spinner />}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
     );
-}
-
-interface AvatarContentProps {
-    nickname: string;
-    loading: boolean;
-    setLoading: (value: boolean) => void;
-    avatar: FileDescriptor | null;
-    setAvatar: (value: FileDescriptor | null) => void;
-}
-
-function AvatarContent({
-    nickname,
-    loading,
-    setLoading,
-    avatar,
-    setAvatar,
-}: AvatarContentProps): ReactNode {
-    const backend = useBackend();
-    const t = useTranslations('edit_profile_dialog');
-
-    const avatarInputRef = useRef<HTMLInputElement | null>(null);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(
-        avatar ? createFileLink(avatar) : null,
-    );
-
-    async function onSelected(file: File | null) {
-        if (!file) {
-            setAvatar(null);
-            setAvatarUrl(null);
-            return;
-        }
-        const previousAvatarUrl = avatarUrl;
-        setAvatarUrl(URL.createObjectURL(file));
-        setLoading(true);
-        try {
-            const compressed = await resizeImage({
-                file,
-                maxSizeBytes: 204_800, // 200kb
-            });
-            const result = await backend.uploadFile(compressed);
-            if (result.ok) {
-                setAvatar(result.data);
-            } else {
-                toast.error(t('error-connection'));
-                setAvatarUrl(previousAvatarUrl);
-            }
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return (
-        <div className="w-full flex justify-center">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <div className="relative cursor-pointer">
-                        <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
-                            <AvatarImage
-                                className={
-                                    loading ? 'blur-xs brightness-80' : ''
-                                }
-                                src={avatarUrl ?? undefined}
-                            />
-                            <AvatarFallback>
-                                <span className="text-xl">
-                                    {getAvatarFallbackForNickname(nickname)}
-                                </span>
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
-                            <Pencil className="size-full p-1" />
-                        </div>
-                        {loading && (
-                            <Spinner className="text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                    </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-40" align="start">
-                    <DropdownMenuItem onClick={() => onSelected(null)}>
-                        <Trash2 className="size-4" />
-                        {t('remove-avatar')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => avatarInputRef?.current?.click()}
-                    >
-                        <ImageIcon className="size-4" />
-                        {t('select-avatar')}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <input
-                className="hidden"
-                ref={avatarInputRef}
-                type="file"
-                accept="image/*"
-                placeholder="Avatar"
-                onChange={e => {
-                    const files = e.target.files;
-                    if (files) {
-                        void onSelected(files[0]);
-                    }
-                }}
-            />
-        </div>
-    );
-}
-
-function getAvatarFallbackForNickname(nickname: string): string {
-    if (nickname.length === 0) return '';
-    const words = nickname.toUpperCase().split(' ');
-    return words
-        .slice(0, 2)
-        .map(word => word[0])
-        .join('');
 }

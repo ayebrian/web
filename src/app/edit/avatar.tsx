@@ -1,0 +1,182 @@
+import {AdjusterPayload, Adjuster} from './adjuster';
+import {FileDescriptor} from '@/network/friendly-client';
+import {resizeImage} from '@/network/image';
+import {createFileLink} from '@/lib/utils';
+import {toast} from 'sonner';
+import {Pencil, Trash2, ImageIcon} from 'lucide-react';
+import {useBackend} from '@/backend.context';
+import {Spinner} from '@/components/ui/spinner';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import {ReactNode, useState, useRef} from 'react';
+import {useTranslations} from 'next-intl';
+
+interface AvatarContentProps {
+    nickname: string;
+    loading: boolean;
+    setLoading: (value: boolean) => void;
+    avatar: FileDescriptor | null;
+    setAvatar: (value: FileDescriptor | null) => void;
+}
+
+/**
+ * Avatar Pipeline and Definitions:
+ *
+ * o User clicks on avatar.
+ * o User selects either remove or pick.
+ * o If user selects pick, system picker for image is shown
+ * o After user selected image, adjuster is shown that allows to
+ *   interactively resize image.
+ * o After interactive adjust, image is compressed to be under 200KB.
+ * o Then, setAvatar function is called.
+ */
+export function AvatarContent({
+    nickname,
+    loading,
+    setLoading,
+    avatar,
+    setAvatar,
+}: AvatarContentProps): ReactNode {
+    const backend = useBackend();
+    const t = useTranslations('edit_profile_dialog');
+
+    const avatarInputRef = useRef<HTMLInputElement | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(
+        avatar ? createFileLink(avatar) : null,
+    );
+
+    const [adjuster, setAdjuster] = useState<AdjusterPayload>({type: 'close'});
+
+    function adjusterSetOpen(open: boolean) {
+        if (open) return;
+        setAdjuster({type: 'close'});
+    }
+
+    async function onSelected(file: File) {
+        setAdjuster({
+            type: 'open',
+            data: file,
+        });
+        if (avatarInputRef.current) {
+            avatarInputRef.current.value = '';
+        }
+    }
+
+    async function onAdjusted(file: File | null) {
+        if (!file) {
+            setAvatar(null);
+            setAvatarUrl(null);
+            return;
+        }
+        const previousAvatarUrl = avatarUrl;
+        setAvatarUrl(URL.createObjectURL(file));
+        setLoading(true);
+        try {
+            const compressed = await resizeImage({
+                file,
+                maxSizeBytes: 204_800, // 200kb
+            });
+            const result = await backend.uploadFile(compressed);
+            if (result.ok) {
+                setAvatar(result.data);
+                if (previousAvatarUrl) URL.revokeObjectURL(previousAvatarUrl);
+            } else {
+                toast.error(t('error-connection'));
+                setAvatarUrl(previousAvatarUrl);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return (
+        <div className="w-full flex justify-center">
+            <Adjuster
+                payload={adjuster}
+                setOpen={adjusterSetOpen}
+                onAdjusted={onAdjusted}
+            />
+            <AvatarDropdown
+                onDelete={() => onAdjusted(null)}
+                onSelect={() => avatarInputRef?.current?.click()}
+            >
+                <div className="relative cursor-pointer">
+                    <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
+                        <AvatarImage
+                            className={loading ? 'blur-xs brightness-80' : ''}
+                            src={avatarUrl ?? undefined}
+                        />
+                        <AvatarFallback>
+                            <span className="text-xl">
+                                {getAvatarFallbackForNickname(nickname)}
+                            </span>
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
+                        <Pencil className="size-full p-1" />
+                    </div>
+                    {loading && (
+                        <Spinner className="text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+                    )}
+                </div>
+            </AvatarDropdown>
+            <input
+                className="hidden"
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                placeholder="Avatar"
+                onChange={e => {
+                    const files = e.target.files;
+                    if (files) {
+                        void onSelected(files[0]);
+                    }
+                }}
+            />
+        </div>
+    );
+}
+
+function getAvatarFallbackForNickname(nickname: string): string {
+    if (nickname.length === 0) return '';
+    const words = nickname.toUpperCase().split(' ');
+    return words
+        .slice(0, 2)
+        .map(word => word[0])
+        .join('');
+}
+
+interface AvatarDropdownProps {
+    onDelete: () => void;
+    onSelect: () => void;
+    children: ReactNode;
+}
+
+function AvatarDropdown({
+    onDelete,
+    onSelect,
+    children,
+}: AvatarDropdownProps): ReactNode {
+    const t = useTranslations('edit_profile_dialog');
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40" align="start">
+                <DropdownMenuItem onClick={onDelete}>
+                    <Trash2 className="size-4" />
+                    {t('remove-avatar')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onSelect}>
+                    <ImageIcon className="size-4" />
+                    {t('select-avatar')}
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
