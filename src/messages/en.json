@@ -66,6 +66,11 @@
         "social-link-invalid" : "A link is expected",
         "error-connection": "Can't get to our servers :(",
         "remove-avatar": "Remove avatar",
-        "select-avatar": "Select avatar..."
+        "select-avatar": "Select avatar...",
+        "adjuster": {
+            "title": "Crop Avatar",
+            "cancel": "Cancel",
+            "continue": "Continue"
+        }
     }
 }
