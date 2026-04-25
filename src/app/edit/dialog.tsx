@@ -1,3 +1,5 @@
+import {UserDetails} from '@/types/user-details';
+import {useAppContext} from '@/app.context';
 import * as Dialog from '@radix-ui/react-dialog';
 import {AvatarContent} from './avatar';
 import {UsersEditRequest} from '@/network/friendly-client';
@@ -13,15 +15,8 @@ import {
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 import {ReactNode, useState} from 'react';
-import {UserDetailsResponse} from '@/network/friendly-client';
 import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
-
-interface EditProfileProps {
-    open: boolean;
-    setOpen: (value: boolean) => void;
-    userDetails: UserDetailsResponse;
-}
 
 // This regex is not meant to be a valid check for URL.
 //
@@ -31,16 +26,22 @@ interface EditProfileProps {
 // This check is meant to save from most typos made by users
 const socialLinkRegex = /^(https?:\/\/)?\S+\.\S+$/;
 
+interface EditProfileProps {
+    open: boolean;
+    setOpen: (value: boolean) => void;
+}
+
 // TODO:
 // * Migrate all validation to another file, so it can be reused in signIn page
-// * Refresh underlying page once edit is successful
 // * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
 export function EditProfileDialog({
     open,
     setOpen,
-    userDetails,
 }: EditProfileProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
+    const app = useAppContext();
+
+    const userDetails = app.requireUser();
 
     const [loading, setLoading] = useState(false);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -156,6 +157,17 @@ export function EditProfileDialog({
         };
     }
 
+    function mapRequestToUserDetails(request: UsersEditRequest): UserDetails {
+        return {
+            ...userDetails,
+            nickname: request.nickname.value,
+            description: request.description.value,
+            interests: request.interests.value,
+            socialLink: request.socialLink.value,
+            avatar: request.avatar.value,
+        };
+    }
+
     async function onSave() {
         const validated = validate();
         if (!validated) return;
@@ -164,6 +176,7 @@ export function EditProfileDialog({
         setLoading(false);
         if (result.ok) {
             setOpen(false);
+            app.setUserDetails(mapRequestToUserDetails(validated));
         } else {
             toast.error(t('error-connection'));
         }

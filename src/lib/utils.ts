@@ -1,5 +1,5 @@
 import {backendConfig} from '@/network/backend-config';
-import {FileDescriptor} from '@/network/friendly-client';
+import {FileDescriptor} from '@/types/file-descriptor';
 import {clsx, type ClassValue} from 'clsx';
 import {twMerge} from 'tailwind-merge';
 
