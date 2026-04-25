@@ -33,7 +33,6 @@ import {useQuery} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
-import {toast as toast2} from 'sonner';
 import * as Dialog from '@radix-ui/react-dialog';
 
 type SwipeDirection = 'left' | 'right';
@@ -497,24 +496,11 @@ function DiscoveryFeedBlock() {
                     : await backend.declineFriendRequest(request);
 
             if (!result.ok) {
-                toast2.error(formatNetworkError(result.error));
-                throw new Error(formatNetworkError(result.error));
+                toast.error(formatNetworkError(result.error));
             }
 
             setCards(current =>
-                current.filter(
-                    item =>
-                        item.details.id !== card.details.id ||
-                        item.isRequest !== card.isRequest,
-                ),
-            );
-
-            toast2.success(
-                direction === 'right'
-                    ? card.isRequest
-                        ? t('request_success')
-                        : t('accept_success')
-                    : t('skip_success'),
+                current.filter(item => item.details.id !== card.details.id),
             );
         },
         [backend, t],
