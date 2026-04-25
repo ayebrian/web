@@ -1,3 +1,5 @@
+import {UserDetails} from '@/types/user-details';
+import {FileDescriptor} from '@/types/file-descriptor';
 import axios, {AxiosInstance} from 'axios';
 import {NetworkError} from '@/network/errors';
 import {backendConfig} from './backend-config';
@@ -8,11 +10,11 @@ export interface FriendlyClient {
     generateAccount(
         request: GenerateAccountRequest,
     ): Promise<Result<GenerateAccountResponse, NetworkError>>;
-    getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>>;
+    getUserDetails(): Promise<Result<UserDetails, NetworkError>>;
     getUserDetailsById(
         id: number,
         accessHash: string,
-    ): Promise<Result<UserDetailsResponse, NetworkError>>;
+    ): Promise<Result<UserDetails, NetworkError>>;
     usersEdit(request: UsersEditRequest): Promise<Result<void, NetworkError>>;
     uploadFile(file: File): Promise<Result<FileDescriptor, NetworkError>>;
     downloadFile(
@@ -104,21 +106,19 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
-    async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
+    async getUserDetails(): Promise<Result<UserDetails, NetworkError>> {
         return this.safeRequest(
-            this.client
-                .get<UserDetailsResponse>('/users/details')
-                .then(r => r.data),
+            this.client.get<UserDetails>('/users/details').then(r => r.data),
         );
     }
 
     async getUserDetailsById(
         id: number,
         accessHash: string,
-    ): Promise<Result<UserDetailsResponse, NetworkError>> {
+    ): Promise<Result<UserDetails, NetworkError>> {
         return this.safeRequest(
             this.client
-                .get<UserDetailsResponse>(`/users/details/${id}/${accessHash}`)
+                .get<UserDetails>(`/users/details/${id}/${accessHash}`)
                 .then(r => r.data),
         );
     }
@@ -226,16 +226,6 @@ export interface GenerateAccountResponse {
     accessHash: string;
 }
 
-export interface UserDetailsResponse {
-    id: number;
-    accessHash: string;
-    nickname: string;
-    description: string;
-    interests: string[];
-    avatar: FileDescriptor | null;
-    socialLink: string | null;
-}
-
 export interface UsersEditRequest {
     nickname: EditField<string>;
     description: EditField<string>;
@@ -246,11 +236,6 @@ export interface UsersEditRequest {
 
 export interface EditField<T> {
     value: T;
-}
-
-export interface FileDescriptor {
-    id: number;
-    accessHash: string;
 }
 
 export interface GenerateFriendInvitationTokenResponse {
@@ -273,7 +258,7 @@ export interface DeclineFriendRequest {
 }
 
 export interface NetworkDetailsResponse {
-    friends: UserDetailsResponse[];
+    friends: UserDetails[];
 }
 
 export interface CommonFriend {
@@ -290,7 +275,7 @@ export interface FeedItem {
     isRequest: boolean;
     isExtendedNetwork: boolean;
     commonFriends: CommonFriend[];
-    details: UserDetailsResponse;
+    details: UserDetails;
 }
 
 export interface FeedQueueResponse {

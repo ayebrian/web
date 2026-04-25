@@ -1,5 +1,5 @@
 import {AdjusterPayload, Adjuster} from './adjuster';
-import {FileDescriptor} from '@/network/friendly-client';
+import {FileDescriptor} from '@/types/file-descriptor';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
 import {toast} from 'sonner';
