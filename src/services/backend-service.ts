@@ -1,12 +1,12 @@
+import {UserDetails} from '@/types/user-details';
+import {FileDescriptor} from '@/types/file-descriptor';
 import {
     DeclineFriendRequest,
-    FileDescriptor,
     FeedQueueResponse,
     FriendlyClient,
     GenerateAccountResponse,
     NetworkDetailsResponse,
     SendFriendRequest,
-    UserDetailsResponse,
 } from '@/network/friendly-client';
 import {NetworkError} from '@/network/errors';
 import {err, ok, Result} from '@/network/result';
@@ -66,7 +66,7 @@ export class BackendService {
         localStorage.removeItem('token');
     }
 
-    async getUserDetails(): Promise<Result<UserDetailsResponse, NetworkError>> {
+    async getUserDetails(): Promise<Result<UserDetails, NetworkError>> {
         return await this.client.getUserDetails();
     }
 

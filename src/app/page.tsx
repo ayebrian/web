@@ -1,6 +1,8 @@
 'use client';
 
-import {FeedItem, UserDetailsResponse} from '@/network/friendly-client';
+import {useAppContext} from '@/app.context';
+import {UserDetails} from '@/types/user-details';
+import {FeedItem} from '@/network/friendly-client';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {toast} from 'sonner';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
@@ -322,14 +324,10 @@ function FeedReviewDeck({
     );
 }
 
-function ProfileHeader({
-    userDetails,
-    logOut,
-}: {
-    userDetails: UserDetailsResponse | null;
-    logOut: () => void;
-}) {
+function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
+    const app = useAppContext();
+    const userDetails = app.requireUser();
 
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
@@ -342,11 +340,7 @@ function ProfileHeader({
     return (
         <div className="flex flex-row gap-6 w-full p-8">
             {userDetails && (
-                <EditProfileDialog
-                    open={openEdit}
-                    setOpen={setOpenEdit}
-                    userDetails={userDetails}
-                />
+                <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}
             <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
                 <AvatarImage src={avatarUrl} />
@@ -407,7 +401,7 @@ function InterestsBlock({interests}: {interests: string[]}) {
     );
 }
 
-function FriendCard({friend}: {friend: UserDetailsResponse}) {
+function FriendCard({friend}: {friend: UserDetails}) {
     const avatarUrl = useMemo(
         () => (friend.avatar ? createFileLink(friend.avatar) : ''),
         [friend],
@@ -432,7 +426,7 @@ function FriendCard({friend}: {friend: UserDetailsResponse}) {
     );
 }
 
-function FriendsBlock({friends}: {friends: UserDetailsResponse[]}) {
+function FriendsBlock({friends}: {friends: UserDetails[]}) {
     const t = useTranslations('profile');
 
     return (
@@ -587,6 +581,7 @@ function QrCodeCard({url}: {url: string | null}) {
 export default function Home() {
     const t = useTranslations('profile');
 
+    const app = useAppContext();
     const router = useRouter();
     const backend = useBackend();
     const session = useSession();
@@ -622,6 +617,12 @@ export default function Home() {
     const inviteResult = inviteQuery.data ?? null;
     const networkResult = networkQuery.data ?? null;
 
+    useEffect(() => {
+        if (userResult?.ok) {
+            app.setUserDetails(userResult.data);
+        }
+    }, [userResult]);
+
     const hasResultError =
         (userResult && !userResult.ok) ||
         (inviteResult && !inviteResult.ok) ||
@@ -642,7 +643,7 @@ export default function Home() {
         inviteQuery.isLoading;
     const isError = userQuery.isError || inviteQuery.isError || hasResultError;
 
-    const user = userResult?.ok ? userResult.data : null;
+    const user = app.userDetails;
     const inviteToken = inviteResult?.ok ? inviteResult.data : null;
     const friends = networkResult?.ok ? networkResult.data.friends : [];
 
@@ -674,7 +675,7 @@ export default function Home() {
     } else {
         content = (
             <div className="flex flex-col gap-2 pb-12">
-                <ProfileHeader userDetails={user} logOut={logOut} />
+                <ProfileHeader logOut={logOut} />
                 <Separator className="dark:bg-zinc-800" />
 
                 <div className="flex flex-col md:flex-row gap-8">
