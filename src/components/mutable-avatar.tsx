@@ -1,4 +1,4 @@
-import {AdjusterPayload, Adjuster} from './adjuster';
+import {AdjusterPayload, Adjuster} from '@/components/adjuster';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
@@ -16,7 +16,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState, useRef} from 'react';
 import {useTranslations} from 'next-intl';
 
-interface AvatarContentProps {
+interface MutableAvatarContentProps {
     nickname: string;
     loading: boolean;
     setLoading: (value: boolean) => void;
@@ -35,13 +35,13 @@ interface AvatarContentProps {
  * o After interactive adjust, image is compressed to be under 200KB.
  * o Then, setAvatar function is called.
  */
-export function AvatarContent({
+export function MutableAvatarContent({
     nickname,
     loading,
     setLoading,
     avatar,
     setAvatar,
-}: AvatarContentProps): ReactNode {
+}: MutableAvatarContentProps): ReactNode {
     const backend = useBackend();
     const t = useTranslations('edit_profile_dialog');
 

@@ -1,7 +1,7 @@
-import {UserDetails} from '@/types/user-details';
+import {useUserValidator, ValidateUserResult} from './user-validation';
 import {useAppContext} from '@/app.context';
 import * as Dialog from '@radix-ui/react-dialog';
-import {AvatarContent} from './avatar';
+import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {UsersEditRequest} from '@/network/friendly-client';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
@@ -18,21 +18,12 @@ import {ReactNode, useState} from 'react';
 import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
 
-// This regex is not meant to be a valid check for URL.
-//
-// URL check according to specification is not applicable in this case, because
-// users will paste URLs like 'x.com/y9san9'.
-//
-// This check is meant to save from most typos made by users
-const socialLinkRegex = /^(https?:\/\/)?\S+\.\S+$/;
-
 interface EditProfileProps {
     open: boolean;
     setOpen: (value: boolean) => void;
 }
 
 // TODO:
-// * Migrate all validation to another file, so it can be reused in signIn page
 // * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
 export function EditProfileDialog({
     open,
@@ -64,119 +55,37 @@ export function EditProfileDialog({
 
     const backend = useBackend();
 
-    function validateNickname(): string | undefined {
-        setNicknameError(null);
-        const value = nickname.trim();
-        if (!value) {
-            setNicknameError(t('nickname-empty'));
-            return;
-        }
-        if (value.length > 256) {
-            setNicknameError(t('nickname-long'));
-            return;
-        }
-        return value;
-    }
+    const validator = useUserValidator({
+        nickname,
+        description,
+        socialLink,
+        interests,
+        avatar,
+        setNicknameError,
+        setDescriptionError,
+        setSocialLinkError,
+        setInterestsError,
+    });
 
-    function validateDescription(): string | undefined {
-        setDescriptionError(null);
-        const value = description.trim();
-        if (value.length === 0) {
-            setDescriptionError(t('description-empty'));
-            return;
-        }
-        if (value.length > 1024) {
-            setDescriptionError(t('description-long'));
-            return;
-        }
-        return value;
-    }
-
-    function validateSocialLink(): [boolean, string | null] {
-        setSocialLinkError(null);
-        const value = socialLink.trim();
-        if (value.length === 0) {
-            return [true, null];
-        }
-        if (!socialLinkRegex.test(value)) {
-            setSocialLinkError(t('social-link-invalid'));
-            return [false, null];
-        }
-        if (value.length > 2048) {
-            setSocialLinkError(t('social-link-too-long'));
-            return [false, null];
-        }
-        return [true, value];
-    }
-
-    function validateInterests(): [boolean, string[]] {
-        setInterestsError(null);
-        if (interests.trim().length === 0) {
-            return [true, []];
-        }
-        const value = interests.trim().split(',');
-        if (value.length > 100) {
-            setInterestsError(t('interests-too-many'));
-            return [false, []];
-        }
-        const validated: string[] = [];
-        for (let interest of value) {
-            interest = interest.trim();
-            if (interest.length === 0) {
-                setInterestsError(t('interest-empty'));
-                return [false, []];
-            }
-            if (interest.length > 64) {
-                setInterestsError(t('interest-too-long'));
-                return [false, []];
-            }
-            if (validated.includes(interest)) {
-                setInterestsError(t('interest-duplicate', {interest}));
-                return [false, []];
-            }
-            validated.push(interest);
-        }
-        console.log(validated);
-        return [true, validated];
-    }
-
-    function validate(): UsersEditRequest | undefined {
-        const nickname = validateNickname();
-        const description = validateDescription();
-        const [socialLinkValid, socialLink] = validateSocialLink();
-        const [interestsValid, interests] = validateInterests();
-        if (!nickname || !description || !interestsValid || !socialLinkValid) {
-            return;
-        }
+    function createUsersEdit(result: ValidateUserResult): UsersEditRequest {
         return {
-            nickname: {value: nickname},
-            description: {value: description},
-            socialLink: {value: socialLink},
-            interests: {value: interests},
+            nickname: {value: result.nickname},
+            description: {value: result.description},
+            interests: {value: result.interests},
+            socialLink: {value: result.socialLink},
             avatar: {value: avatar},
         };
     }
 
-    function mapRequestToUserDetails(request: UsersEditRequest): UserDetails {
-        return {
-            ...userDetails,
-            nickname: request.nickname.value,
-            description: request.description.value,
-            interests: request.interests.value,
-            socialLink: request.socialLink.value,
-            avatar: request.avatar.value,
-        };
-    }
-
     async function onSave() {
-        const validated = validate();
+        const validated = validator();
         if (!validated) return;
         setLoading(true);
-        const result = await backend.usersEdit(validated);
+        const result = await backend.usersEdit(createUsersEdit(validated));
         setLoading(false);
         if (result.ok) {
             setOpen(false);
-            app.setUserDetails(mapRequestToUserDetails(validated));
+            app.setUserDetails({...userDetails, ...validated});
         } else {
             toast.error(t('error-connection'));
         }
@@ -219,11 +128,11 @@ export function EditProfileDialog({
                             </Dialog.Close>
                         </div>
                         <div className="p-4 space-y-4">
-                            <AvatarContent
+                            <MutableAvatarContent
                                 nickname={nickname}
                                 loading={avatarLoading}
                                 setLoading={setAvatarLoading}
-                                avatar={userDetails.avatar}
+                                avatar={avatar}
                                 setAvatar={setAvatar}
                             />
                             <FieldGroup className="gap-4">
@@ -235,6 +144,9 @@ export function EditProfileDialog({
                                         <InputGroupInput
                                             id="nickname"
                                             type="text"
+                                            placeholder={t(
+                                                'nickname-placeholder',
+                                            )}
                                             value={nickname}
                                             onChange={e =>
                                                 setNickname(e.target.value)
@@ -253,6 +165,9 @@ export function EditProfileDialog({
                                     <Textarea
                                         id="description"
                                         value={description}
+                                        placeholder={t(
+                                            'description-placeholder',
+                                        )}
                                         onChange={e =>
                                             setDescription(e.target.value)
                                         }
