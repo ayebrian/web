@@ -1,11 +1,16 @@
 {
     "sign_in": {
         "loading": "Загрузка...",
-        "create_account": "Создать аккаунт",
+        "title": "Создать аккаунт",
         "nickname": "Никнейм",
+        "nickname-placeholder" : "Как вас лучше называть?",
         "description": "Описание",
+        "description-placeholder" : "Расскажите что-нибудь о себе",
         "interests": "Интересы (через запятую)",
-        "social_link": "Ссылка на соцсеть (необязательно)"
+        "social-link": "Ссылка на соцсеть (необязательно)",
+        "interests-placeholder" : "Чай, котики",
+        "error-connection": "Не можем установить связь с сервером",
+        "sign-up": "Зарегистрироваться"
     },
     "profile": {
         "edit_profile": "Редактировать",
@@ -50,27 +55,33 @@
         "title": "Изменить профиль",
         "save": "Сохранить",
         "nickname": "Никнейм",
-        "nickname-empty": "Никнейм не может быть пустым",
-        "nickname-long": "Никнейм слишком длинный (256 максимум)",
+        "nickname-placeholder" : "Как вас лучше называть?",
         "description": "Описание",
-        "description-empty": "Описание не может быть пустым",
-        "description-long" : "Описание слишком длинное (1024 максимум)",
+        "description-placeholder" : "Расскажите что-нибудь о себе",
         "interests": "Интересы",
         "interests-placeholder" : "Чай, котики",
-        "interests-too-many" : "Максимальное количество интересов 100",
-        "interest-empty" : "Нельзя добавить пустой интерес",
-        "interest-too-long" : "Интерес слишком длинный (64 максимум)",
-        "interest-duplicate" : "Интерес {interest} повторяется",
         "social-link" : "Ссылка для связи",
-        "social-link-too-long" : "Ссылка для связи слишком длинная (2048 максимум)",
-        "social-link-invalid" : "Ожидается ссылка",
         "error-connection": "Не можем установить связь с сервером",
         "remove-avatar": "Удалить аватар",
-        "select-avatar": "Выбрать аватар...",
-        "adjuster": {
-            "title": "Обрезать аватарку",
-            "cancel": "Отмена",
-            "continue": "Продолжить"
+        "select-avatar": "Выбрать аватар..."
+    },
+    "user": {
+        "validation": {
+            "nickname-empty": "Никнейм не может быть пустым",
+            "nickname-long": "Никнейм слишком длинный (256 максимум)",
+            "description-empty": "Описание не может быть пустым",
+            "description-long" : "Описание слишком длинное (1024 максимум)",
+            "interests-too-many" : "Максимальное количество интересов 100",
+            "interest-empty" : "Нельзя добавить пустой интерес",
+            "interest-too-long" : "Интерес слишком длинный (64 максимум)",
+            "interest-duplicate" : "Интерес {interest} повторяется",
+            "social-link-too-long" : "Ссылка для связи слишком длинная (2048 максимум)",
+            "social-link-invalid" : "Ожидается ссылка"
         }
+    },
+    "adjuster": {
+        "title": "Обрезать аватарку",
+        "cancel": "Отмена",
+        "continue": "Продолжить"
     }
 }

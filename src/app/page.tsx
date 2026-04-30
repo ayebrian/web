@@ -327,7 +327,7 @@ function FeedReviewDeck({
 function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
-    const userDetails = app.requireUser();
+    const userDetails = app.userDetails;
 
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),

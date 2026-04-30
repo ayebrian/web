@@ -1,168 +1,193 @@
 'use client';
 
+import {Spinner} from '@/components/ui/spinner';
+import {Textarea} from '@/components/ui/textarea';
+import {User, Link, Heart} from 'lucide-react';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
+import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
+import {FileDescriptor} from '@/types/file-descriptor';
+import {MutableAvatarContent} from '@/components/mutable-avatar';
+import {toast} from 'sonner';
+import {useUserValidator} from '../edit/user-validation';
 import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
 import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
-import {Avatar, AvatarImage} from '@/components/ui/avatar';
-import {useEffect, useRef, useState} from 'react';
-import {UploadIcon} from 'lucide-react';
-import {cn} from '@/lib/utils';
-import {useMutation} from '@tanstack/react-query';
+import {useState} from 'react';
 import {useSession} from '@/components/session-provider';
-import {err} from '@/network/result';
-import {formatNetworkError} from '@/services/backend-service';
 import {useTranslations} from 'next-intl';
 
 export default function SignInPage() {
     const t = useTranslations('sign_in');
 
     const router = useRouter();
-    const backend = useBackend();
     const session = useSession();
 
+    const [loading, setLoading] = useState(false);
+    const [avatarLoading, setAvatarLoading] = useState(false);
+
     const [nickname, setNickname] = useState('');
+    const [nicknameError, setNicknameError] = useState<string | null>();
+
     const [description, setDescription] = useState('');
-    const [interests, setInterests] = useState('');
+    const [descriptionError, setDescriptionError] = useState<string | null>();
+
     const [socialLink, setSocialLink] = useState('');
-    const [avatarFile, setAvatarFile] = useState<File | null>(null);
-    const [formError, setFormError] = useState<string | null>(null);
+    const [socialLinkError, setSocialLinkError] = useState<string | null>();
 
-    const avatarInputRef = useRef<HTMLInputElement | null>(null);
+    const [interests, setInterests] = useState('');
+    const [interestsError, setInterestsError] = useState<string | null>();
 
-    const [avatarBlobUrl, setAvatarBlobUrl] = useState<string | null>(null);
-    useEffect(() => {
-        if (avatarFile) setAvatarBlobUrl(URL.createObjectURL(avatarFile));
-        return () => {
-            if (avatarBlobUrl) URL.revokeObjectURL(avatarBlobUrl);
-        };
-    }, [avatarFile]);
+    const [avatar, setAvatar] = useState<FileDescriptor | null>(null);
 
-    const uploadMutation = useMutation({
-        mutationFn: (file: File) => backend.uploadFile(file),
+    const backend = useBackend();
+
+    const validator = useUserValidator({
+        nickname,
+        description,
+        socialLink,
+        interests,
+        avatar,
+        setNicknameError,
+        setDescriptionError,
+        setSocialLinkError,
+        setInterestsError,
     });
 
-    const createAccountMutation = useMutation({
-        mutationFn: async () => {
-            const avatarFileDescriptor = avatarFile
-                ? await uploadMutation.mutateAsync(avatarFile)
-                : null;
-
-            if (
-                avatarFile &&
-                avatarFileDescriptor &&
-                !avatarFileDescriptor.ok
-            ) {
-                return err(avatarFileDescriptor.error);
-            }
-
-            return backend.generateAccount(
-                nickname,
-                description,
-                interests.split(',').map(interest => interest.trim()),
-                avatarFileDescriptor && avatarFileDescriptor.ok
-                    ? avatarFileDescriptor.data
-                    : null,
-                socialLink.length > 0 ? socialLink : null,
-            );
-        },
-        onMutate: () => setFormError(null),
-        onSuccess: auth => {
-            if (!auth.ok) {
-                setFormError(formatNetworkError(auth.error));
-                return;
-            }
+    async function onSave() {
+        const validated = validator();
+        if (!validated) return;
+        setLoading(true);
+        const result = await backend.generateAccount(
+            nickname,
+            description,
+            interests.split(',').map(interest => interest.trim()),
+            avatar,
+            socialLink.length > 0 ? socialLink : null,
+        );
+        setLoading(false);
+        if (result.ok) {
             backend.storeAuthorization(
-                auth.data.token,
-                auth.data.id.toString(),
+                result.data.token,
+                result.data.id.toString(),
             );
             session.setAuthed();
             router.push('/');
-        },
-    });
+        } else {
+            toast.error(t('error-connection'));
+        }
+    }
 
     return (
-        <div className="p-8 md:p-64 flex flex-col gap-4">
-            {formError ? (
-                <div className="text-sm text-red-500">{formError}</div>
-            ) : null}
-            <div className="w-full flex justify-center">
-                <button
-                    className="relative cursor-pointer group"
-                    onClick={() => avatarInputRef?.current?.click()}
-                >
-                    <Avatar
-                        className={cn(
-                            'w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm',
-                            avatarBlobUrl
-                                ? 'group-hover:opacity-40'
-                                : 'group-hover:shadow-md',
-                        )}
-                    >
-                        <AvatarImage src={avatarBlobUrl ?? undefined} />
-                    </Avatar>
-                    <UploadIcon
-                        className={cn(
-                            'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                            avatarBlobUrl ? 'hidden group-hover:block' : '',
-                        )}
-                    />
-                </button>
-
-                <input
-                    className="hidden"
-                    ref={avatarInputRef}
-                    type="file"
-                    accept="image/*"
-                    placeholder="Avatar"
-                    onChange={e => {
-                        const files = e.target.files;
-                        if (files) {
-                            console.log('Avatar file selected:', files[0].name);
-
-                            setAvatarFile(files[0]);
-                        }
-                    }}
-                />
+        <div
+            className="
+            mx-auto
+            md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
+            bg-white dark:bg-zinc-950
+            "
+        >
+            <div className="relative flex items-center mt-1 mx-1">
+                <div className="w-full text-md font-semibold text-center pt-2">
+                    {t('title')}
+                </div>
             </div>
-            <Input
-                type="text"
-                placeholder={t('nickname')}
-                value={nickname}
-                onChange={e => setNickname(e.target.value)}
-            />
-            <Input
-                type="text"
-                placeholder={t('description')}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-            />
-            <Input
-                type="text"
-                placeholder={t('interests')}
-                value={interests}
-                onChange={e => setInterests(e.target.value)}
-            />
-            <Input
-                type="text"
-                placeholder={t('social_link')}
-                value={socialLink}
-                onChange={e => setSocialLink(e.target.value)}
-            />
-            <Button
-                className="cursor-pointer"
-                onClick={() => createAccountMutation.mutate()}
-                disabled={
-                    createAccountMutation.isPending ||
-                    nickname.length < 3 ||
-                    description.length < 3 ||
-                    interests.length < 1
-                }
-            >
-                {createAccountMutation.isPending
-                    ? t('loading')
-                    : t('create_account')}
-            </Button>
+            <div className="p-4 space-y-4">
+                <MutableAvatarContent
+                    nickname={nickname}
+                    loading={avatarLoading}
+                    setLoading={setAvatarLoading}
+                    avatar={avatar}
+                    setAvatar={setAvatar}
+                />
+                <FieldGroup className="gap-4">
+                    <Field>
+                        <FieldLabel htmlFor="nickname">
+                            {t('nickname')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="nickname"
+                                placeholder={t('nickname-placeholder')}
+                                type="text"
+                                value={nickname}
+                                onChange={e => setNickname(e.target.value)}
+                            />
+                            <InputGroupAddon>
+                                <User />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{nicknameError}</FieldError>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="description">
+                            {t('description')}
+                        </FieldLabel>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            placeholder={t('description-placeholder')}
+                            onChange={e => setDescription(e.target.value)}
+                        />
+                        <FieldError>{descriptionError}</FieldError>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="socialLink">
+                            {t('social-link')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="socialLink"
+                                type="text"
+                                value={socialLink}
+                                placeholder="https://example.org"
+                                onChange={e => setSocialLink(e.target.value)}
+                            />
+                            <InputGroupAddon>
+                                <Link />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{socialLinkError}</FieldError>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="interests">
+                            {t('interests')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="interests"
+                                type="text"
+                                value={interests}
+                                placeholder={t('interests-placeholder')}
+                                onChange={e => setInterests(e.target.value)}
+                            />
+                            <InputGroupAddon>
+                                <Heart />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{interestsError}</FieldError>
+                    </Field>
+                </FieldGroup>
+                <div className="ml-auto flex flex-col gap-2">
+                    <Button
+                        className="cursor-pointer"
+                        variant="secondary"
+                        onClick={onSave}
+                        disabled={loading || avatarLoading}
+                    >
+                        {!loading && (
+                            <>
+                                <p className="hidden sm:block">
+                                    {t('sign-up')}
+                                </p>
+                            </>
+                        )}
+                        {loading && <Spinner />}
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 }
