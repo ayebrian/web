@@ -82,7 +82,7 @@ function AdjusterContent({
     setOpen,
     onAdjusted,
 }: AdjusterContentProps): ReactNode {
-    const t = useTranslations('edit_profile_dialog.adjuster');
+    const t = useTranslations('adjuster');
     const [crop, setCrop] = useState<PercentCrop>();
     const [src, setSrc] = useState<string | null>();
 

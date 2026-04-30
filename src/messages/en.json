@@ -1,11 +1,16 @@
 {
     "sign_in" : {
         "loading" : "Loading...",
-        "create_account": "Create account",
+        "title": "Create account",
         "nickname" : "Nickname",
+        "nickname-placeholder" : "How do you want to be called?",
         "description" : "Description",
+        "description-placeholder" : "Tell people something about yourself",
         "interests" : "Interests (Separated by comma)",
-        "social_link" : "Social link (Optional)"
+        "social-link" : "Social link (Optional)",
+        "interests-placeholder" : "Tea, kittens",
+        "error-connection": "Can't get to our servers :(",
+        "sign-up": "Sign Up"
     },
     "profile" : {
         "edit_profile" : "Edit",
@@ -50,27 +55,33 @@
         "title": "Edit Profile",
         "save": "Save",
         "nickname" : "Nickname",
-        "nickname-empty": "Nickname cannot be empty",
-        "nickname-long": "Nickname is too long (256 max)",
+        "nickname-placeholder" : "How do you want to be called?",
         "description" : "Description",
-        "description-empty": "Description cannot be empty",
-        "description-long" : "Description is too long (1024 max)",
+        "description-placeholder" : "Tell people something about yourself",
         "interests" : "Interests",
         "interests-placeholder" : "Tea, kittens",
-        "interests-too-many" : "Max amount of interests is 100",
-        "interest-empty" : "Cannot have empty interest",
-        "interest-too-long" : "Interest is too long (64 max)",
-        "interest-duplicate" : "Interest {interest} is duplicate",
         "social-link" : "Social link",
-        "social-link-too-long" : "Social link is too long (2048 max)",
-        "social-link-invalid" : "A link is expected",
         "error-connection": "Can't get to our servers :(",
         "remove-avatar": "Remove avatar",
-        "select-avatar": "Select avatar...",
-        "adjuster": {
-            "title": "Crop Avatar",
-            "cancel": "Cancel",
-            "continue": "Continue"
+        "select-avatar": "Select avatar..."
+    },
+    "user": {
+        "validation": {
+            "nickname-empty": "Nickname cannot be empty",
+            "nickname-long": "Nickname is too long (256 max)",
+            "description-empty": "Description cannot be empty",
+            "description-long" : "Description is too long (1024 max)",
+            "interests-too-many" : "Max amount of interests is 100",
+            "interest-empty" : "Cannot have empty interest",
+            "interest-too-long" : "Interest is too long (64 max)",
+            "interest-duplicate" : "Interest {interest} is duplicate",
+            "social-link-too-long" : "Social link is too long (2048 max)",
+            "social-link-invalid" : "A link is expected"
         }
+    },
+    "adjuster": {
+        "title": "Crop Avatar",
+        "cancel": "Cancel",
+        "continue": "Continue"
     }
 }
