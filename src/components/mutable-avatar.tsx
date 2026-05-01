@@ -12,6 +12,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {Upload} from 'lucide-react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState, useRef} from 'react';
 import {useTranslations} from 'next-intl';
@@ -94,6 +95,8 @@ export function MutableAvatarContent({
         }
     }
 
+    const fallback = getAvatarFallbackForNickname(nickname);
+
     return (
         <div className="w-full flex justify-center">
             <Adjuster
@@ -104,6 +107,7 @@ export function MutableAvatarContent({
             <AvatarDropdown
                 onDelete={() => onAdjusted(null)}
                 onSelect={() => avatarInputRef?.current?.click()}
+                show={!!avatar}
             >
                 <div className="relative cursor-pointer">
                     <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
@@ -112,9 +116,11 @@ export function MutableAvatarContent({
                             src={avatarUrl ?? undefined}
                         />
                         <AvatarFallback>
-                            <span className="text-xl">
-                                {getAvatarFallbackForNickname(nickname)}
-                            </span>
+                            {fallback ? (
+                                <span className="text-xl">{fallback}</span>
+                            ) : (
+                                <Upload />
+                            )}
                         </AvatarFallback>
                     </Avatar>
                     <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
@@ -142,8 +148,8 @@ export function MutableAvatarContent({
     );
 }
 
-function getAvatarFallbackForNickname(nickname: string): string {
-    if (nickname.length === 0) return '';
+function getAvatarFallbackForNickname(nickname: string): string | undefined {
+    if (nickname.trim().length === 0) return;
     const words = nickname.toUpperCase().split(' ');
     return words
         .slice(0, 2)
@@ -152,31 +158,37 @@ function getAvatarFallbackForNickname(nickname: string): string {
 }
 
 interface AvatarDropdownProps {
+    show: boolean;
     onDelete: () => void;
     onSelect: () => void;
     children: ReactNode;
 }
 
 function AvatarDropdown({
+    show,
     onDelete,
     onSelect,
     children,
 }: AvatarDropdownProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
 
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40" align="start">
-                <DropdownMenuItem onClick={onDelete}>
-                    <Trash2 className="size-4" />
-                    {t('remove-avatar')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onSelect}>
-                    <ImageIcon className="size-4" />
-                    {t('select-avatar')}
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
+    if (show) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="start">
+                    <DropdownMenuItem onClick={onDelete}>
+                        <Trash2 className="size-4" />
+                        {t('remove-avatar')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onSelect}>
+                        <ImageIcon className="size-4" />
+                        {t('select-avatar')}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    } else {
+        return <div onClick={onSelect}>{children}</div>;
+    }
 }
