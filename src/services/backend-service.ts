@@ -107,6 +107,10 @@ export class BackendService {
         return await this.client.getFeedQueue();
     }
 
+    addFriend: typeof this.client.addFriend = (...args) => {
+        return this.client.addFriend(...args);
+    };
+
     async sendFriendRequest(
         request: SendFriendRequest,
     ): Promise<Result<void, NetworkError>> {
