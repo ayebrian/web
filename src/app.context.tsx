@@ -24,7 +24,7 @@ export interface AppContextProviderProps {
  *
  * That will automatically notify you if observed user was mutated.
  */
-interface AppContext {
+export interface AppContext {
     userDetails: UserDetails | undefined;
     setUserDetails(value: UserDetails): void;
     requireUser(): UserDetails;

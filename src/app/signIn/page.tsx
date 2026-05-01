@@ -177,13 +177,7 @@ export default function SignInPage() {
                         onClick={onSave}
                         disabled={loading || avatarLoading}
                     >
-                        {!loading && (
-                            <>
-                                <p className="hidden sm:block">
-                                    {t('sign-up')}
-                                </p>
-                            </>
-                        )}
+                        {!loading && t('sign-up')}
                         {loading && <Spinner />}
                     </Button>
                 </div>
