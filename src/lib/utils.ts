@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function createFriendInviteLink(userId: number, token: string) {
-    return `${backendConfig.landing}/%23?reference=add/${userId}/${token}`;
+    return `${backendConfig.landing}#?reference=add/${userId}/${token}`;
 }
 
 export function createFileLink(descriptor: FileDescriptor): string {

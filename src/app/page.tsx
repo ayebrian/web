@@ -1,5 +1,6 @@
 'use client';
 
+import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext} from '@/app.context';
 import {UserDetails} from '@/types/user-details';
 import {FeedItem} from '@/network/friendly-client';
@@ -146,11 +147,13 @@ function FeedReviewDeck({
 
     return (
         <>
-            <div className="flex gap- overflow-x-auto pb-4">
+            <div className="flex gap-2 overflow-x-auto pb-4">
                 {cards.map(card => {
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
-                        : t('extended_network');
+                        : card.isExtendedNetwork
+                          ? t('extended_network')
+                          : null;
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
@@ -174,12 +177,14 @@ function FeedReviewDeck({
                                     <h3 className="truncate text-sm font-semibold text-zinc-950 dark:text-zinc-50">
                                         {card.details.nickname}
                                     </h3>
-                                    <Badge
-                                        variant="secondary"
-                                        className="mt-1 rounded-md text-xs"
-                                    >
-                                        {badgeLabel}
-                                    </Badge>
+                                    {badgeLabel && (
+                                        <Badge
+                                            variant="secondary"
+                                            className="mt-1 rounded-md text-xs"
+                                        >
+                                            {badgeLabel}
+                                        </Badge>
+                                    )}
                                     <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
                                         {card.details.description
                                             ? truncateString(
@@ -214,14 +219,21 @@ function FeedReviewDeck({
                                 >
                                     <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
                                         <div>
-                                            <Badge
-                                                variant="secondary"
-                                                className="bg-secondary/50 backdrop-blur-md border rounded-md text-sm px-3 py-1"
-                                            >
-                                                {selectedCard.isRequest
-                                                    ? t('requests_badge')
-                                                    : t('extended_network')}
-                                            </Badge>
+                                            {(selectedCard.isRequest ||
+                                                selectedCard.isExtendedNetwork) && (
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="bg-secondary/50 backdrop-blur-md border rounded-md text-sm px-3 py-1"
+                                                >
+                                                    {selectedCard.isRequest
+                                                        ? t('requests_badge')
+                                                        : selectedCard.isExtendedNetwork
+                                                          ? t(
+                                                                'extended_network',
+                                                            )
+                                                          : null}
+                                                </Badge>
+                                            )}
                                         </div>
                                         <Button
                                             variant="ghost"
@@ -554,7 +566,7 @@ function QrCodeCard({url}: {url: string | null}) {
                         <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
                     )}
                 </div>
-                <div className="w-full flex flex-row gap-2"></div>
+                <div className="h-2" />
                 <Button
                     variant="outline"
                     className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
@@ -585,6 +597,7 @@ export default function Home() {
     const router = useRouter();
     const backend = useBackend();
     const session = useSession();
+    const blockingQR = useBlockingQR();
 
     useEffect(() => {
         if (session.status === 'guest') router.push('/signIn');
@@ -608,7 +621,7 @@ export default function Home() {
     });
 
     const networkQuery = useQuery({
-        queryKey: ['networkDetails'],
+        queryKey: ['networkDetails', blockingQR],
         queryFn: () => backend.getNetworkDetails(),
         enabled: session.status === 'authed',
     });
@@ -659,6 +672,12 @@ export default function Home() {
 
     if (session.status === 'guest') {
         content = null;
+    } else if (blockingQR.shouldBlock) {
+        content = (
+            <>
+                <BlockingQR controller={blockingQR} />
+            </>
+        );
     } else if (isLoading) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
