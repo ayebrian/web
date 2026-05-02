@@ -57,16 +57,16 @@ export default function SignInPage() {
         setInterestsError,
     });
 
-    async function onSave() {
+    async function onSignUp() {
         const validated = validator();
         if (!validated) return;
         setLoading(true);
         const result = await backend.generateAccount(
-            nickname,
-            description,
-            interests.split(',').map(interest => interest.trim()),
+            validated.nickname,
+            validated.description,
+            validated.interests,
             avatar,
-            socialLink.length > 0 ? socialLink : null,
+            validated.socialLink,
         );
         setLoading(false);
         if (result.ok) {
@@ -174,7 +174,7 @@ export default function SignInPage() {
                     <Button
                         className="cursor-pointer"
                         variant="secondary"
-                        onClick={onSave}
+                        onClick={onSignUp}
                         disabled={loading || avatarLoading}
                     >
                         {!loading && t('sign-up')}

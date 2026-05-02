@@ -19,7 +19,7 @@
         "friends" : {
             "title" : "Friends",
             "see_all" : "All friends",
-            "no_friends" : "You have no any friends yet."
+            "no_friends" : "Ask someone for invite link to start connecting"
         },
         "qr" : {
             "title" : "QR code",
@@ -90,6 +90,7 @@
         "join": "Join",
         "link-placeholder": "https://getfriend.ly",
         "link-invalid": "Please provide a valid invite link",
+        "link-expired": "This link is expired, ask you friend for a new one",
         "error-connection": "Can't get to our servers :("
     }
 }
