@@ -65,12 +65,16 @@ export function BlockingQR({
         setLoading(true);
         let linkValid;
         let resultSuccess;
+        let linkExpired = true;
         try {
             // https://getfriend.ly/#?reference=add/userId/token
             const parsed = URL.parse(link);
             if (!parsed) return;
-            const params = new URLSearchParams(parsed.hash);
-            const reference = params.get('#?reference');
+            const queryStart = parsed.hash.indexOf('?');
+            if (queryStart === -1) return;
+            const hash = parsed.hash.substring(queryStart);
+            const searchParams = new URLSearchParams(hash);
+            const reference = searchParams.get('reference');
             if (!reference) return;
             const segments = reference.split('/');
             if (segments.length !== 3) return;
@@ -81,14 +85,18 @@ export function BlockingQR({
             linkValid = true;
             const result = await backend.addFriend({userId, token});
             if (!result.ok) return;
-            setShouldBlock(false);
             resultSuccess = true;
+            if (result.data.type === 'FriendTokenExpired') return;
+            linkExpired = false;
+            setShouldBlock(false);
         } finally {
             setLoading(false);
             if (!linkValid) {
                 setLinkError(t('link-invalid'));
             } else if (!resultSuccess) {
                 toast.error(t('error-connection'));
+            } else if (linkExpired) {
+                toast.error(t('link-expired'));
             }
         }
     }
