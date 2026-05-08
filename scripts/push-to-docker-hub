@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-IMAGE_NAME="kotleni/friendly-web"
-TAG_NAME="latest"
-
-echo "You may need to run docker login before this script..."
-
-docker build -t $IMAGE_NAME:$TAG_NAME .
-docker push $IMAGE_NAME:$TAG_NAME
