@@ -39,5 +39,5 @@ After image was built and registered locally, it can be used with
 [compose.yaml](compose.yaml). 
 
 ```
-docker compose up -d friendly-web 
+PORT=3000 docker compose up -d friendly-web 
 ```
