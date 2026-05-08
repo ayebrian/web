@@ -7,8 +7,9 @@
     "dev": "next dev --turbopack",
     "compile": "tsc -p tsconfig.json --noEmit --pretty false",
     "watch": "tsc -p tsconfig.json --noEmit --pretty false -w",
-    "build": "next build",
+    "build": "scripts/build-standalone",
     "start": "next start",
+    "start:standalone": "bun server.js",
     "format": "eslint --fix '**/*.ts*'",
     "lint": "eslint '**/*.ts*'"
   },
