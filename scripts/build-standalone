@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+bun next build
+
+# We don't use CDN, so let's just copy all static files
+cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/

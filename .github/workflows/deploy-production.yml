@@ -1,57 +1,50 @@
-
-name: Deploy Pages
+name: Production deploy
 
 on:
   push:
-    branches:
-      - production
+    branches: [ "production" ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
+  production-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Install dependencies
-        run: bun install
-
-      - name: Build project
-        run: bun run build
-
-      - name: Copy public files to output directory
-        run: cp -r ./public/* ./out
-
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-files
-          path: ./out
-
-  deploy:
-    name: Deploy
-    permissions: "write-all"
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: production-files
-          path: ./out
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
+    - uses: actions/checkout@v3
+    - name: Set up Docker buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Build and export image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        tags: friendly-web:latest
+        outputs: type=docker,dest=/tmp/friendly-web.tar
+    - name: Copy image to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "/tmp/friendly-web.tar"
+        target: "${{ secrets.REMOTE_TARGET }}"
+        strip_components: 1
+    - name: Copy Docker Compose config to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "compose.yml"
+        target: "${{ secrets.REMOTE_TARGET }}"
+        strip_components: 0
+    - name: Deploy with Docker Compose
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+            docker load -i ${{ secrets.REMOTE_TARGET }}/friendly-web.tar
+            cd ${{ secrets.REMOTE_TARGET }}
+            docker compose up -d --force-recreate friendly-web
+            rm ${{ secrets.REMOTE_TARGET }}/friendly-web.tar
+            docker image prune -f

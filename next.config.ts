@@ -7,23 +7,39 @@ function run(cmd: string) {
     return execSync(cmd).toString().trim();
 }
 
-function getGitBranchFormatted(): string {
-    const branch = run('git rev-parse --abbrev-ref HEAD');
-    return branch.replace(/[^0-9A-Za-z-]/g, '-');
+function getGitBranchFormatted(): string | null {
+    try {
+        const branch = run('git rev-parse --abbrev-ref HEAD');
+        return branch.replace(/[^0-9A-Za-z-]/g, '-');
+    } catch (error) {
+        console.error('Error occurred while fetching git branch:', error);
+        return null;
+    }
 }
 
-function getCommitHash(): string {
-    return run('git rev-parse --short HEAD');
+function getCommitHash(): string | null {
+    try {
+        return run('git rev-parse --short HEAD');
+    } catch (error) {
+        console.error('Error occurred while fetching commit hash:', error);
+        return null;
+    }
 }
 
-const longVersionName = `${manifest.version}-${getGitBranchFormatted()}+${getCommitHash()}`;
+const appVersion = manifest.version;
+const gitBranchName = getGitBranchFormatted();
+const gitCommitHash = getCommitHash();
+
+const longVersionName = gitBranchName
+    ? `${appVersion}-${gitBranchName}+${gitCommitHash}`
+    : '${appVersion}-release';
 
 const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = withNextIntl({
-    output: 'export',
+    output: 'standalone',
     basePath: '',
     images: {
-        unoptimized: true,
+        unoptimized: false,
     },
     env: {
         NEXT_PUBLIC_APP_VERSION: longVersionName,
