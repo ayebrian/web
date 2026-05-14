@@ -2,3 +2,5 @@ allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
   sharp: true
+
+minimumReleaseAge: 10080 # 60 * 24 * 7 for a week
