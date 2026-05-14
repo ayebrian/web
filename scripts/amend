@@ -25,10 +25,10 @@ if branch in protected and not shell.args.f and not shell.args.force:
     shell.exit(f"Error: trying to amend {branch} branch. Use --force if are sure.")
 
 print("[amend] Formatting project...")
-shell("bun run format")
+shell("pnpm run format")
 
 print("[amend] Building just to make sure everything's ok...")
-shell("bun run compile")
+shell("pnpm run compile")
 
 if shell.args.a or shell.args.all:
     shell("git add .")

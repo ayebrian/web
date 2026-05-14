@@ -14,10 +14,10 @@ print("[pr] Rebasing on dev branch...")
 shell("scripts/rebase")
 
 print("[pr] Formatting project...")
-shell("bun run format")
+shell("pnpm run format")
 
 print("[pr] Building just to make sure everything's ok...")
-shell("bun run compile")
+shell("pnpm run compile")
 
 _, has_changes = shell.read("git diff-index --quiet HEAD")
 if has_changes:

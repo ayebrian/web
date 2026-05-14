@@ -19,11 +19,11 @@ If you intend to implement a new feature, enhance existing implementation, fix a
 If you decide to fix an issue, please be sure to check the comment thread and existing pull requests in case if somebody is already working on it. If nobody is working on it at the moment, please leave a comment stating that you intend to work on it. If somebody claims an issue but doesn't follow up for some time - it is fine to take it over.
 
 # Development Workflow
-After cloning repo, run `bun install` to fetch its dependencies. Then, you can run several commands:
-* `bun lint` checks the code style.
-* `bun format` will reformat code where it's possible.
-* `bun build` to build production-ready app.
-* `bun dev` to start dev server.
+After cloning repo, run `pnpm install` to fetch its dependencies. Then, you can run several commands:
+* `pnpm lint` checks the code style.
+* `pnpm format` will reformat code where it's possible.
+* `pnpm build` to build production-ready app.
+* `pnpm dev` to start dev server.
 
 # Style Guide
 We use an automatic code formatter called Prettier. However, there are still some style rules that the linter cannot pick up. Right now we don't have code style document, so feel free to ask us.
