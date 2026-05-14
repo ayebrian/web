@@ -1,14 +1,22 @@
-FROM --platform=$BUILDPLATFORM oven/bun:alpine AS builder
+FROM --platform=$BUILDPLATFORM node:22-alpine AS builder
 WORKDIR /app
-COPY . .
-RUN apk add --no-cache git
-RUN bun install --frozen-lockfile
-RUN bun run build
 
-FROM oven/bun:alpine AS runner
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install
+
+COPY . .
+
+RUN pnpm run build
+
+FROM node:22-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
+
 COPY --from=builder /app/.next/standalone ./
 
+ENV NODE_ENV=production
 EXPOSE 3000
-CMD ["bun", "start:standalone"]
+
+CMD ["node", "server.js"]
