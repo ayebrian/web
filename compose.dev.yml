@@ -1,6 +1,6 @@
 services:
-    friendly-web:
-        image: "friendly-web:latest"
+    friendly-web-dev:
+        image: "friendly-web-dev:latest"
         ports:
             - "${PORT}:3000"
         environment:
