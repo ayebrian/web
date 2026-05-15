@@ -1,21 +1,12 @@
 import {defineConfig, globalIgnores} from 'eslint/config';
-import n from 'eslint-plugin-n';
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import prettier from 'eslint-config-prettier/flat';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 
 export default defineConfig([
-    globalIgnores([
-        '**/build/',
-        'test/fixtures/',
-        '**/template/',
-        '.next/',
-        'next-env.d.ts',
-    ]),
     ...nextVitals,
     ...nextTs,
+    prettier,
     {
         settings: {
             // Fix for ESLint 10+: eslint-plugin-react uses context.getFilename() (legacy API)
@@ -33,7 +24,6 @@ export default defineConfig([
     },
     {
         rules: {
-            'prettier/prettier': 'error',
             'block-scoped-var': 'error',
             eqeqeq: 'error',
             'no-var': 'error',
@@ -99,7 +89,7 @@ export default defineConfig([
             'n/no-missing-require': 'off',
             'n/shebang': 'off',
             'no-dupe-class-members': 'off',
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             'require-atomic-updates': 'off',
         },
     },
@@ -108,7 +98,13 @@ export default defineConfig([
 
         rules: {
             'react-hooks/set-state-in-effect': 'off',
-        }
+        },
     },
-    eslintPluginPrettierRecommended,
+    globalIgnores([
+        '**/build/',
+        'test/fixtures/',
+        '**/template/',
+        '.next/',
+        'next-env.d.ts',
+    ]),
 ]);
