@@ -1,34 +1,37 @@
 import {defineConfig, globalIgnores} from 'eslint/config';
 import n from 'eslint-plugin-n';
-import prettier from 'eslint-plugin-prettier';
-import tsParser from '@typescript-eslint/parser';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import js from '@eslint/js';
-import {FlatCompat} from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 
 export default defineConfig([
-    globalIgnores(['**/build/', 'test/fixtures/', '**/template/', '.next/', 'next-env.d.ts']),
+    globalIgnores([
+        '**/build/',
+        'test/fixtures/',
+        '**/template/',
+        '.next/',
+        'next-env.d.ts',
+    ]),
+    ...nextVitals,
+    ...nextTs,
     {
-        extends: compat.extends(
-            'eslint:recommended',
-            'plugin:n/recommended',
-            'prettier',
-        ),
-
-        plugins: {
-            n,
-            prettier,
+        settings: {
+            // Fix for ESLint 10+: eslint-plugin-react uses context.getFilename() (legacy API)
+            // which was removed in ESLint 10 flat config. Declaring the version explicitly
+            // prevents the plugin from trying to auto-detect it and failing.
+            react: {version: '19'},
         },
-
+    },
+    {
+        languageOptions: {
+            parserOptions: {
+                projectService: true,
+            },
+        },
+    },
+    {
         rules: {
             'prettier/prettier': 'error',
             'block-scoped-var': 'error',
@@ -62,18 +65,6 @@ export default defineConfig([
     },
     {
         files: ['**/*.ts', '**/*.tsx'],
-        extends: compat.extends('plugin:@typescript-eslint/recommended'),
-
-        languageOptions: {
-            parser: tsParser,
-            ecmaVersion: 2018,
-            sourceType: 'module',
-
-            parserOptions: {
-                projectService: true,
-                tsconfigRootDir: __dirname,
-            },
-        },
 
         rules: {
             '@typescript-eslint/ban-ts-comment': 'warn',
@@ -86,20 +77,20 @@ export default defineConfig([
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             '@typescript-eslint/ban-types': 'off',
-            "@typescript-eslint/no-unused-vars": [
-            "error",
+            '@typescript-eslint/no-unused-vars': [
+                'error',
                 {
-                  args: "all",
-                  argsIgnorePattern: "^_",
-                  caughtErrors: "all",
-                  caughtErrorsIgnorePattern: "^_",
-                  destructuredArrayIgnorePattern: "^_",
-                  varsIgnorePattern: "^_",
-                  ignoreRestSiblings: true,
-                  enableAutofixRemoval: {
-                      imports: true
-                  }
-                }
+                    args: 'all',
+                    argsIgnorePattern: '^_',
+                    caughtErrors: 'all',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
+                    ignoreRestSiblings: true,
+                    enableAutofixRemoval: {
+                        imports: true,
+                    },
+                },
             ],
             '@/camelcase': 'warn',
             'n/no-missing-import': 'off',
@@ -108,7 +99,16 @@ export default defineConfig([
             'n/no-missing-require': 'off',
             'n/shebang': 'off',
             'no-dupe-class-members': 'off',
+        // eslint-disable-next-line react-hooks/set-state-in-effect
             'require-atomic-updates': 'off',
         },
     },
+    {
+        files: ['**/*.tsx'],
+
+        rules: {
+            'react-hooks/set-state-in-effect': 'off',
+        }
+    },
+    eslintPluginPrettierRecommended,
 ]);

@@ -57,7 +57,7 @@ export async function resizeImage({
             return await new Promise((resolve, reject) =>
                 canvas.toBlob(blob => {
                     if (!blob) {
-                        reject();
+                        reject(new Error('Canvas toBlob returned !blob'));
                     } else {
                         resolve(blob);
                     }
