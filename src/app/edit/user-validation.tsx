@@ -18,10 +18,10 @@ interface UserValidatorProps {
     socialLink: string;
     interests: string;
     avatar: FileDescriptor | null;
-    setNicknameError(value: string | null): void;
-    setDescriptionError(value: string | null): void;
-    setSocialLinkError(value: string | null): void;
-    setInterestsError(value: string | null): void;
+    setNicknameError: (value: string | null) => void;
+    setDescriptionError: (value: string | null) => void;
+    setSocialLinkError: (value: string | null) => void;
+    setInterestsError: (value: string | null) => void;
 }
 
 /**
@@ -36,17 +36,7 @@ export function useUserValidator(
     const translations = useTranslations('user.validation');
     return useCallback(() => {
         return validateUser({...props, translations});
-    }, [
-        props.nickname,
-        props.description,
-        props.socialLink,
-        props.interests,
-        props.setNicknameError,
-        props.setDescriptionError,
-        props.setSocialLinkError,
-        props.setInterestsError,
-        translations,
-    ]);
+    }, [props, translations]);
 }
 
 export interface ValidateUserProps extends UserValidatorProps {

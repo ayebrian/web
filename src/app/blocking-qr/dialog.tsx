@@ -15,7 +15,7 @@ import {Button} from '@/components/ui/button';
 
 export interface BlockingQRController {
     shouldBlock: boolean;
-    setShouldBlock(value: boolean): void;
+    setShouldBlock: (value: boolean) => void;
 }
 
 export function useBlockingQR(): BlockingQRController {
@@ -153,7 +153,7 @@ export function BlockingQR({
                         <Button
                             className="cursor-pointer w-30"
                             variant="secondary"
-                            onClick={onJoin}
+                            onClick={() => void onJoin()}
                             disabled={loading}
                         >
                             {!loading && t('join')}

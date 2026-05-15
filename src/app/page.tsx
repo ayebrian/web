@@ -509,7 +509,7 @@ function DiscoveryFeedBlock() {
                 current.filter(item => item.details.id !== card.details.id),
             );
         },
-        [backend, t],
+        [backend],
     );
 
     return (
@@ -642,7 +642,7 @@ export default function Home() {
         if (userResult?.ok) {
             app.setUserDetails(userResult.data);
         }
-    }, [userResult]);
+    }, [app, userResult]);
 
     const hasResultError =
         (userResult && !userResult.ok) ||
@@ -673,7 +673,7 @@ export default function Home() {
             user?.id && inviteToken
                 ? createFriendInviteLink(user.id, inviteToken)
                 : null,
-        [inviteToken, user?.id],
+        [inviteToken, user],
     );
 
     let content;

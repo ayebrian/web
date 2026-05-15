@@ -15,6 +15,7 @@ import {
 } from 'react';
 import {useTranslations} from 'next-intl';
 import {Button} from '@/components/ui/button';
+import ImageView from 'next/image';
 
 export type AdjusterPayload =
     | {
@@ -84,13 +85,13 @@ function AdjusterContent({
 }: AdjusterContentProps): ReactNode {
     const t = useTranslations('adjuster');
     const [crop, setCrop] = useState<PercentCrop>();
-    const [src, setSrc] = useState<string | null>();
+    const src = useMemo(() => {
+        return URL.createObjectURL(payload.data);
+    }, [payload.data]);
 
     useEffect(() => {
-        const url = URL.createObjectURL(payload.data);
-        setSrc(url);
-        return () => URL.revokeObjectURL(url);
-    }, [payload.data]);
+        return () => URL.revokeObjectURL(src);
+    }, [src]);
 
     function onCancel() {
         setOpen(false);
@@ -135,10 +136,11 @@ function AdjusterContent({
                         aspect={1}
                         onChange={(_, crop) => setCrop(crop)}
                     >
-                        <img
+                        <ImageView
                             className="w-full"
                             src={src}
                             onLoad={onImageLoad}
+                            alt={'Image'}
                         />
                     </ReactCrop>
                 )}
@@ -154,7 +156,7 @@ function AdjusterContent({
                 </Button>
                 <Button
                     className="flex-grow cursor-pointer"
-                    onClick={onContinue}
+                    onClick={() => void onContinue()}
                 >
                     {t('continue')}
                 </Button>
@@ -191,7 +193,7 @@ async function render(file: File, crop: PercentCrop): Promise<File> {
         return await new Promise((resolve, reject) =>
             canvas.toBlob(blob => {
                 if (!blob) {
-                    reject();
+                    reject(new Error('Canvas toBlob returned !blob'));
                 } else {
                     const result = new File([blob], file.name, {
                         type: file.type,

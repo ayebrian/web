@@ -221,7 +221,7 @@ export function EditProfileDialog({
                                 <Button
                                     className="cursor-pointer"
                                     variant="secondary"
-                                    onClick={onSave}
+                                    onClick={() => void onSave()}
                                     disabled={loading || avatarLoading}
                                 >
                                     {!loading && (
