@@ -21,6 +21,8 @@ import {
     QrCodeIcon,
     X,
     RotateCcw,
+    ChevronDown,
+    ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import Link from 'next/link';
@@ -28,6 +30,7 @@ import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
+    cn,
     createFileLink,
     createFriendInviteLink,
     truncateString,
@@ -341,44 +344,73 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const app = useAppContext();
     const userDetails = app.userDetails;
 
+    const [expanded, setExpanded] = useState(false);
+
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
     );
 
     const [openEdit, setOpenEdit] = useState(false);
-    const onEditClick = useCallback(() => setOpenEdit(true), [setOpenEdit]);
+    const onEditClick = useCallback(() => setOpenEdit(true), []);
 
     return (
-        <div className="flex flex-row gap-6 w-full p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             {userDetails && (
                 <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}
-            <Avatar className="w-24 h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback>
-                    {userDetails?.nickname.toString().slice(0, 2)}
-                </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-1 flex-col gap-2">
-                <p className="font-bold text-2xl dark:text-zinc-100">
+
+            <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
+                    <AvatarImage src={avatarUrl} />
+                    <AvatarFallback>
+                        {userDetails?.nickname?.slice(0, 2)}
+                    </AvatarFallback>
+                </Avatar>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-2 min-w-0 items-center sm:items-start">
+                <p className="font-bold text-xl sm:text-2xl dark:text-zinc-100 truncate">
                     {userDetails?.nickname}
                 </p>
-                <p className="text-neutral-700 dark:text-zinc-400">
+
+                <p
+                    className={cn(
+                        'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
+                        !expanded && 'line-clamp-4 sm:line-clamp-3',
+                    )}
+                >
                     {userDetails?.description}
                 </p>
+
+                <button
+                    onClick={() => setExpanded(v => !v)}
+                    className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
+                >
+                    {expanded ? (
+                        <>
+                            <ChevronUp className="w-4 h-4" /> Show less
+                        </>
+                    ) : (
+                        <>
+                            <ChevronDown className="w-4 h-4" /> Show more
+                        </>
+                    )}
+                </button>
             </div>
-            <div className="ml-auto flex flex-col gap-2">
+
+            <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
                 <Button
-                    className="cursor-pointer"
+                    className="cursor-pointer flex-1 sm:flex-none"
                     variant="secondary"
                     onClick={onEditClick}
                 >
                     <Pencil className="w-4 h-4" />
                     <p className="hidden sm:block">{t('edit_profile')}</p>
                 </Button>
+
                 <Button
-                    className="cursor-pointer"
+                    className="cursor-pointer flex-1 sm:flex-none"
                     variant="secondary"
                     onClick={logOut}
                 >
