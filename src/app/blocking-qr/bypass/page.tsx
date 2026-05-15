@@ -9,7 +9,7 @@ export default function Bypass(): ReactNode {
     useEffect(() => {
         localStorage.setItem('blocking-qr-completed', 'true');
         router.push('/');
-    }, []);
+    }, [router]);
 
     return;
 }
