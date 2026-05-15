@@ -141,6 +141,8 @@ function AdjusterContent({
                             src={src}
                             onLoad={onImageLoad}
                             alt={'Image'}
+                            width="512"
+                            height="512"
                         />
                     </ReactCrop>
                 )}
