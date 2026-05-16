@@ -35,6 +35,12 @@ export interface FriendlyClient {
     ): Promise<Result<void, NetworkError>>;
     getNetworkDetails(): Promise<Result<NetworkDetailsResponse, NetworkError>>;
     getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>>;
+    emailLink(
+        locale: 'ru' | 'en',
+        request: EmailLinkRequest,
+    ): Promise<Result<void, NetworkError>>;
+    emailConfirm(request: EmailConfirmRequest): Promise<Result<void, NetworkError>>;
+    emailUnlink(): Promise<Result<void, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -69,8 +75,8 @@ export class FriendlyClientImpl implements FriendlyClient {
                     }
 
                     return err({
-                        type: 'unknown',
-                        message: `status=${e.response.status}`,
+                        type: 'status',
+                        status: e.response.status,
                     });
                 }
 
@@ -214,6 +220,38 @@ export class FriendlyClientImpl implements FriendlyClient {
             this.client.get<FeedQueueResponse>('/feed/queue').then(r => r.data),
         );
     }
+
+    emailLink(
+        locale: 'ru' | 'en',
+        request: EmailLinkRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post('/email/link', request, {
+                    headers: {
+                        'X-Locale': locale,
+                    }
+                }).then(() => undefined),
+        );
+    }
+
+    emailConfirm(
+        request: EmailConfirmRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post('/email/confirm', request)
+                .then(() => undefined),
+        );
+    }
+
+    emailUnlink(): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post('/email/unlink')
+                .then(() => undefined),
+        );
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -288,4 +326,12 @@ export interface FeedItem {
 
 export interface FeedQueueResponse {
     entries: FeedItem[];
+}
+
+export interface EmailLinkRequest {
+    email: string;
+}
+
+export interface EmailConfirmRequest {
+    code: number;
 }

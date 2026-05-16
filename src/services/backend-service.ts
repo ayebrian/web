@@ -20,6 +20,8 @@ export function formatNetworkError(error: NetworkError): string {
             return `Network error: ${error.message}`;
         case 'parse':
             return `Parse error: ${error.message}`;
+        case 'status':
+            return `Status: ${error.status}`;
         case 'unknown':
         default:
             return `Unknown error: ${error.message}`;
@@ -106,6 +108,18 @@ export class BackendService {
     async getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>> {
         return await this.client.getFeedQueue();
     }
+
+    emailLink: typeof this.client.emailLink = (...args) => {
+        return this.client.emailLink(...args);
+    };
+
+    emailConfirm: typeof this.client.emailConfirm = (...args) => {
+        return this.client.emailConfirm(...args);
+    };
+
+    emailUnlink: typeof this.client.emailUnlink = (...args) => {
+        return this.client.emailUnlink(...args);
+    };
 
     addFriend: typeof this.client.addFriend = (...args) => {
         return this.client.addFriend(...args);
