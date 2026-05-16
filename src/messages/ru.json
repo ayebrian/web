@@ -63,7 +63,17 @@
         "social-link" : "Ссылка для связи",
         "error-connection": "Не можем установить связь с сервером",
         "remove-avatar": "Удалить аватар",
-        "select-avatar": "Выбрать аватар..."
+        "select-avatar": "Выбрать аватар...",
+        "email": "Email",
+        "email-invalid": "Введённая строка не похожа на email",
+        "email-placeholder": "email@example.org",
+        "email-verify": "Подтвердить",
+        "email-verification-required": "Сначала подтвердите email",
+        "email-used": "Email уже используется на другом аккаунте",
+        "email-unlink-sure": "Вы уверены?",
+        "email-unlink-sure-verbose": "Чтобы отменить это действие, будет необходимо снова пройти подтверждение email-адреса",
+        "cancel": "Отменить",
+        "continue": "Продолжить"
     },
     "user": {
         "validation": {
@@ -92,5 +102,11 @@
         "link-invalid": "Неправильная ссылка",
         "link-expired": "Ссылка устарела, попробуйте ещё раз с другой",
         "error-connection": "Не можем установить связь с сервером"
+    },
+    "email-dialog": {
+        "title": "Подтвердите email",
+        "code-sent": "Чтобы подтвердить адрес {email}, на эту почту был направлен код. Вставьте его в поле ввода ниже:",
+        "error-connection": "Не можем установить связь с сервером",
+        "continue": "Продолжить"
     }
 }

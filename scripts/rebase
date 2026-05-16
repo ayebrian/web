@@ -6,7 +6,7 @@ if branch == "dev":
     shell.exit("[rebase] Already on dev, can't rebase")
 
 print("[rebase] Fetching dev branch...")
-shell["git fetch origin dev:dev -q"]
+shell("git fetch origin dev:dev -q")
 
 _, is_ancestor = shell.read("git merge-base --is-ancestor dev HEAD")
 if not is_ancestor:
