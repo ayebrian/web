@@ -640,12 +640,12 @@ export default function Home() {
     const blockingQR = useBlockingQR();
 
     useEffect(() => {
-        if (session.status === 'guest') router.push('/signIn');
+        if (session.status === 'guest') router.push('/sign-up');
     }, [session.status, router]);
 
     const logOut = () => {
         session.logOut();
-        router.push('/signIn');
+        router.push('/sign-up');
     };
 
     const userQuery = useQuery({
