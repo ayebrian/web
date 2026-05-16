@@ -63,7 +63,17 @@
         "social-link" : "Social link",
         "error-connection": "Can't get to our servers :(",
         "remove-avatar": "Remove avatar",
-        "select-avatar": "Select avatar..."
+        "select-avatar": "Select avatar...",
+        "email": "Email",
+        "email-invalid": "This does not look like email",
+        "email-placeholder": "email@example.org",
+        "email-verify": "Verify",
+        "email-verification-required": "Verify email first",
+        "email-used": "This email is already in use",
+        "email-unlink-sure": "Are you sure?",
+        "email-unlink-sure-verbose": "To undo this action you will need to go through confirmation process again",
+        "cancel": "Cancel",
+        "continue": "Continue"
     },
     "user": {
         "validation": {
@@ -92,5 +102,11 @@
         "link-invalid": "Please provide a valid invite link",
         "link-expired": "This link is expired, ask you friend for a new one",
         "error-connection": "Can't get to our servers :("
+    },
+    "email-dialog": {
+        "title": "Confirm Email",
+        "code-sent": "To verify that you own {email}, we've sent you a code. Please paste it in the field below:",
+        "error-connection": "Can't get to our servers :(",
+        "continue": "Continue"
     }
 }

@@ -4,9 +4,12 @@ import {UserDetails} from '@/types/user-details';
 import {
     ReactElement,
     useCallback,
+    useEffect,
     useState,
     createContext,
     useContext,
+    RefObject,
+    useRef,
 } from 'react';
 
 const AppContextDescriptor = createContext<AppContext | null>(null);
@@ -28,6 +31,15 @@ export interface AppContext {
     userDetails: UserDetails | undefined;
     setUserDetails(value: UserDetails): void;
     requireUser(): UserDetails;
+}
+
+export function useAppContextRef(): RefObject<AppContext> {
+    const appContext = useAppContext();
+    const ref = useRef<AppContext>(appContext);
+    useEffect(() => {
+        ref.current = appContext;
+    }, [appContext]);
+    return ref;
 }
 
 export function useAppContext() {

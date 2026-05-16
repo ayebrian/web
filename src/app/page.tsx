@@ -1,7 +1,7 @@
 'use client';
 
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
-import {useAppContext} from '@/app.context';
+import {useAppContext, useAppContextRef} from '@/app.context';
 import {UserDetails} from '@/types/user-details';
 import {FeedItem} from '@/network/friendly-client';
 import {useEffect, useMemo, useState, useCallback} from 'react';
@@ -633,6 +633,7 @@ export default function Home() {
     const t = useTranslations('profile');
 
     const app = useAppContext();
+    const appRef = useAppContextRef();
     const router = useRouter();
     const backend = useBackend();
     const session = useSession();
@@ -672,9 +673,9 @@ export default function Home() {
 
     useEffect(() => {
         if (userResult?.ok) {
-            app.setUserDetails(userResult.data);
+            appRef.current.setUserDetails(userResult.data);
         }
-    }, [app, userResult]);
+    }, [appRef, userResult]);
 
     const hasResultError =
         (userResult && !userResult.ok) ||

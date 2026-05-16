@@ -1,5 +1,8 @@
 import {useUserValidator, ValidateUserResult} from './user-validation';
 import {useAppContext} from '@/app.context';
+import {useEffect} from 'react';
+import {useBackendLocale} from '@/network/backend-locale';
+import {EmailDialog} from './email-dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {UsersEditRequest} from '@/network/friendly-client';
@@ -25,10 +28,29 @@ interface EditProfileProps {
 
 // TODO:
 // * use https://github.com/arvind-iyer-2001/zepto-chip/tree/master/src/components for interests
-export function EditProfileDialog({
-    open,
-    setOpen,
-}: EditProfileProps): ReactNode {
+export function EditProfileDialog(props: EditProfileProps): ReactNode {
+    const {open, setOpen} = props;
+    return (
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                <Dialog.Content
+                    className="
+                    fixed left-1/2 top-1/2
+                    -translate-x-1/2 -translate-y-1/2
+
+                    w-full max-w-lg p-5
+                    max-h-screen overflow-y-scroll
+                    "
+                >
+                <EditProfileDialogContent {...props} />
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+}
+
+function EditProfileDialogContent({ setOpen }: EditProfileProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
     const app = useAppContext();
 
@@ -39,6 +61,17 @@ export function EditProfileDialog({
 
     const [nickname, setNickname] = useState(userDetails.nickname);
     const [nicknameError, setNicknameError] = useState<string | null>();
+
+    const savedEmail = userDetails.email ?? '';
+    const [email, setEmail] = useState(savedEmail);
+    const [emailError, setEmailError] = useState<string | undefined>(undefined);
+    const emailChanged = savedEmail !== email;
+
+    const [emailOpen, setEmailOpen] = useState(false);
+
+    useEffect(() => {
+        setEmail(savedEmail);
+    }, [savedEmail]);
 
     const [description, setDescription] = useState(userDetails.description);
     const [descriptionError, setDescriptionError] = useState<string | null>();
@@ -80,6 +113,12 @@ export function EditProfileDialog({
     async function onSave() {
         const validated = validator();
         if (!validated) return;
+        if (emailChanged) {
+            setEmailError(t('email-verification-required'));
+            return;
+        } else {
+            setEmailError(undefined);
+        }
         setLoading(true);
         const result = await backend.usersEdit(createUsersEdit(validated));
         setLoading(false);
@@ -91,8 +130,251 @@ export function EditProfileDialog({
         }
     }
 
-    return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
+    return <>
+        <EmailDialog email={email} open={emailOpen} setOpen={setEmailOpen} />
+        <div
+            className="
+            rounded-xl bg-white dark:bg-zinc-900
+            shadow-xl
+            "
+        >
+            <div className="relative flex items-center mt-1 mx-1">
+                <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                    {t('title')}
+                </Dialog.Title>
+
+                <Dialog.Close
+                    className="absolute right-0 top-0"
+                    asChild
+                >
+                    <Button
+                        variant="ghost"
+                        className="cursor-pointer"
+                    >
+                        <X />
+                    </Button>
+                </Dialog.Close>
+            </div>
+            <div className="p-4 space-y-4">
+                <MutableAvatarContent
+                    nickname={nickname}
+                    loading={avatarLoading}
+                    setLoading={setAvatarLoading}
+                    avatar={avatar}
+                    setAvatar={setAvatar}
+                />
+                <FieldGroup className="gap-4">
+                    <Field>
+                        <FieldLabel htmlFor="nickname">
+                            {t('nickname')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="nickname"
+                                type="text"
+                                placeholder={t(
+                                    'nickname-placeholder',
+                                )}
+                                value={nickname}
+                                onChange={e =>
+                                    setNickname(e.target.value)
+                                }
+                            />
+                            <InputGroupAddon>
+                                <User />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{nicknameError}</FieldError>
+                    </Field>
+                    <EmailInput savedEmail={savedEmail} email={email} setEmail={setEmail} emailError={emailError} setEmailError={setEmailError} setEmailOpen={() => setEmailOpen(true)}/>
+                    <Field>
+                        <FieldLabel htmlFor="description">
+                            {t('description')}
+                        </FieldLabel>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            placeholder={t(
+                                'description-placeholder',
+                            )}
+                            onChange={e =>
+                                setDescription(e.target.value)
+                            }
+                        />
+                        <FieldError>{descriptionError}</FieldError>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="socialLink">
+                            {t('social-link')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="socialLink"
+                                type="text"
+                                value={socialLink}
+                                placeholder="https://example.org"
+                                onChange={e =>
+                                    setSocialLink(e.target.value)
+                                }
+                            />
+                            <InputGroupAddon>
+                                <Link />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{socialLinkError}</FieldError>
+                    </Field>
+                    <Field>
+                        <FieldLabel htmlFor="interests">
+                            {t('interests')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="interests"
+                                type="text"
+                                value={interests}
+                                placeholder={t(
+                                    'interests-placeholder',
+                                )}
+                                onChange={e =>
+                                    setInterests(e.target.value)
+                                }
+                            />
+                            <InputGroupAddon>
+                                <Heart />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{interestsError}</FieldError>
+                    </Field>
+                </FieldGroup>
+                <div className="ml-auto flex flex-col gap-2">
+                    <Button
+                        className="cursor-pointer"
+                        variant="secondary"
+                        onClick={() => void onSave()}
+                        disabled={loading || avatarLoading}
+                    >
+                        {!loading && (
+                            <>
+                                <Save className="w-4 h-4" />
+                                <p className="hidden sm:block">
+                                    {t('save')}
+                                </p>
+                            </>
+                        )}
+                        {loading && <Spinner />}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </>;
+}
+
+interface EmailInputProps {
+    savedEmail: string;
+    email: string;
+    emailError: string | undefined;
+    setEmailError: (value: string | undefined) => void;
+    setEmail: (value: string) => void;
+    setEmailOpen: () => void;
+}
+
+// This regex is not meant to be a valid check for email.
+// Validating in compliance with RFC is very hard and basically no one does it.
+// You need to receive email tho.
+const emailRegex = /^.*@.*\..*$/;
+
+function EmailInput(
+    {
+        savedEmail, email, emailError, setEmailError, setEmail, setEmailOpen
+    }: EmailInputProps,
+): ReactNode {
+    const t = useTranslations('edit_profile_dialog');
+    const emailChanged = savedEmail !== email;
+    const emailEmpty = email.trim().length === 0;
+    const [loading, setLoading] = useState(false);
+    const backend = useBackend();
+    const locale = useBackendLocale();
+
+    const [openUnlink, setOpenUnlink] = useState(false);
+
+    const appContext = useAppContext();
+
+    async function onOpen() {
+        setLoading(true);
+        setEmailError(undefined);
+        try {
+            if (!emailRegex.test(email)) {
+                setEmailError(t('email-invalid'));
+                return;
+            }
+            const result = await backend.emailLink(locale, { email });
+            if (result.ok) {
+                setEmailOpen();
+            } else {
+                if (result.error.type === 'status') {
+                    setEmailError(t('email-used'));
+                } else {
+                    setEmailError(t('error-connection'));
+                }
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function onUnlink() {
+        setLoading(true);
+        setEmailError(undefined);
+        try {
+            const result = await backend.emailUnlink();
+            if (!result.ok) {
+                setEmailError(t('error-connection'));
+                return;
+            }
+            appContext.setUserDetails({
+                ...appContext.requireUser(),
+                email: null,
+            });
+        } finally {
+            setLoading(false);
+            setOpenUnlink(false);
+        }
+    }
+
+    return <Field>
+        <FieldLabel htmlFor="email">
+            {t('email')}
+        </FieldLabel>
+        <InputGroup>
+            <InputGroupInput
+                id="email"
+                type="text"
+                placeholder={t(
+                    'email-placeholder',
+                )}
+                value={email}
+                onChange={e => {
+                    setEmail(e.target.value);
+                }}
+            />
+            <InputGroupAddon>
+                <User />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+                {loading
+                    ? <Spinner />
+                    : (emailChanged && !emailEmpty)
+                        ? <Button variant="ghost" size="sm" onClick={onOpen}>
+                            {t('email-verify')}
+                          </Button>
+                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
+                            <X />
+                          </Button>
+                }
+            </InputGroupAddon>
+        </InputGroup>
+        <FieldError>{emailError}</FieldError>
+        <Dialog.Root open={openUnlink} onOpenChange={setOpenUnlink}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
                 <Dialog.Content
@@ -112,7 +394,7 @@ export function EditProfileDialog({
                     >
                         <div className="relative flex items-center mt-1 mx-1">
                             <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
-                                {t('title')}
+                                {t('email-unlink-sure')}
                             </Dialog.Title>
 
                             <Dialog.Close
@@ -127,111 +409,23 @@ export function EditProfileDialog({
                                 </Button>
                             </Dialog.Close>
                         </div>
-                        <div className="p-4 space-y-4">
-                            <MutableAvatarContent
-                                nickname={nickname}
-                                loading={avatarLoading}
-                                setLoading={setAvatarLoading}
-                                avatar={avatar}
-                                setAvatar={setAvatar}
-                            />
-                            <FieldGroup className="gap-4">
-                                <Field>
-                                    <FieldLabel htmlFor="nickname">
-                                        {t('nickname')}
-                                    </FieldLabel>
-                                    <InputGroup>
-                                        <InputGroupInput
-                                            id="nickname"
-                                            type="text"
-                                            placeholder={t(
-                                                'nickname-placeholder',
-                                            )}
-                                            value={nickname}
-                                            onChange={e =>
-                                                setNickname(e.target.value)
-                                            }
-                                        />
-                                        <InputGroupAddon>
-                                            <User />
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                    <FieldError>{nicknameError}</FieldError>
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="description">
-                                        {t('description')}
-                                    </FieldLabel>
-                                    <Textarea
-                                        id="description"
-                                        value={description}
-                                        placeholder={t(
-                                            'description-placeholder',
-                                        )}
-                                        onChange={e =>
-                                            setDescription(e.target.value)
-                                        }
-                                    />
-                                    <FieldError>{descriptionError}</FieldError>
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="socialLink">
-                                        {t('social-link')}
-                                    </FieldLabel>
-                                    <InputGroup>
-                                        <InputGroupInput
-                                            id="socialLink"
-                                            type="text"
-                                            value={socialLink}
-                                            placeholder="https://example.org"
-                                            onChange={e =>
-                                                setSocialLink(e.target.value)
-                                            }
-                                        />
-                                        <InputGroupAddon>
-                                            <Link />
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                    <FieldError>{socialLinkError}</FieldError>
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="interests">
-                                        {t('interests')}
-                                    </FieldLabel>
-                                    <InputGroup>
-                                        <InputGroupInput
-                                            id="interests"
-                                            type="text"
-                                            value={interests}
-                                            placeholder={t(
-                                                'interests-placeholder',
-                                            )}
-                                            onChange={e =>
-                                                setInterests(e.target.value)
-                                            }
-                                        />
-                                        <InputGroupAddon>
-                                            <Heart />
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                    <FieldError>{interestsError}</FieldError>
-                                </Field>
-                            </FieldGroup>
-                            <div className="ml-auto flex flex-col gap-2">
+                        <div className="p-4 space-y-4 flex flex-col items-center">
+                            <p className="text-center">{t('email-unlink-sure-verbose')}</p>
+                            <div className="flex gap-2 items-end">
                                 <Button
                                     className="cursor-pointer"
-                                    variant="secondary"
-                                    onClick={() => void onSave()}
-                                    disabled={loading || avatarLoading}
+                                    variant="outline"
+                                    onClick={() => setOpenUnlink(false)}
+                                    disabled={loading}
                                 >
-                                    {!loading && (
-                                        <>
-                                            <Save className="w-4 h-4" />
-                                            <p className="hidden sm:block">
-                                                {t('save')}
-                                            </p>
-                                        </>
-                                    )}
+                                    {t('cancel')}
+                                </Button>
+                                <Button
+                                    className="cursor-pointer"
+                                    onClick={onUnlink}
+                                    disabled={loading}
+                                >
+                                    {!loading && t('continue')}
                                     {loading && <Spinner />}
                                 </Button>
                             </div>
@@ -240,5 +434,5 @@ export function EditProfileDialog({
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
-    );
+    </Field>;
 }
