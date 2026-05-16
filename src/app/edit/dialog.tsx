@@ -8,7 +8,7 @@ import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {UsersEditRequest} from '@/network/friendly-client';
 import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
-import {Save, X, User, Link, Heart} from 'lucide-react';
+import {Save, X, User, Mail, Link, Heart} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {
@@ -348,7 +348,7 @@ function EmailInput(
         <InputGroup>
             <InputGroupInput
                 id="email"
-                type="text"
+                type="email"
                 placeholder={t(
                     'email-placeholder',
                 )}
@@ -358,7 +358,7 @@ function EmailInput(
                 }}
             />
             <InputGroupAddon>
-                <User />
+                <Mail />
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
                 {loading

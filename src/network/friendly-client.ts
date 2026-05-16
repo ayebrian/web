@@ -1,5 +1,6 @@
 import {UserDetails} from '@/types/user-details';
 import {FileDescriptor} from '@/types/file-descriptor';
+import {BackendLocale} from './backend-locale';
 import axios, {AxiosInstance} from 'axios';
 import {NetworkError} from '@/network/errors';
 import {backendConfig} from './backend-config';
@@ -36,11 +37,16 @@ export interface FriendlyClient {
     getNetworkDetails(): Promise<Result<NetworkDetailsResponse, NetworkError>>;
     getFeedQueue(): Promise<Result<FeedQueueResponse, NetworkError>>;
     emailLink(
-        locale: 'ru' | 'en',
+        locale: BackendLocale,
         request: EmailLinkRequest,
     ): Promise<Result<void, NetworkError>>;
     emailConfirm(request: EmailConfirmRequest): Promise<Result<void, NetworkError>>;
     emailUnlink(): Promise<Result<void, NetworkError>>;
+    authEmail(
+        locale: BackendLocale,
+        request: AuthEmailRequest,
+    ): Promise<Result<void, NetworkError>>;
+    authLogin(request: AuthLoginRequest): Promise<Result<AuthLoginResponse, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -252,6 +258,27 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .then(() => undefined),
         );
     }
+
+    authEmail(
+        locale: BackendLocale,
+        request: AuthEmailRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post('/auth/email', request, {
+                    headers: {
+                        'X-Locale': locale,
+                    }
+                }).then(() => undefined),
+        );
+    }
+    authLogin(request: AuthLoginRequest): Promise<Result<AuthLoginResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post<AuthLoginResponse>('/auth/login', request)
+                .then(r => r.data),
+        );
+    };
 }
 
 export interface GenerateAccountRequest {
@@ -334,4 +361,19 @@ export interface EmailLinkRequest {
 
 export interface EmailConfirmRequest {
     code: number;
+}
+
+export interface AuthEmailRequest {
+    email: string;
+}
+
+export interface AuthLoginRequest {
+    email: string;
+    code: number;
+}
+
+export interface AuthLoginResponse {
+    token: string;
+    id: number;
+    accessHash: string;
 }

@@ -121,6 +121,14 @@ export class BackendService {
         return this.client.emailUnlink(...args);
     };
 
+    authEmail: typeof this.client.authEmail = (...args) => {
+        return this.client.authEmail(...args);
+    };
+
+    authLogin: typeof this.client.authLogin = (...args) => {
+        return this.client.authLogin(...args);
+    };
+
     addFriend: typeof this.client.addFriend = (...args) => {
         return this.client.addFriend(...args);
     };

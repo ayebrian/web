@@ -1,5 +1,5 @@
 {
-    "sign_in" : {
+    "sign-up" : {
         "loading" : "Loading...",
         "title": "Create account",
         "nickname" : "Nickname",
@@ -10,7 +10,20 @@
         "social-link" : "Social link (Optional)",
         "interests-placeholder" : "Tea, kittens",
         "error-connection": "Can't get to our servers :(",
-        "sign-up": "Sign Up"
+        "sign-up": "Sign Up",
+        "already-have-account": "Already have an account?",
+        "sign-in": "Sign In"
+    },
+    "sign-in": {
+        "title": "Sign In",
+        "description": "Enter email that is linked to your account and receive a confirmation code:",
+        "dont-have-account": "Don't have account?",
+        "sign-up": "Sign Up",
+        "send-code": "Send code",
+        "email-placeholder": "email@example.org",
+        "email-invalid": "This does not look like email",
+        "unknown-email": "This email is not linked to any account",
+        "error-connection": "Can't get to our servers :("
     },
     "profile" : {
         "edit_profile" : "Edit",
@@ -104,6 +117,12 @@
         "error-connection": "Can't get to our servers :("
     },
     "email-dialog": {
+        "title": "Confirm Email",
+        "code-sent": "To verify that you own {email}, we've sent you a code. Please paste it in the field below:",
+        "error-connection": "Can't get to our servers :(",
+        "continue": "Continue"
+    },
+    "code-dialog": {
         "title": "Confirm Email",
         "code-sent": "To verify that you own {email}, we've sent you a code. Please paste it in the field below:",
         "error-connection": "Can't get to our servers :(",
