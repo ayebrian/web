@@ -21,7 +21,7 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'next-intl';
 
 export default function SignInPage() {
-    const t = useTranslations('sign_in');
+    const t = useTranslations('sign-up');
 
     const router = useRouter();
     const session = useSession();
@@ -81,8 +81,12 @@ export default function SignInPage() {
         }
     }
 
+    async function onSignIn() {
+        router.push('/sign-in');
+    }
+
     return (
-        <div
+       <div
             className="
             mx-auto
             md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
@@ -170,7 +174,7 @@ export default function SignInPage() {
                         <FieldError>{interestsError}</FieldError>
                     </Field>
                 </FieldGroup>
-                <div className="ml-auto flex flex-col gap-2">
+                <div className="ml-auto flex flex-col">
                     <Button
                         className="cursor-pointer"
                         variant="secondary"
@@ -180,6 +184,14 @@ export default function SignInPage() {
                         {!loading && t('sign-up')}
                         {loading && <Spinner />}
                     </Button>
+                    <div className="flex justify-center items-center gap-1">
+                        <p className="text-sm">{t('already-have-account')}</p>
+                        <Button
+                            className="cursor-pointer text-sm p-0"
+                            variant="link"
+                            onClick={onSignIn}
+                        >{t('sign-in')}</Button>
+                    </div>
                 </div>
             </div>
         </div>
