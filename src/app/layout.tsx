@@ -9,6 +9,7 @@ import {QueryProvider} from '@/components/query-provider';
 import {SessionProvider} from '@/components/session-provider';
 import {useLocale} from 'next-intl';
 import IntlProvider from '@/components/intl-provider';
+import { UserAccessHashesProvider } from '@/components/useraccesshashes-provider';
 
 export const metadata: Metadata = {
     title: 'Friendly Web',
@@ -39,6 +40,7 @@ export default function RootLayout({
                 <Suspense>
                     <BackendProvider>
                         <SessionProvider>
+                        <UserAccessHashesProvider>
                             <QueryProvider>
                                 <AppContextProvider>
                                     <IntlProvider>
@@ -49,6 +51,7 @@ export default function RootLayout({
                                     </IntlProvider>
                                 </AppContextProvider>
                             </QueryProvider>
+                            </UserAccessHashesProvider>
                         </SessionProvider>
                     </BackendProvider>
                 </Suspense>
