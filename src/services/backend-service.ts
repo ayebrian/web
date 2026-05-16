@@ -72,6 +72,13 @@ export class BackendService {
         return await this.client.getUserDetails();
     }
 
+    async getUserDetailsById(
+        id: number,
+        accessHash: string,
+    ): Promise<Result<UserDetails, NetworkError>> {
+        return this.client.getUserDetailsById(id, accessHash);
+    }
+
     usersEdit: typeof this.client.usersEdit = (...args) => {
         return this.client.usersEdit(...args);
     };
