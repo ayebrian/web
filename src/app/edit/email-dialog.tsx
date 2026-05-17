@@ -35,7 +35,7 @@ export function EmailDialog(
                     -translate-x-1/2 -translate-y-1/2
 
                     w-full max-w-lg p-5
-                    max-h-screen overflow-y-scroll
+                    max-h-dvh overflow-y-scroll
                     "
                 >
                 <EmailDialogContent {...props} />
