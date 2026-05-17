@@ -110,7 +110,7 @@ export function BlockingQR({
                     -translate-x-1/2 -translate-y-1/2
 
                     w-full max-w-lg p-4
-                    max-h-screen overflow-y-scroll
+                    max-h-dvh overflow-y-scroll
                     "
                     onInteractOutside={e => e.preventDefault()}
                 >

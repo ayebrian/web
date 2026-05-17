@@ -40,7 +40,7 @@ export function EditProfileDialog(props: EditProfileProps): ReactNode {
                     -translate-x-1/2 -translate-y-1/2
 
                     w-full max-w-lg p-5
-                    max-h-screen overflow-y-scroll
+                    max-h-dvh overflow-y-scroll
                     "
                 >
                 <EditProfileDialogContent {...props} />
@@ -383,7 +383,7 @@ function EmailInput(
                     -translate-x-1/2 -translate-y-1/2
 
                     w-full max-w-lg p-5
-                    max-h-screen overflow-y-scroll
+                    max-h-dvh overflow-y-scroll
                     "
                 >
                     <div
