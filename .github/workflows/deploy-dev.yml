@@ -4,48 +4,30 @@ on:
   push:
     branches:
         - dev
+        - experimental/vite-react-rework
   workflow_dispatch:
 
 jobs:
   development-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Docker buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Build and export image
-      uses: docker/build-push-action@v4
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup Node
+      uses: pnpm/action-setup@v6
       with:
-        context: .
-        tags: friendly-web-dev:latest
-        outputs: type=docker,dest=/tmp/friendly-web-dev.tar
-    - name: Copy image to server
+          cache: true
+    - name: Install Dependencies
+      run: pnpm ci
+    - name: Build
+      run: pnpm run build
+    - name: Upload dist
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "/tmp/friendly-web-dev.tar"
+        source: "dist/**"
         target: "${{ secrets.REMOTE_TARGET_DEV }}"
+        rm: true
         strip_components: 1
-    - name: Copy Docker Compose config to server
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "compose.dev.yml"
-        target: "${{ secrets.REMOTE_TARGET_DEV }}"
-        strip_components: 0
-    - name: Deploy with Docker Compose
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-            docker load -i ${{ secrets.REMOTE_TARGET_DEV }}/friendly-web-dev.tar
-            cd ${{ secrets.REMOTE_TARGET_DEV }}
-            docker compose -f compose.dev.yml up -d --force-recreate friendly-web-dev
-            # rm ${{ secrets.REMOTE_TARGET_DEV }}/friendly-web-dev.tar
-            # docker image prune -f
