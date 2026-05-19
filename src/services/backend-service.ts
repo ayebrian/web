@@ -101,14 +101,14 @@ export class BackendService {
 
     async generateFriendInvitationToken(): Promise<
         Result<string, NetworkError>
-    > {
+        > {
         const result = await this.client.generateFriendInvitationToken();
         return mapResult(result, data => data.token);
     }
 
     async getNetworkDetails(): Promise<
         Result<NetworkDetailsResponse, NetworkError>
-    > {
+        > {
         return await this.client.getNetworkDetails();
     }
 

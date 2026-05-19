@@ -154,8 +154,8 @@ function FeedReviewDeck({
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
                         : card.isExtendedNetwork
-                          ? t('extended_network')
-                          : null;
+                            ? t('extended_network')
+                            : null;
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
@@ -190,9 +190,9 @@ function FeedReviewDeck({
                                     <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
                                         {card.details.description
                                             ? truncateString(
-                                                  card.details.description,
-                                                  60,
-                                              )
+                                                card.details.description,
+                                                60,
+                                            )
                                             : t('no_description')}
                                     </p>
                                 </div>
@@ -230,10 +230,10 @@ function FeedReviewDeck({
                                                     {selectedCard.isRequest
                                                         ? t('requests_badge')
                                                         : selectedCard.isExtendedNetwork
-                                                          ? t(
+                                                            ? t(
                                                                 'extended_network',
                                                             )
-                                                          : null}
+                                                            : null}
                                                 </Badge>
                                             )}
                                         </div>
@@ -256,10 +256,10 @@ function FeedReviewDeck({
                                                 src={
                                                     selectedCard.details.avatar
                                                         ? createFileLink(
-                                                              selectedCard
-                                                                  .details
-                                                                  .avatar,
-                                                          )
+                                                            selectedCard
+                                                                .details
+                                                                .avatar,
+                                                        )
                                                         : undefined
                                                 }
                                                 className="object-cover w-full h-full"
@@ -697,10 +697,10 @@ export default function Home() {
         userResult && !userResult.ok
             ? formatNetworkError(userResult.error)
             : inviteResult && !inviteResult.ok
-              ? formatNetworkError(inviteResult.error)
-              : networkResult && !networkResult.ok
-                ? formatNetworkError(networkResult.error)
-                : null;
+                ? formatNetworkError(inviteResult.error)
+                : networkResult && !networkResult.ok
+                    ? formatNetworkError(networkResult.error)
+                    : null;
 
     const isLoading =
         session.status === 'loading' ||

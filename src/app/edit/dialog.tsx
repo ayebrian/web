@@ -43,7 +43,7 @@ export function EditProfileDialog(props: EditProfileProps): ReactNode {
                     max-h-dvh overflow-y-scroll
                     "
                 >
-                <EditProfileDialogContent {...props} />
+                    <EditProfileDialogContent {...props} />
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
@@ -369,7 +369,7 @@ function EmailInput(
 	                          </Button>
 	                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
                             <X />
-                          </Button>
+                        </Button>
                 }
             </InputGroupAddon>
         </InputGroup>

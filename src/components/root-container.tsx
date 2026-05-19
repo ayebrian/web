@@ -8,12 +8,7 @@ export function RootContainer({children}: {children: React.ReactNode}) {
     useEffect(() => console.log('appVersion =', appVersion), []);
 
     return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
+        <ThemeProvider>
             {children}
         </ThemeProvider>
     );
