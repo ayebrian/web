@@ -361,13 +361,13 @@ function EmailInput(
                 <Mail />
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
-                {loading
-                    ? <Spinner />
-                    : (emailChanged && !emailEmpty)
-                        ? <Button variant="ghost" size="sm" onClick={onOpen}>
-                            {t('email-verify')}
-                          </Button>
-                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
+	                {loading
+	                    ? <Spinner />
+	                    : (emailChanged && !emailEmpty)
+	                        ? <Button variant="ghost" size="sm" onClick={() => void onOpen()}>
+	                            {t('email-verify')}
+	                          </Button>
+	                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
                             <X />
                           </Button>
                 }
@@ -420,11 +420,11 @@ function EmailInput(
                                 >
                                     {t('cancel')}
                                 </Button>
-                                <Button
-                                    className="cursor-pointer"
-                                    onClick={onUnlink}
-                                    disabled={loading}
-                                >
+	                                <Button
+	                                    className="cursor-pointer"
+	                                    onClick={() => void onUnlink()}
+	                                    disabled={loading}
+	                                >
                                     {!loading && t('continue')}
                                     {loading && <Spinner />}
                                 </Button>

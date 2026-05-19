@@ -32,7 +32,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                     // TODO:
                 }),
                 mutationCache: new MutationCache({
-                    // TODO: 
+                    // TODO:
                 }),
             }),
     );

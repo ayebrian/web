@@ -3,6 +3,17 @@ interface UserPair {
     accessHash: string;
 }
 
+function isUserPair(value: unknown): value is UserPair {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'id' in value &&
+        typeof value.id === 'number' &&
+        'accessHash' in value &&
+        typeof value.accessHash === 'string'
+    );
+}
+
 const DB_NAME = 'UserAccessHashesDB';
 const STORE_NAME = 'UserAccessHashes';
 
@@ -50,7 +61,7 @@ export class UserAccessHashesService {
             const request = store.put(pair);
 
             request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+            request.onerror = () => reject(request.error ?? new Error('Failed to save an user pair.'));
         });
     }
 
@@ -69,8 +80,9 @@ export class UserAccessHashesService {
                 reject(new Error(`Can't get an user pair for id=${id}.`));
             };
             request.onsuccess = () => {
-                const pair: UserPair | undefined = request.result;
+                const pair = request.result as unknown;
                 if (!pair) return reject(new Error(`Can't get an user pair for id=${id}.`));
+                if (!isUserPair(pair)) return reject(new Error(`Can't get an user pair for id=${id}.`));
                 resolve(pair);
             };
         });
@@ -88,7 +100,7 @@ export class UserAccessHashesService {
             const request = store.clear();
 
             request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+            request.onerror = () => reject(request.error ?? new Error('Failed to reset user pairs.'));
         });
     }
 }

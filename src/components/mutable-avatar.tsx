@@ -102,10 +102,10 @@ export function MutableAvatarContent({
             <Adjuster
                 payload={adjuster}
                 setOpen={adjusterSetOpen}
-                onAdjusted={onAdjusted}
+                onAdjusted={file => void onAdjusted(file)}
             />
             <AvatarDropdown
-                onDelete={() => onAdjusted(null)}
+                onDelete={() => void onAdjusted(null)}
                 onSelect={() => avatarInputRef?.current?.click()}
                 show={!!avatar}
             >

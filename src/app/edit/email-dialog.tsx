@@ -121,7 +121,7 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
                 <InputOTPSlot index={7} aria-invalid={error} />
               </InputOTPGroup>
             </InputOTP>
-            <Button onClick={onComplete} className="w-30" disabled={loading}>
+            <Button onClick={() => void onComplete()} className="w-30" disabled={loading}>
                 {!loading && t('continue')}
                 {loading && <Spinner />}
             </Button>

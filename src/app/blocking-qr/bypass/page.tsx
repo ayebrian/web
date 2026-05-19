@@ -5,7 +5,7 @@ export default function Bypass(): ReactNode {
     const navigate = useNavigate();
 
     localStorage.setItem('blocking-qr-completed', 'true');
-    navigate('/');
+    void navigate('/');
 
     return;
 }

@@ -80,7 +80,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            navigate('/');
+            void navigate('/');
         } finally {
             setLoading(false);
         }
@@ -109,7 +109,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             <p className="text-center">
                 {t('code-sent', { email })}
             </p>
-            <InputOTP onComplete={onComplete} value={value} onChange={setValue} maxLength={8} pattern={REGEXP_ONLY_DIGITS} inputMode="numeric">
+            <InputOTP onComplete={() => void onComplete()} value={value} onChange={setValue} maxLength={8} pattern={REGEXP_ONLY_DIGITS} inputMode="numeric">
               <InputOTPGroup>
                 <InputOTPSlot index={0} aria-invalid={error} />
                 <InputOTPSlot index={1} aria-invalid={error} />
@@ -124,7 +124,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
                 <InputOTPSlot index={7} aria-invalid={error} />
               </InputOTPGroup>
             </InputOTP>
-            <Button onClick={onComplete} className="w-30" disabled={loading}>
+            <Button onClick={() => void onComplete()} className="w-30" disabled={loading}>
                 {!loading && t('continue')}
                 {loading && <Spinner />}
             </Button>

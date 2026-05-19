@@ -73,7 +73,7 @@ function EmailContent(): ReactNode {
     }
 
     function onSignUp() {
-        navigate('/sign-up');
+        void navigate('/sign-up');
     }
 
     return <div className="relative flex flex-col items-center mt-1 mx-1 gap-2">
@@ -100,12 +100,12 @@ function EmailContent(): ReactNode {
             </Field>
         </FieldGroup>
         <div className="flex flex-col items-center justify-center w-full">
-            <Button
-                className="cursor-pointer w-full"
-                variant="secondary"
-                onClick={onSend}
-                disabled={loading}
-            >
+	            <Button
+	                className="cursor-pointer w-full"
+	                variant="secondary"
+	                onClick={() => void onSend()}
+	                disabled={loading}
+	            >
                 {!loading && t('send-code')}
                 {loading && <Spinner />}
             </Button>
