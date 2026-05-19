@@ -5,4 +5,5 @@
     "arrowParens": "avoid",
     "tabWidth": 4,
     "endOfLine": "auto"
+    "semi": true
 }

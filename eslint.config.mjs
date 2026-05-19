@@ -8,7 +8,6 @@ import tseslint from 'typescript-eslint';
 export default defineConfig([
     js.configs.recommended,
     ...tseslint.configs.recommendedTypeChecked,
-    prettier,
     {
         plugins: {
             n,
@@ -109,6 +108,7 @@ export default defineConfig([
             'react-hooks/set-state-in-effect': 'off',
         },
     },
+    prettier,
     globalIgnores([
         '**/build/',
         'dist/',
