@@ -22,7 +22,7 @@ export function UserAccessHashesProvider({children}: {children: React.ReactNode}
             if (!isMounted) return null;
             return {
                 service: new UserAccessHashesService(),
-            }
+            };
         },
         [isMounted]
     );

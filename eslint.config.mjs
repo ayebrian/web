@@ -39,6 +39,9 @@ export default defineConfig([
             'prefer-arrow-callback': 'error',
             'no-trailing-spaces': 'error',
 
+            semi: ['error', 'always'],
+            indent: ['error', 4, { SwitchCase: 1 }],
+
             quotes: [
                 'warn',
                 'single',
@@ -111,6 +114,8 @@ export default defineConfig([
         'dist/',
         'test/fixtures/',
         '**/template/',
-        '.next/',
+
+        // Ignore shadcn components folder
+        'src/components/ui/**'
     ]),
 ]);

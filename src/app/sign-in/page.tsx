@@ -46,7 +46,7 @@ function EmailContent(): ReactNode {
     const [openCode, setOpenCode] = useState(false);
 
     const backend = useBackend();
-    const locale = useBackendLocale()
+    const locale = useBackendLocale();
     const navigate = useNavigate();
 
     async function onSend() {

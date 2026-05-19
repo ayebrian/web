@@ -175,7 +175,7 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async generateFriendInvitationToken(): Promise<
         Result<GenerateFriendInvitationTokenResponse, NetworkError>
-    > {
+        > {
         return this.safeRequest(
             this.client
                 .post<GenerateFriendInvitationTokenResponse>(
@@ -213,7 +213,7 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async getNetworkDetails(): Promise<
         Result<NetworkDetailsResponse, NetworkError>
-    > {
+        > {
         return this.safeRequest(
             this.client
                 .get<NetworkDetailsResponse>('/network/details')

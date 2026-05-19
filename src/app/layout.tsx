@@ -18,17 +18,17 @@ export default function RootLayout({
         <Suspense>
             <BackendProvider>
                 <SessionProvider>
-                <UserAccessHashesProvider>
-                    <QueryProvider>
-                        <AppContextProvider>
-                            <IntlProvider>
-                                <RootContainer>
-                                    {children}
-                                    <Toaster richColors />
-                                </RootContainer>
-                            </IntlProvider>
-                        </AppContextProvider>
-                    </QueryProvider>
+                    <UserAccessHashesProvider>
+                        <QueryProvider>
+                            <AppContextProvider>
+                                <IntlProvider>
+                                    <RootContainer>
+                                        {children}
+                                        <Toaster richColors />
+                                    </RootContainer>
+                                </IntlProvider>
+                            </AppContextProvider>
+                        </QueryProvider>
                     </UserAccessHashesProvider>
                 </SessionProvider>
             </BackendProvider>

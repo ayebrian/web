@@ -1,4 +1,4 @@
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
+import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import {useSession} from '@/components/session-provider';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
@@ -9,10 +9,10 @@ import {ReactNode, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+    InputOTPSeparator,
 } from '@/components/ui/input-otp';
 import { useNavigate } from 'react-router';
 
@@ -39,7 +39,7 @@ export function CodeDialog(
                     max-h-dvh overflow-y-scroll
                     "
                 >
-                <CodeDialogContent {...props} />
+                    <CodeDialogContent {...props} />
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
@@ -110,19 +110,19 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
                 {t('code-sent', { email })}
             </p>
             <InputOTP onComplete={() => void onComplete()} value={value} onChange={setValue} maxLength={8} pattern={REGEXP_ONLY_DIGITS} inputMode="numeric">
-              <InputOTPGroup>
-                <InputOTPSlot index={0} aria-invalid={error} />
-                <InputOTPSlot index={1} aria-invalid={error} />
-                <InputOTPSlot index={2} aria-invalid={error} />
-                <InputOTPSlot index={3} aria-invalid={error} />
-              </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot index={4} aria-invalid={error} />
-                <InputOTPSlot index={5} aria-invalid={error} />
-                <InputOTPSlot index={6} aria-invalid={error} />
-                <InputOTPSlot index={7} aria-invalid={error} />
-              </InputOTPGroup>
+                <InputOTPGroup>
+                    <InputOTPSlot index={0} aria-invalid={error} />
+                    <InputOTPSlot index={1} aria-invalid={error} />
+                    <InputOTPSlot index={2} aria-invalid={error} />
+                    <InputOTPSlot index={3} aria-invalid={error} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                    <InputOTPSlot index={4} aria-invalid={error} />
+                    <InputOTPSlot index={5} aria-invalid={error} />
+                    <InputOTPSlot index={6} aria-invalid={error} />
+                    <InputOTPSlot index={7} aria-invalid={error} />
+                </InputOTPGroup>
             </InputOTP>
             <Button onClick={() => void onComplete()} className="w-30" disabled={loading}>
                 {!loading && t('continue')}
