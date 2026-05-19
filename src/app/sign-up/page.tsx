@@ -74,14 +74,14 @@ export default function SignInPage() {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            navigate('/');
+            void navigate('/');
         } else {
             toast.error(t('error-connection'));
         }
     }
 
     async function onSignIn() {
-        navigate('/sign-in');
+        void navigate('/sign-in');
     }
 
     return (
@@ -174,22 +174,22 @@ export default function SignInPage() {
                     </Field>
                 </FieldGroup>
                 <div className="ml-auto flex flex-col">
-                    <Button
-                        className="cursor-pointer"
-                        variant="secondary"
-                        onClick={onSignUp}
-                        disabled={loading || avatarLoading}
-                    >
+	                    <Button
+	                        className="cursor-pointer"
+	                        variant="secondary"
+	                        onClick={() => void onSignUp()}
+	                        disabled={loading || avatarLoading}
+	                    >
                         {!loading && t('sign-up')}
                         {loading && <Spinner />}
                     </Button>
                     <div className="flex justify-center items-center gap-1">
                         <p className="text-sm">{t('already-have-account')}</p>
-                        <Button
-                            className="cursor-pointer text-sm p-0"
-                            variant="link"
-                            onClick={onSignIn}
-                        >{t('sign-in')}</Button>
+	                        <Button
+	                            className="cursor-pointer text-sm p-0"
+	                            variant="link"
+	                            onClick={() => void onSignIn()}
+	                        >{t('sign-in')}</Button>
                     </div>
                 </div>
             </div>

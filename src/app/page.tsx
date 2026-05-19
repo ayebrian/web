@@ -299,24 +299,24 @@ function FeedReviewDeck({
 
                                     <div className="p-6 pt-0">
                                         <div className="flex gap-4">
-                                            <Button
-                                                variant="outline"
-                                                className="flex-1 h-12 cursor-pointer"
-                                                disabled={isBusy}
-                                                onClick={() =>
-                                                    handleReview('left')
-                                                }
-                                            >
+	                                            <Button
+	                                                variant="outline"
+	                                                className="flex-1 h-12 cursor-pointer"
+	                                                disabled={isBusy}
+	                                                onClick={() =>
+	                                                    void handleReview('left')
+	                                                }
+	                                            >
                                                 <X className="h-5 w-5 mr-2" />
                                                 {t('skip')}
                                             </Button>
-                                            <Button
-                                                className="flex-1 h-12 cursor-pointer"
-                                                disabled={isBusy}
-                                                onClick={() =>
-                                                    handleReview('right')
-                                                }
-                                            >
+	                                            <Button
+	                                                className="flex-1 h-12 cursor-pointer"
+	                                                disabled={isBusy}
+	                                                onClick={() =>
+	                                                    void handleReview('right')
+	                                                }
+	                                            >
                                                 {selectedCard.isRequest ? (
                                                     <Check className="h-5 w-5 mr-2" />
                                                 ) : (
@@ -461,7 +461,7 @@ function FriendCard({friend}: {friend: UserDetails}) {
     };
 
     return (
-        <button onClick={openFriendPage}>
+        <button onClick={() => void openFriendPage()}>
             <div className="w-40 h-50 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
                 <Avatar className="w-16 h-16">
                     <AvatarImage src={avatarUrl} />
@@ -651,12 +651,12 @@ export default function Home() {
     const blockingQR = useBlockingQR();
 
     useEffect(() => {
-        if (session.status === 'guest') navigate('/sign-up');
+        if (session.status === 'guest') void navigate('/sign-up');
     }, [session.status]);
 
     const logOut = () => {
         session.logOut();
-        navigate('/sign-up');
+        void navigate('/sign-up');
     };
 
     const userQuery = useQuery({
