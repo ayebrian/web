@@ -1,7 +1,5 @@
-'use client';
 
 import {CodeDialog} from './code';
-import {useRouter} from 'next/navigation';
 import {useBackendLocale} from '@/network/backend-locale';
 import {
     InputGroup,
@@ -14,8 +12,9 @@ import { Mail } from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {ReactNode, useState} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
+import { useNavigate } from 'react-router';
 
 
 export default function EmailPage(): ReactNode {
@@ -48,7 +47,7 @@ function EmailContent(): ReactNode {
 
     const backend = useBackend();
     const locale = useBackendLocale()
-    const router = useRouter();
+    const navigate = useNavigate();
 
     async function onSend() {
         setError(null);
@@ -74,7 +73,7 @@ function EmailContent(): ReactNode {
     }
 
     function onSignUp() {
-        router.push('/sign-up');
+        navigate('/sign-up');
     }
 
     return <div className="relative flex flex-col items-center mt-1 mx-1 gap-2">

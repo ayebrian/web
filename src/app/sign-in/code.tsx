@@ -1,13 +1,12 @@
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import {useSession} from '@/components/session-provider';
-import {useRouter} from 'next/navigation';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
 import { X} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {ReactNode, useState} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {
   InputOTP,
@@ -15,6 +14,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from '@/components/ui/input-otp';
+import { useNavigate } from 'react-router';
 
 export interface CodeDialogProps {
     email: string;
@@ -54,7 +54,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
     const [loading, setLoading] = useState(false);
 
     const backend = useBackend();
-    const router = useRouter();
+    const navigate = useNavigate();
     const session = useSession();
 
     async function onComplete() {
@@ -80,7 +80,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            router.push('/');
+            navigate('/');
         } finally {
             setLoading(false);
         }

@@ -1,4 +1,3 @@
-'use client';
 
 import {Spinner} from '@/components/ui/spinner';
 import {Textarea} from '@/components/ui/textarea';
@@ -14,16 +13,16 @@ import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {toast} from 'sonner';
 import {useUserValidator} from '../edit/user-validation';
 import {Button} from '@/components/ui/button';
-import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {useState} from 'react';
 import {useSession} from '@/components/session-provider';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
+import { useNavigate } from 'react-router';
 
 export default function SignInPage() {
     const t = useTranslations('sign-up');
 
-    const router = useRouter();
+    const navigate = useNavigate();
     const session = useSession();
 
     const [loading, setLoading] = useState(false);
@@ -75,14 +74,14 @@ export default function SignInPage() {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            router.push('/');
+            navigate('/');
         } else {
             toast.error(t('error-connection'));
         }
     }
 
     async function onSignIn() {
-        router.push('/sign-in');
+        navigate('/sign-in');
     }
 
     return (

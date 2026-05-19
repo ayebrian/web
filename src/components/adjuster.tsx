@@ -13,9 +13,8 @@ import {
     useMemo,
     useEffect,
 } from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
-import ImageView from 'next/image';
 
 export type AdjusterPayload =
     | {
@@ -136,7 +135,7 @@ function AdjusterContent({
                         aspect={1}
                         onChange={(_, crop) => setCrop(crop)}
                     >
-                        <ImageView
+                        <img
                             className="w-full"
                             src={src}
                             onLoad={onImageLoad}

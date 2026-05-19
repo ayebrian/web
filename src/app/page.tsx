@@ -1,4 +1,3 @@
-'use client';
 
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
@@ -25,8 +24,7 @@ import {
     ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
-import Link from 'next/link';
-import {useRouter} from 'next/navigation';
+import {Link, useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
@@ -37,7 +35,7 @@ import {
 } from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
@@ -493,7 +491,7 @@ function FriendsBlock({friends}: {friends: UserDetails[]}) {
                     {t('friends.title')}
                 </p>
                 <Link
-                    href="#"
+                    to="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
                     hidden={friends.length < 1}
                 >
@@ -647,18 +645,18 @@ export default function Home() {
 
     const app = useAppContext();
     const appRef = useAppContextRef();
-    const router = useRouter();
+    const navigate = useNavigate();
     const backend = useBackend();
     const session = useSession();
     const blockingQR = useBlockingQR();
 
     useEffect(() => {
-        if (session.status === 'guest') router.push('/sign-up');
-    }, [session.status, router]);
+        if (session.status === 'guest') navigate('/sign-up');
+    }, [session.status]);
 
     const logOut = () => {
         session.logOut();
-        router.push('/sign-up');
+        navigate('/sign-up');
     };
 
     const userQuery = useQuery({

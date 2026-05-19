@@ -1,4 +1,3 @@
-'use client';
 
 import { UserAccessHashesService } from '@/services/useraccesshashes-service';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';

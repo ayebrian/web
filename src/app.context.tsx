@@ -1,5 +1,3 @@
-'use client';
-
 import {UserDetails} from '@/types/user-details';
 import {
     ReactElement,

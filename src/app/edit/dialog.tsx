@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 import {ReactNode, useState} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 
 interface EditProfileProps {

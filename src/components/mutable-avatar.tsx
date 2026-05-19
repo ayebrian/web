@@ -15,7 +15,7 @@ import {
 import {Upload} from 'lucide-react';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState, useRef} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 
 interface MutableAvatarContentProps {
     nickname: string;

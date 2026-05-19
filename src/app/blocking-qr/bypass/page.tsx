@@ -1,15 +1,11 @@
-'use client';
-
-import {useEffect, ReactNode} from 'react';
-import {useRouter} from 'next/navigation';
+import {ReactNode} from 'react';
+import { useNavigate } from 'react-router';
 
 export default function Bypass(): ReactNode {
-    const router = useRouter();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        localStorage.setItem('blocking-qr-completed', 'true');
-        router.push('/');
-    }, [router]);
+    localStorage.setItem('blocking-qr-completed', 'true');
+    navigate('/');
 
     return;
 }

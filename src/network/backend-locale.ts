@@ -1,4 +1,4 @@
-import {useLocale} from 'next-intl';
+import {useLocale} from 'use-intl';
 
 export type BackendLocale = 'en' | 'ru';
 
@@ -9,4 +9,3 @@ export function useBackendLocale() {
         default: return 'en';
     }
 }
-
