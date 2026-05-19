@@ -1,1 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><rect width="1024" height="1024" fill="#333333"></rect><path d="M210 200L432.025 416.934" stroke="#666666" stroke-width="30"></path><path d="M432.736 417.908L437 145" stroke="#666666" stroke-width="30"></path><path d="M134 418L432.736 417.908" stroke="#666666" stroke-width="30"></path><path d="M437.439 417.745L890 418" stroke="#666666" stroke-width="30"></path><path d="M419 878L432.736 417.908" stroke="#666666" stroke-width="30"></path><path d="M780 768L432.025 416.934" stroke="#666666" stroke-width="30"></path><circle cx="419" cy="878" r="55" fill="#666666"></circle><circle cx="432.148" cy="417.321" r="125.2" fill="#666666"></circle><circle cx="210" cy="200" r="55" fill="#666666"></circle><path d="M492 145C492 175.376 467.376 200 437 200C406.624 200 382 175.376 382 145C382 114.624 406.624 90 437 90C467.376 90 492 114.624 492 145Z" fill="#666666"></path><circle cx="780" cy="768" r="55" fill="#666666"></circle><circle cx="134" cy="416" r="55" fill="#666666"></circle><circle cx="890" cy="417" r="55" fill="#666666"></circle><path d="M328.568 803V221.182H713.795V322.602H451.58V461.239H688.227V562.659H451.58V803H328.568Z" fill="#AAAAAA"></path></svg>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_140_2)">
+<rect width="1024" height="1024" rx="200" fill="#0B1220"/>
+<path d="M335.037 320.926L688.633 666.414" stroke="#2F5EFF" stroke-width="70"/>
+<path d="M689.765 667.965L696.556 233.334" stroke="#2F5EFF" stroke-width="70"/>
+<path d="M214 668.112L689.765 667.966" stroke="#2F5EFF" stroke-width="70"/>
+<ellipse cx="677.5" cy="668" rx="238.5" ry="239" fill="#2F5EFF"/>
+<circle cx="335" cy="321" r="143" fill="#2F5EFF"/>
+<circle cx="693.5" cy="233.5" r="143.5" fill="#2F5EFF"/>
+<circle cx="214" cy="665" r="143" fill="#2F5EFF"/>
+</g>
+<defs>
+<clipPath id="clip0_140_2">
+<rect width="1024" height="1024" rx="200" fill="white"/>
+</clipPath>
+</defs>
+</svg>
