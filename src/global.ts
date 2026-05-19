@@ -2,7 +2,7 @@
 // import {formats} from '@/i18n/request';
 import messages from './messages/en.json';
 
-declare module 'next-intl' {
+declare module 'use-intl' {
     interface AppConfig {
         Messages: typeof messages;
     }

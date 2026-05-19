@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "24"
 
       - name: Install dependencies
         run: pnpm install
@@ -27,5 +27,5 @@ jobs:
       - name: Run linter checks
         run: pnpm run lint
 
-      - name: Build with Next.js
+      - name: Build with Vite
         run: pnpm run build

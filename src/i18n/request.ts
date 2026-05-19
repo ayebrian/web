@@ -1,6 +1,4 @@
-import {getRequestConfig} from 'next-intl/server';
-
-export default getRequestConfig(async () => {
+export default async function getRequestConfig() {
     // const headerList = await headers();
     // const acceptLanguage = headerList.get('accept-language');
     // const locale = acceptLanguage?.split(',')[0].split('-')[0] || 'en';
@@ -12,4 +10,4 @@ export default getRequestConfig(async () => {
         locale,
         messages: (await import(`../messages/${locale}.json`)).default,
     };
-});
+}

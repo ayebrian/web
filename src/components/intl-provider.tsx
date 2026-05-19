@@ -1,6 +1,5 @@
-'use client';
 
-import {NextIntlClientProvider} from 'next-intl';
+import {IntlProvider as UseIntlProvider} from 'use-intl';
 import {useEffect, useState} from 'react';
 import en from '../messages/en.json';
 
@@ -38,8 +37,8 @@ export default function IntlProvider({children}: {children: React.ReactNode}) {
     if (!messages) return null;
 
     return (
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <UseIntlProvider locale={locale} messages={messages}>
             {children}
-        </NextIntlClientProvider>
+        </UseIntlProvider>
     );
 }

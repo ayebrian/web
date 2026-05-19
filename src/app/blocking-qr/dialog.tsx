@@ -10,7 +10,7 @@ import {
     InputGroupInput,
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldLabel} from '@/components/ui/field';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 
 export interface BlockingQRController {

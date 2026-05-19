@@ -1,5 +1,3 @@
-'use client';
-
 import {createContext, useContext, useMemo} from 'react';
 import {BackendService} from '@/services/backend-service';
 import {FriendlyClient, FriendlyClientImpl} from '@/network/friendly-client';
