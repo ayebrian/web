@@ -1,13 +1,18 @@
 import {defineConfig, globalIgnores} from 'eslint/config';
+import js from '@eslint/js';
 import prettier from 'eslint-config-prettier/flat';
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
+import n from 'eslint-plugin-n';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
 
 export default defineConfig([
-    ...nextVitals,
-    ...nextTs,
-    prettier,
+    js.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
     {
+        plugins: {
+            n,
+            'react-hooks': reactHooks,
+        },
         settings: {
             // Fix for ESLint 10+: eslint-plugin-react uses context.getFilename() (legacy API)
             // which was removed in ESLint 10 flat config. Declaring the version explicitly
@@ -19,6 +24,7 @@ export default defineConfig([
         languageOptions: {
             parserOptions: {
                 projectService: true,
+                tsconfigRootDir: import.meta.dirname,
             },
         },
     },
@@ -31,6 +37,9 @@ export default defineConfig([
             'eol-last': 'error',
             'prefer-arrow-callback': 'error',
             'no-trailing-spaces': 'error',
+
+            semi: ['error', 'always'],
+            indent: ['error', 4, { SwitchCase: 1 }],
 
             quotes: [
                 'warn',
@@ -62,11 +71,11 @@ export default defineConfig([
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-use-before-define': 'off',
             '@typescript-eslint/no-warning-comments': 'off',
-            '@typescript-eslint/no-empty-function': 'off',
+            '@typescript-eslint/no-empty-function': 'warn',
             '@typescript-eslint/no-var-requires': 'off',
+            '@typescript-eslint/require-await': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
-            '@typescript-eslint/ban-types': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
@@ -82,7 +91,6 @@ export default defineConfig([
                     },
                 },
             ],
-            '@/camelcase': 'warn',
             'n/no-missing-import': 'off',
             'n/no-empty-function': 'off',
             'n/no-unsupported-features/es-syntax': 'off',
@@ -100,11 +108,14 @@ export default defineConfig([
             'react-hooks/set-state-in-effect': 'off',
         },
     },
+    prettier,
     globalIgnores([
         '**/build/',
+        'dist/',
         'test/fixtures/',
         '**/template/',
-        '.next/',
-        'next-env.d.ts',
+
+        // Ignore shadcn components folder
+        'src/components/ui/**'
     ]),
 ]);

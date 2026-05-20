@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 import {ReactNode, useState} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 
 interface EditProfileProps {
@@ -43,7 +43,7 @@ export function EditProfileDialog(props: EditProfileProps): ReactNode {
                     max-h-dvh overflow-y-scroll
                     "
                 >
-                <EditProfileDialogContent {...props} />
+                    <EditProfileDialogContent {...props} />
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
@@ -361,15 +361,15 @@ function EmailInput(
                 <Mail />
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
-                {loading
-                    ? <Spinner />
-                    : (emailChanged && !emailEmpty)
-                        ? <Button variant="ghost" size="sm" onClick={onOpen}>
-                            {t('email-verify')}
-                          </Button>
-                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
+	                {loading
+	                    ? <Spinner />
+	                    : (emailChanged && !emailEmpty)
+	                        ? <Button variant="ghost" size="sm" onClick={() => void onOpen()}>
+	                            {t('email-verify')}
+	                          </Button>
+	                        : <Button variant="ghost" size="sm" onClick={() => savedEmail && setOpenUnlink(true)}>
                             <X />
-                          </Button>
+                        </Button>
                 }
             </InputGroupAddon>
         </InputGroup>
@@ -420,11 +420,11 @@ function EmailInput(
                                 >
                                     {t('cancel')}
                                 </Button>
-                                <Button
-                                    className="cursor-pointer"
-                                    onClick={onUnlink}
-                                    disabled={loading}
-                                >
+	                                <Button
+	                                    className="cursor-pointer"
+	                                    onClick={() => void onUnlink()}
+	                                    disabled={loading}
+	                                >
                                     {!loading && t('continue')}
                                     {loading && <Spinner />}
                                 </Button>

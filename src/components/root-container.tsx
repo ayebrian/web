@@ -1,20 +1,14 @@
-'use client';
 
 import {ThemeProvider} from '@/components/theme-provider';
 import {useEffect} from 'react';
 
-const appVersion = process.env.NEXT_PUBLIC_APP_VERSION;
+const appVersion = String(import.meta.env.VITE_APP_VERSION);
 
 export function RootContainer({children}: {children: React.ReactNode}) {
     useEffect(() => console.log('appVersion =', appVersion), []);
 
     return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
+        <ThemeProvider>
             {children}
         </ThemeProvider>
     );

@@ -1,7 +1,5 @@
-'use client';
 
 import {CodeDialog} from './code';
-import {useRouter} from 'next/navigation';
 import {useBackendLocale} from '@/network/backend-locale';
 import {
     InputGroup,
@@ -14,8 +12,9 @@ import { Mail } from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {ReactNode, useState} from 'react';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
+import { useNavigate } from 'react-router';
 
 
 export default function EmailPage(): ReactNode {
@@ -47,8 +46,8 @@ function EmailContent(): ReactNode {
     const [openCode, setOpenCode] = useState(false);
 
     const backend = useBackend();
-    const locale = useBackendLocale()
-    const router = useRouter();
+    const locale = useBackendLocale();
+    const navigate = useNavigate();
 
     async function onSend() {
         setError(null);
@@ -74,7 +73,7 @@ function EmailContent(): ReactNode {
     }
 
     function onSignUp() {
-        router.push('/sign-up');
+        void navigate('/sign-up');
     }
 
     return <div className="relative flex flex-col items-center mt-1 mx-1 gap-2">
@@ -101,12 +100,12 @@ function EmailContent(): ReactNode {
             </Field>
         </FieldGroup>
         <div className="flex flex-col items-center justify-center w-full">
-            <Button
-                className="cursor-pointer w-full"
-                variant="secondary"
-                onClick={onSend}
-                disabled={loading}
-            >
+	            <Button
+	                className="cursor-pointer w-full"
+	                variant="secondary"
+	                onClick={() => void onSend()}
+	                disabled={loading}
+	            >
                 {!loading && t('send-code')}
                 {loading && <Spinner />}
             </Button>

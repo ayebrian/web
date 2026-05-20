@@ -1,4 +1,3 @@
-'use client';
 
 import { UserAccessHashesService } from '@/services/useraccesshashes-service';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
@@ -23,7 +22,7 @@ export function UserAccessHashesProvider({children}: {children: React.ReactNode}
             if (!isMounted) return null;
             return {
                 service: new UserAccessHashesService(),
-            }
+            };
         },
         [isMounted]
     );

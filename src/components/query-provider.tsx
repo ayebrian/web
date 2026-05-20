@@ -1,5 +1,3 @@
-'use client';
-
 import {
     MutationCache,
     QueryCache,
@@ -8,22 +6,15 @@ import {
 } from '@tanstack/react-query';
 import {useEffect, useRef, useState} from 'react';
 import {useSession} from '@/components/session-provider';
-import {useRouter} from 'next/navigation';
 
 export function QueryProvider({children}: {children: React.ReactNode}) {
     const session = useSession();
-    const router = useRouter();
 
     const sessionRef = useRef(session);
-    const routerRef = useRef(router);
 
     useEffect(() => {
         sessionRef.current = session;
     }, [session]);
-
-    useEffect(() => {
-        routerRef.current = router;
-    }, [router]);
 
     const [client] = useState(
         () =>
@@ -38,20 +29,10 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                     },
                 },
                 queryCache: new QueryCache({
-                    // onError: error => {
-                    //     if (error instanceof UnauthorizedError) {
-                    //         sessionRef.current.logOut();
-                    //         routerRef.current.push('/signIn');
-                    //     }
-                    // },
+                    // TODO:
                 }),
                 mutationCache: new MutationCache({
-                    // onError: error => {
-                    // if (error instanceof UnauthorizedError) {
-                    // sessionRef.current.logOut();
-                    // routerRef.current.push('/signIn');
-                    // }
-                    // },
+                    // TODO:
                 }),
             }),
     );

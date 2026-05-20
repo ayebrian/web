@@ -1,8 +1,7 @@
-'use client';
 
 import {useCallback} from 'react';
 import {FileDescriptor} from '@/types/file-descriptor';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 
 // This regex is not meant to be a valid check for URL.
 //

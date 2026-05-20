@@ -1,4 +1,3 @@
-'use client';
 
 import {Spinner} from '@/components/ui/spinner';
 import {Textarea} from '@/components/ui/textarea';
@@ -14,16 +13,16 @@ import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {toast} from 'sonner';
 import {useUserValidator} from '../edit/user-validation';
 import {Button} from '@/components/ui/button';
-import {useRouter} from 'next/navigation';
 import {useBackend} from '@/backend.context';
 import {useState} from 'react';
 import {useSession} from '@/components/session-provider';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
+import { useNavigate } from 'react-router';
 
 export default function SignInPage() {
     const t = useTranslations('sign-up');
 
-    const router = useRouter();
+    const navigate = useNavigate();
     const session = useSession();
 
     const [loading, setLoading] = useState(false);
@@ -75,18 +74,18 @@ export default function SignInPage() {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            router.push('/');
+            void navigate('/');
         } else {
             toast.error(t('error-connection'));
         }
     }
 
     async function onSignIn() {
-        router.push('/sign-in');
+        void navigate('/sign-in');
     }
 
     return (
-       <div
+        <div
             className="
             mx-auto
             md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
@@ -175,22 +174,22 @@ export default function SignInPage() {
                     </Field>
                 </FieldGroup>
                 <div className="ml-auto flex flex-col">
-                    <Button
-                        className="cursor-pointer"
-                        variant="secondary"
-                        onClick={onSignUp}
-                        disabled={loading || avatarLoading}
-                    >
+	                    <Button
+	                        className="cursor-pointer"
+	                        variant="secondary"
+	                        onClick={() => void onSignUp()}
+	                        disabled={loading || avatarLoading}
+	                    >
                         {!loading && t('sign-up')}
                         {loading && <Spinner />}
                     </Button>
                     <div className="flex justify-center items-center gap-1">
                         <p className="text-sm">{t('already-have-account')}</p>
-                        <Button
-                            className="cursor-pointer text-sm p-0"
-                            variant="link"
-                            onClick={onSignIn}
-                        >{t('sign-in')}</Button>
+	                        <Button
+	                            className="cursor-pointer text-sm p-0"
+	                            variant="link"
+	                            onClick={() => void onSignIn()}
+	                        >{t('sign-in')}</Button>
                     </div>
                 </div>
             </div>

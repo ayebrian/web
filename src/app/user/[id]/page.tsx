@@ -1,16 +1,16 @@
-'use client';
 
 import { useBackend } from '@/backend.context';
 import { AvatarImage, AvatarFallback, Avatar } from '@/components/ui/avatar';
 import { createFileLink, cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useState, useMemo, use } from 'react';
+import { useTranslations } from 'use-intl';
+import { useState, useMemo } from 'react';
 import { UserDetails } from '@/types/user-details';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
+import { useParams } from 'react-router';
 
 function ProfileHeader({userDetails}: {userDetails: UserDetails}) {
     const [expanded, setExpanded] = useState(false);
@@ -87,12 +87,12 @@ function InterestsBlock({interests}: {interests: string[]}) {
     );
 }
 
-export default function UserPage({ params }: {params: Promise<{id: string}>}) {
+export default function UserPage() {
     const t = useTranslations('profile');
     const backend = useBackend();
     const userAccessHashes = useUserAccessHashes();
 
-    const {id} = use(params);
+    const {id} = useParams();
 
     const userQuery = useQuery({
         queryKey: ['user'],
@@ -137,13 +137,12 @@ export default function UserPage({ params }: {params: Promise<{id: string}>}) {
 
 
     return (
-       <div className="min-h-screen bg-zinc-50 dark:bg-black">
+        <div className="min-h-screen bg-zinc-50 dark:bg-black">
             <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
                 <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                {content}
+                    {content}
                 </div>
             </div>
         </div>
     );
 }
-

@@ -1,4 +1,3 @@
-'use client';
 
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
@@ -25,8 +24,7 @@ import {
     ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
-import Link from 'next/link';
-import {useRouter} from 'next/navigation';
+import {Link, useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
@@ -37,7 +35,7 @@ import {
 } from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
@@ -156,8 +154,8 @@ function FeedReviewDeck({
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
                         : card.isExtendedNetwork
-                          ? t('extended_network')
-                          : null;
+                            ? t('extended_network')
+                            : null;
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
@@ -192,9 +190,9 @@ function FeedReviewDeck({
                                     <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
                                         {card.details.description
                                             ? truncateString(
-                                                  card.details.description,
-                                                  60,
-                                              )
+                                                card.details.description,
+                                                60,
+                                            )
                                             : t('no_description')}
                                     </p>
                                 </div>
@@ -232,10 +230,10 @@ function FeedReviewDeck({
                                                     {selectedCard.isRequest
                                                         ? t('requests_badge')
                                                         : selectedCard.isExtendedNetwork
-                                                          ? t(
+                                                            ? t(
                                                                 'extended_network',
                                                             )
-                                                          : null}
+                                                            : null}
                                                 </Badge>
                                             )}
                                         </div>
@@ -258,10 +256,10 @@ function FeedReviewDeck({
                                                 src={
                                                     selectedCard.details.avatar
                                                         ? createFileLink(
-                                                              selectedCard
-                                                                  .details
-                                                                  .avatar,
-                                                          )
+                                                            selectedCard
+                                                                .details
+                                                                .avatar,
+                                                        )
                                                         : undefined
                                                 }
                                                 className="object-cover w-full h-full"
@@ -301,24 +299,24 @@ function FeedReviewDeck({
 
                                     <div className="p-6 pt-0">
                                         <div className="flex gap-4">
-                                            <Button
-                                                variant="outline"
-                                                className="flex-1 h-12 cursor-pointer"
-                                                disabled={isBusy}
-                                                onClick={() =>
-                                                    handleReview('left')
-                                                }
-                                            >
+	                                            <Button
+	                                                variant="outline"
+	                                                className="flex-1 h-12 cursor-pointer"
+	                                                disabled={isBusy}
+	                                                onClick={() =>
+	                                                    void handleReview('left')
+	                                                }
+	                                            >
                                                 <X className="h-5 w-5 mr-2" />
                                                 {t('skip')}
                                             </Button>
-                                            <Button
-                                                className="flex-1 h-12 cursor-pointer"
-                                                disabled={isBusy}
-                                                onClick={() =>
-                                                    handleReview('right')
-                                                }
-                                            >
+	                                            <Button
+	                                                className="flex-1 h-12 cursor-pointer"
+	                                                disabled={isBusy}
+	                                                onClick={() =>
+	                                                    void handleReview('right')
+	                                                }
+	                                            >
                                                 {selectedCard.isRequest ? (
                                                     <Check className="h-5 w-5 mr-2" />
                                                 ) : (
@@ -463,7 +461,7 @@ function FriendCard({friend}: {friend: UserDetails}) {
     };
 
     return (
-        <button onClick={openFriendPage}>
+        <button onClick={() => void openFriendPage()}>
             <div className="w-40 h-50 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
                 <Avatar className="w-16 h-16">
                     <AvatarImage src={avatarUrl} />
@@ -493,7 +491,7 @@ function FriendsBlock({friends}: {friends: UserDetails[]}) {
                     {t('friends.title')}
                 </p>
                 <Link
-                    href="#"
+                    to="#"
                     className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
                     hidden={friends.length < 1}
                 >
@@ -647,18 +645,18 @@ export default function Home() {
 
     const app = useAppContext();
     const appRef = useAppContextRef();
-    const router = useRouter();
+    const navigate = useNavigate();
     const backend = useBackend();
     const session = useSession();
     const blockingQR = useBlockingQR();
 
     useEffect(() => {
-        if (session.status === 'guest') router.push('/sign-up');
-    }, [session.status, router]);
+        if (session.status === 'guest') void navigate('/sign-up');
+    }, [session.status]);
 
     const logOut = () => {
         session.logOut();
-        router.push('/sign-up');
+        void navigate('/sign-up');
     };
 
     const userQuery = useQuery({
@@ -699,10 +697,10 @@ export default function Home() {
         userResult && !userResult.ok
             ? formatNetworkError(userResult.error)
             : inviteResult && !inviteResult.ok
-              ? formatNetworkError(inviteResult.error)
-              : networkResult && !networkResult.ok
-                ? formatNetworkError(networkResult.error)
-                : null;
+                ? formatNetworkError(inviteResult.error)
+                : networkResult && !networkResult.ok
+                    ? formatNetworkError(networkResult.error)
+                    : null;
 
     const isLoading =
         session.status === 'loading' ||
