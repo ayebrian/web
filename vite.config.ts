@@ -80,9 +80,22 @@ export default defineConfig({
                 // },
                 icons: [
                     {
-                        src: 'favicon.svg',
+                        src: 'pwa-icon.svg',
                         type: 'image/svg+xml',
                         sizes: 'any',
+                        purpose: 'any',
+                    },
+                    {
+                        src: 'pwa-icon-maskable.svg',
+                        type: 'image/svg+xml',
+                        sizes: 'any',
+                        purpose: 'maskable',
+                    },
+                    {
+                        src: 'pwa-icon-monochrome.svg',
+                        type: 'image/svg+xml',
+                        sizes: 'any',
+                        purpose: 'monochrome',
                     },
                 ],
             },
