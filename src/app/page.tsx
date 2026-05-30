@@ -652,6 +652,14 @@ function DiscoveryFeedBlock() {
 function QrCodeCard({url}: {url: string | null}) {
     const t = useTranslations('profile');
     const queryClient = useQueryClient();
+    const backend = useBackend();
+
+    async function forceRefresh() {
+        await backend.friendsGenerateForce();
+        void queryClient.invalidateQueries({
+            queryKey: ['inviteToken'],
+        });
+    }
 
     return (
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
@@ -687,11 +695,7 @@ function QrCodeCard({url}: {url: string | null}) {
                     <Button
                         variant="outline"
                         className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
-                        onClick={() => {
-                            void queryClient.invalidateQueries({
-                                queryKey: ['inviteToken'],
-                            });
-                        }}
+                        onClick={() => void forceRefresh()}
                     >
                         <RotateCcw className="s-4" />
                     </Button>
@@ -730,7 +734,6 @@ export default function Home() {
         queryKey: ['inviteToken'],
         queryFn: () => backend.generateFriendInvitationToken(),
         enabled: session.status === 'authed',
-        refetchOnWindowFocus: false,
     });
 
     const networkQuery = useQuery({
