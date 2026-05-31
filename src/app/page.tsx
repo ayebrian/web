@@ -1,4 +1,3 @@
-
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {UserDetails} from '@/types/user-details';
@@ -20,15 +19,12 @@ import {
     QrCodeIcon,
     X,
     RotateCcw,
-    ChevronDown,
-    ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Link, useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
-    cn,
     createFileLink,
     createFriendInviteLink,
     truncateString,
@@ -38,7 +34,8 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
+import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {ProfileDescription} from '@/components/profile-description';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -154,8 +151,8 @@ function FeedReviewDeck({
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
                         : card.isExtendedNetwork
-                            ? t('extended_network')
-                            : null;
+                          ? t('extended_network')
+                          : null;
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
@@ -190,9 +187,9 @@ function FeedReviewDeck({
                                     <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
                                         {card.details.description
                                             ? truncateString(
-                                                card.details.description,
-                                                60,
-                                            )
+                                                  card.details.description,
+                                                  60,
+                                              )
                                             : t('no_description')}
                                     </p>
                                 </div>
@@ -230,10 +227,10 @@ function FeedReviewDeck({
                                                     {selectedCard.isRequest
                                                         ? t('requests_badge')
                                                         : selectedCard.isExtendedNetwork
-                                                            ? t(
+                                                          ? t(
                                                                 'extended_network',
                                                             )
-                                                            : null}
+                                                          : null}
                                                 </Badge>
                                             )}
                                         </div>
@@ -256,10 +253,10 @@ function FeedReviewDeck({
                                                 src={
                                                     selectedCard.details.avatar
                                                         ? createFileLink(
-                                                            selectedCard
-                                                                .details
-                                                                .avatar,
-                                                        )
+                                                              selectedCard
+                                                                  .details
+                                                                  .avatar,
+                                                          )
                                                         : undefined
                                                 }
                                                 className="object-cover w-full h-full"
@@ -299,24 +296,24 @@ function FeedReviewDeck({
 
                                     <div className="p-6 pt-0">
                                         <div className="flex gap-4">
-	                                            <Button
-	                                                variant="outline"
-	                                                className="flex-1 h-12 cursor-pointer"
-	                                                disabled={isBusy}
-	                                                onClick={() =>
-	                                                    void handleReview('left')
-	                                                }
-	                                            >
+                                            <Button
+                                                variant="outline"
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    void handleReview('left')
+                                                }
+                                            >
                                                 <X className="h-5 w-5 mr-2" />
                                                 {t('skip')}
                                             </Button>
-	                                            <Button
-	                                                className="flex-1 h-12 cursor-pointer"
-	                                                disabled={isBusy}
-	                                                onClick={() =>
-	                                                    void handleReview('right')
-	                                                }
-	                                            >
+                                            <Button
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    void handleReview('right')
+                                                }
+                                            >
                                                 {selectedCard.isRequest ? (
                                                     <Check className="h-5 w-5 mr-2" />
                                                 ) : (
@@ -342,8 +339,6 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
     const userDetails = app.userDetails;
-
-    const [expanded, setExpanded] = useState(false);
 
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
@@ -373,29 +368,9 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
                     {userDetails?.nickname}
                 </p>
 
-                <p
-                    className={cn(
-                        'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
-                        !expanded && 'line-clamp-4 sm:line-clamp-3',
-                    )}
-                >
-                    {userDetails?.description}
-                </p>
-
-                <button
-                    onClick={() => setExpanded(v => !v)}
-                    className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
-                >
-                    {expanded ? (
-                        <>
-                            <ChevronUp className="w-4 h-4" /> Show less
-                        </>
-                    ) : (
-                        <>
-                            <ChevronDown className="w-4 h-4" /> Show more
-                        </>
-                    )}
-                </button>
+                <ProfileDescription
+                    description={userDetails?.description ?? ''}
+                />
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
@@ -697,10 +672,10 @@ export default function Home() {
         userResult && !userResult.ok
             ? formatNetworkError(userResult.error)
             : inviteResult && !inviteResult.ok
-                ? formatNetworkError(inviteResult.error)
-                : networkResult && !networkResult.ok
-                    ? formatNetworkError(networkResult.error)
-                    : null;
+              ? formatNetworkError(inviteResult.error)
+              : networkResult && !networkResult.ok
+                ? formatNetworkError(networkResult.error)
+                : null;
 
     const isLoading =
         session.status === 'loading' ||
