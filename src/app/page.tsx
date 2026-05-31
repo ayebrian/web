@@ -19,15 +19,12 @@ import {
     QrCodeIcon,
     X,
     RotateCcw,
-    ChevronDown,
-    ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Link, useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
-    cn,
     createFileLink,
     createFriendInviteLink,
     truncateString,
@@ -38,6 +35,7 @@ import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {ProfileDescription} from '@/components/profile-description';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -428,8 +426,6 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const app = useAppContext();
     const userDetails = app.userDetails;
 
-    const [expanded, setExpanded] = useState(false);
-
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -458,29 +454,9 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
                     {userDetails?.nickname}
                 </p>
 
-                <p
-                    className={cn(
-                        'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
-                        !expanded && 'line-clamp-4 sm:line-clamp-3',
-                    )}
-                >
-                    {userDetails?.description}
-                </p>
-
-                <button
-                    onClick={() => setExpanded(v => !v)}
-                    className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
-                >
-                    {expanded ? (
-                        <>
-                            <ChevronUp className="w-4 h-4" /> Show less
-                        </>
-                    ) : (
-                        <>
-                            <ChevronDown className="w-4 h-4" /> Show more
-                        </>
-                    )}
-                </button>
+                <ProfileDescription
+                    description={userDetails?.description ?? ''}
+                />
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
