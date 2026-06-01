@@ -19,15 +19,12 @@ import {
     QrCodeIcon,
     X,
     RotateCcw,
-    ChevronDown,
-    ChevronUp,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Link, useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
 import {
-    cn,
     createFileLink,
     createFriendInviteLink,
     truncateString,
@@ -38,6 +35,7 @@ import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {ProfileDescription} from '@/components/profile-description';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -428,8 +426,6 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const app = useAppContext();
     const userDetails = app.userDetails;
 
-    const [expanded, setExpanded] = useState(false);
-
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -458,29 +454,9 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
                     {userDetails?.nickname}
                 </p>
 
-                <p
-                    className={cn(
-                        'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
-                        !expanded && 'line-clamp-4 sm:line-clamp-3',
-                    )}
-                >
-                    {userDetails?.description}
-                </p>
-
-                <button
-                    onClick={() => setExpanded(v => !v)}
-                    className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
-                >
-                    {expanded ? (
-                        <>
-                            <ChevronUp className="w-4 h-4" /> Show less
-                        </>
-                    ) : (
-                        <>
-                            <ChevronDown className="w-4 h-4" /> Show more
-                        </>
-                    )}
-                </button>
+                <ProfileDescription
+                    description={userDetails?.description ?? ''}
+                />
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
@@ -676,6 +652,14 @@ function DiscoveryFeedBlock() {
 function QrCodeCard({url}: {url: string | null}) {
     const t = useTranslations('profile');
     const queryClient = useQueryClient();
+    const backend = useBackend();
+
+    async function forceRefresh() {
+        await backend.friendsGenerateForce();
+        void queryClient.invalidateQueries({
+            queryKey: ['inviteToken'],
+        });
+    }
 
     return (
         <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
@@ -711,11 +695,7 @@ function QrCodeCard({url}: {url: string | null}) {
                     <Button
                         variant="outline"
                         className="flex-1 dark:bg-zinc-950 dark:hover:bg-zinc-800 cursor-pointer"
-                        onClick={() => {
-                            void queryClient.invalidateQueries({
-                                queryKey: ['inviteToken'],
-                            });
-                        }}
+                        onClick={() => void forceRefresh()}
                     >
                         <RotateCcw className="s-4" />
                     </Button>
@@ -754,7 +734,6 @@ export default function Home() {
         queryKey: ['inviteToken'],
         queryFn: () => backend.generateFriendInvitationToken(),
         enabled: session.status === 'authed',
-        refetchOnWindowFocus: false,
     });
 
     const networkQuery = useQuery({
