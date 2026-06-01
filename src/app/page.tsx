@@ -324,7 +324,7 @@ function FeedReviewDeck({
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col flex-1 p-6">
+                                    <div className="flex flex-col flex-1 shrink p-6 overflow-y-auto pb-12 relative">
                                         <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
                                             {selectedCard.details.nickname}
                                         </h3>
@@ -335,7 +335,24 @@ function FeedReviewDeck({
                                         </p>
                                     </div>
 
-                                    <div className="p-6 pt-0">
+                                    <div className="p-6 pt-0 relative">
+                                        <div
+                                            className="absolute -top-12 left-0 right-0 flex justify-center gap-1">
+                                            {selectedCard.commonFriends.slice(0, 5).map(cFriend => (
+                                                <Avatar className="w-10 h-10">
+                                                    <AvatarImage
+                                                        src={
+                                                            cFriend.avatar
+                                                                ? createFileLink(
+                                                                    cFriend.avatar,
+                                                                )
+                                                                : undefined
+                                                            }
+                                                        className="object-cover w-full h-full"
+                                                    />
+                                                </Avatar>
+                                            ))}
+                                        </div>
                                         <div className="flex gap-4">
                                             <Button
                                                 variant="outline"
