@@ -58,6 +58,14 @@ function FeedEmptyState() {
     );
 }
 
+type EmailBindingSuggestionStatus =
+    | 'pending'
+    | 'suggested'
+    | 'declined'
+    | 'accepted';
+
+const FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION = 20;
+
 function FeedReviewDeck({
     cards,
     isLoading,
@@ -82,6 +90,31 @@ function FeedReviewDeck({
     const [isAnimating, setIsAnimating] = useState(false);
     const isBusy = pendingCardId !== null;
 
+    const app = useAppContext();
+    const [swipeCount, setSwipeCount] = useState<number>(() => {
+        return parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
+    });
+    const isNeedSuggestEmail = useMemo(() => {
+        if (swipeCount > FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION) {
+            return false;
+        }
+        return !app.userDetails?.email;
+    }, [app.userDetails?.email, swipeCount]);
+
+    const [emailSuggestionStatus, setEmailSuggestionStatus] =
+        useState<EmailBindingSuggestionStatus>('pending');
+
+    const increaseSwipesCounter = () => {
+        const prevValue = parseInt(
+            localStorage.getItem('feed-swipes') ?? '0',
+            10,
+        );
+        const nextCount = prevValue + 1;
+        localStorage.setItem('feed-swipes', nextCount.toString());
+        setSwipeCount(nextCount);
+        return nextCount;
+    };
+
     const handleCardClick = (card: FeedItem) => {
         setSelectedCard(card);
         setIsDialogOpen(true);
@@ -92,6 +125,15 @@ function FeedReviewDeck({
 
         setPendingCardId(getFeedItemKey(selectedCard));
         setIsAnimating(true);
+
+        const updatedCount = increaseSwipesCounter();
+
+        if (
+            isNeedSuggestEmail &&
+            updatedCount === FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION
+        ) {
+            setEmailSuggestionStatus('suggested');
+        }
 
         try {
             await onReview(selectedCard, direction);
@@ -331,6 +373,47 @@ function FeedReviewDeck({
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
+
+            {/* Ask about email binding after 20 swipes */}
+            <Dialog.Root
+                open={emailSuggestionStatus === 'suggested'}
+                onOpenChange={() => setEmailSuggestionStatus('pending')}
+            >
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                    <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-fit max-w-sm rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg">
+                        <>
+                            <h2 className="text-center">
+                                {t('email_binding.description')}
+                            </h2>
+                            <div className="w-full flex flex-row grow-1 gap-2 mt-4">
+                                <Button
+                                    className="grow-1"
+                                    onClick={() =>
+                                        setEmailSuggestionStatus('declined')
+                                    }
+                                >
+                                    {t('email_binding.decline')}
+                                </Button>
+                                <Button
+                                    className="grow-2"
+                                    onClick={() =>
+                                        setEmailSuggestionStatus('accepted')
+                                    }
+                                >
+                                    {t('email_binding.confirm')}
+                                </Button>
+                            </div>
+                        </>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+            <EditProfileDialog
+                open={emailSuggestionStatus === 'accepted'}
+                setOpen={isOpen => {
+                    if (!isOpen) setEmailSuggestionStatus('declined');
+                }}
+            />
         </>
     );
 }
