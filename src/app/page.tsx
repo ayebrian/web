@@ -58,12 +58,11 @@ function FeedEmptyState() {
     );
 }
 
-enum EmailBindingSuggestionStatus {
-    Pending,
-    Suggested,
-    Declined,
-    Accepted,
-}
+type EmailBindingSuggestionStatus =
+    | 'pending'
+    | 'suggested'
+    | 'declined'
+    | 'accepted';
 
 const FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION = 20;
 
@@ -91,7 +90,7 @@ function FeedReviewDeck({
     const [isAnimating, setIsAnimating] = useState(false);
     const isBusy = pendingCardId !== null;
 
-    const app = useAppContext(); 
+    const app = useAppContext();
     const [swipeCount, setSwipeCount] = useState<number>(() => {
         return parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
     });
@@ -102,12 +101,14 @@ function FeedReviewDeck({
         return !app.userDetails?.email;
     }, [app.userDetails?.email, swipeCount]);
 
-    const [emailSuggestionStatus, setEmailSuggestionStatus] = useState(
-        EmailBindingSuggestionStatus.Pending,
-    );
+    const [emailSuggestionStatus, setEmailSuggestionStatus] =
+        useState<EmailBindingSuggestionStatus>('pending');
 
     const increaseSwipesCounter = () => {
-        const prevValue = parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
+        const prevValue = parseInt(
+            localStorage.getItem('feed-swipes') ?? '0',
+            10,
+        );
         const nextCount = prevValue + 1;
         localStorage.setItem('feed-swipes', nextCount.toString());
         setSwipeCount(nextCount);
@@ -127,10 +128,11 @@ function FeedReviewDeck({
 
         const updatedCount = increaseSwipesCounter();
 
-        if (isNeedSuggestEmail && updatedCount === FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION) {
-            setEmailSuggestionStatus(
-                EmailBindingSuggestionStatus.Suggested,
-            );
+        if (
+            isNeedSuggestEmail &&
+            updatedCount === FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION
+        ) {
+            setEmailSuggestionStatus('suggested');
         }
 
         try {
@@ -374,15 +376,8 @@ function FeedReviewDeck({
 
             {/* Ask about email binding after 20 swipes */}
             <Dialog.Root
-                open={
-                    emailSuggestionStatus ===
-                    EmailBindingSuggestionStatus.Suggested
-                }
-                onOpenChange={() =>
-                    setEmailSuggestionStatus(
-                        EmailBindingSuggestionStatus.Pending,
-                    )
-                }
+                open={emailSuggestionStatus === 'suggested'}
+                onOpenChange={() => setEmailSuggestionStatus('pending')}
             >
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
@@ -392,15 +387,18 @@ function FeedReviewDeck({
                                 {t('email_binding.description')}
                             </h2>
                             <div className="w-full flex flex-row grow-1 gap-2 mt-4">
-                                <Button className="grow-1" onClick={() => setEmailSuggestionStatus(EmailBindingSuggestionStatus.Declined)}>
+                                <Button
+                                    className="grow-1"
+                                    onClick={() =>
+                                        setEmailSuggestionStatus('declined')
+                                    }
+                                >
                                     {t('email_binding.decline')}
                                 </Button>
                                 <Button
                                     className="grow-2"
                                     onClick={() =>
-                                        setEmailSuggestionStatus(
-                                            EmailBindingSuggestionStatus.Accepted,
-                                        )
+                                        setEmailSuggestionStatus('accepted')
                                     }
                                 >
                                     {t('email_binding.confirm')}
@@ -411,11 +409,10 @@ function FeedReviewDeck({
                 </Dialog.Portal>
             </Dialog.Root>
             <EditProfileDialog
-                open={
-                    emailSuggestionStatus ===
-                    EmailBindingSuggestionStatus.Accepted
-                }
-                setOpen={(isOpen) => { if(!isOpen) setEmailSuggestionStatus(EmailBindingSuggestionStatus.Declined) }}
+                open={emailSuggestionStatus === 'accepted'}
+                setOpen={isOpen => {
+                    if (!isOpen) setEmailSuggestionStatus('declined');
+                }}
             />
         </>
     );
