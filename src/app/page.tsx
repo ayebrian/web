@@ -1,4 +1,3 @@
-
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {UserDetails} from '@/types/user-details';
@@ -38,7 +37,7 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
+import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -60,6 +59,15 @@ function FeedEmptyState() {
         </div>
     );
 }
+
+enum EmailBindingSuggestionStatus {
+    Pending,
+    Suggested,
+    Declined,
+    Accepted,
+}
+
+const FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION = 20;
 
 function FeedReviewDeck({
     cards,
@@ -85,6 +93,29 @@ function FeedReviewDeck({
     const [isAnimating, setIsAnimating] = useState(false);
     const isBusy = pendingCardId !== null;
 
+    const app = useAppContext(); 
+    const [swipeCount, setSwipeCount] = useState<number>(() => {
+        return parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
+    });
+    const isNeedSuggestEmail = useMemo(() => {
+        if (swipeCount > FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION) {
+            return false;
+        }
+        return !app.userDetails?.email;
+    }, [app.userDetails?.email, swipeCount]);
+
+    const [emailSuggestionStatus, setEmailSuggestionStatus] = useState(
+        EmailBindingSuggestionStatus.Pending,
+    );
+
+    const increaseSwipesCounter = () => {
+        const prevValue = parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
+        const nextCount = prevValue + 1;
+        localStorage.setItem('feed-swipes', nextCount.toString());
+        setSwipeCount(nextCount);
+        return nextCount;
+    };
+
     const handleCardClick = (card: FeedItem) => {
         setSelectedCard(card);
         setIsDialogOpen(true);
@@ -95,6 +126,14 @@ function FeedReviewDeck({
 
         setPendingCardId(getFeedItemKey(selectedCard));
         setIsAnimating(true);
+
+        const updatedCount = increaseSwipesCounter();
+
+        if (isNeedSuggestEmail && updatedCount === FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION) {
+            setEmailSuggestionStatus(
+                EmailBindingSuggestionStatus.Suggested,
+            );
+        }
 
         try {
             await onReview(selectedCard, direction);
@@ -154,8 +193,8 @@ function FeedReviewDeck({
                     const badgeLabel = card.isRequest
                         ? t('requests_badge')
                         : card.isExtendedNetwork
-                            ? t('extended_network')
-                            : null;
+                          ? t('extended_network')
+                          : null;
                     const avatarUrl = card.details.avatar
                         ? createFileLink(card.details.avatar)
                         : '';
@@ -190,9 +229,9 @@ function FeedReviewDeck({
                                     <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400 overflow-hidden text-ellipsis">
                                         {card.details.description
                                             ? truncateString(
-                                                card.details.description,
-                                                60,
-                                            )
+                                                  card.details.description,
+                                                  60,
+                                              )
                                             : t('no_description')}
                                     </p>
                                 </div>
@@ -230,10 +269,10 @@ function FeedReviewDeck({
                                                     {selectedCard.isRequest
                                                         ? t('requests_badge')
                                                         : selectedCard.isExtendedNetwork
-                                                            ? t(
+                                                          ? t(
                                                                 'extended_network',
                                                             )
-                                                            : null}
+                                                          : null}
                                                 </Badge>
                                             )}
                                         </div>
@@ -256,10 +295,10 @@ function FeedReviewDeck({
                                                 src={
                                                     selectedCard.details.avatar
                                                         ? createFileLink(
-                                                            selectedCard
-                                                                .details
-                                                                .avatar,
-                                                        )
+                                                              selectedCard
+                                                                  .details
+                                                                  .avatar,
+                                                          )
                                                         : undefined
                                                 }
                                                 className="object-cover w-full h-full"
@@ -299,24 +338,24 @@ function FeedReviewDeck({
 
                                     <div className="p-6 pt-0">
                                         <div className="flex gap-4">
-	                                            <Button
-	                                                variant="outline"
-	                                                className="flex-1 h-12 cursor-pointer"
-	                                                disabled={isBusy}
-	                                                onClick={() =>
-	                                                    void handleReview('left')
-	                                                }
-	                                            >
+                                            <Button
+                                                variant="outline"
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    void handleReview('left')
+                                                }
+                                            >
                                                 <X className="h-5 w-5 mr-2" />
                                                 {t('skip')}
                                             </Button>
-	                                            <Button
-	                                                className="flex-1 h-12 cursor-pointer"
-	                                                disabled={isBusy}
-	                                                onClick={() =>
-	                                                    void handleReview('right')
-	                                                }
-	                                            >
+                                            <Button
+                                                className="flex-1 h-12 cursor-pointer"
+                                                disabled={isBusy}
+                                                onClick={() =>
+                                                    void handleReview('right')
+                                                }
+                                            >
                                                 {selectedCard.isRequest ? (
                                                     <Check className="h-5 w-5 mr-2" />
                                                 ) : (
@@ -334,6 +373,52 @@ function FeedReviewDeck({
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
+
+            {/* Ask about email binding after 20 swipes */}
+            <Dialog.Root
+                open={
+                    emailSuggestionStatus ===
+                    EmailBindingSuggestionStatus.Suggested
+                }
+                onOpenChange={() =>
+                    setEmailSuggestionStatus(
+                        EmailBindingSuggestionStatus.Pending,
+                    )
+                }
+            >
+                <Dialog.Portal>
+                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                    <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-fit max-w-sm rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg">
+                        <>
+                            <h2 className="text-center">
+                                {t('email_binding.description')}
+                            </h2>
+                            <div className="w-full flex flex-row grow-1 gap-2 mt-4">
+                                <Button className="grow-1" onClick={() => setEmailSuggestionStatus(EmailBindingSuggestionStatus.Declined)}>
+                                    {t('email_binding.decline')}
+                                </Button>
+                                <Button
+                                    className="grow-2"
+                                    onClick={() =>
+                                        setEmailSuggestionStatus(
+                                            EmailBindingSuggestionStatus.Accepted,
+                                        )
+                                    }
+                                >
+                                    {t('email_binding.confirm')}
+                                </Button>
+                            </div>
+                        </>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+            <EditProfileDialog
+                open={
+                    emailSuggestionStatus ===
+                    EmailBindingSuggestionStatus.Accepted
+                }
+                setOpen={(isOpen) => { if(!isOpen) setEmailSuggestionStatus(EmailBindingSuggestionStatus.Declined) }}
+            />
         </>
     );
 }
@@ -697,10 +782,10 @@ export default function Home() {
         userResult && !userResult.ok
             ? formatNetworkError(userResult.error)
             : inviteResult && !inviteResult.ok
-                ? formatNetworkError(inviteResult.error)
-                : networkResult && !networkResult.ok
-                    ? formatNetworkError(networkResult.error)
-                    : null;
+              ? formatNetworkError(inviteResult.error)
+              : networkResult && !networkResult.ok
+                ? formatNetworkError(networkResult.error)
+                : null;
 
     const isLoading =
         session.status === 'loading' ||
