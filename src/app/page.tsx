@@ -1,4 +1,6 @@
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
+import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
+import {UserDetails} from '@/types/user-details';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {FeedItem} from '@/network/friendly-client';
 import {useEffect, useMemo, useState, useCallback} from 'react';
@@ -243,7 +245,7 @@ function FeedReviewDeck({
             <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    <Dialog.Content className="fixed left-1/2 top-0 bottom-0 lg:top-4 lg:bottom-4 w-full lg:rounded-2xl md:max-w-md lg:max-w-lg -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
+                    <Dialog.Content className="fixed left-1/2 top-0 bottom-0 lg:top-4 lg:bottom-4 w-full lg:rounded-2xl max-w-md -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
                         {selectedCard &&
                             <FeedDialogContent
                                 selectedCard={selectedCard}
@@ -287,6 +289,17 @@ function FeedDialogContent(
     }: FeedDialogProps,
 ) {
     const t = useTranslations('profile.feed');
+    const userAccessHashes = useUserAccessHashes();
+    const navigate = useNavigate();
+
+    async function routeToUser(friend: UserDetails) {
+        await userAccessHashes.service.save({
+            id: friend.id,
+            accessHash: friend.accessHash,
+        });
+        await navigate(`/user/${friend.id}`);
+    }
+
     return <>
         <Dialog.Title className="sr-only">
             {selectedCard.details.nickname}
@@ -300,12 +313,12 @@ function FeedDialogContent(
             }`}
         >
             <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
-                <div>
+                <div className="flex flex-column ms-4">
                     {(selectedCard.isRequest ||
                         selectedCard.isExtendedNetwork) && (
                         <Badge
                             variant="secondary"
-                            className="bg-secondary/50 backdrop-blur-md border rounded-md text-sm px-3 py-1"
+                            className="bg-secondary/50 -ms-4 me-5 backdrop-blur-md border rounded-md text-sm px-3 py-1"
                         >
                             {selectedCard.isRequest
                                 ? t('requests_badge')
@@ -316,6 +329,16 @@ function FeedDialogContent(
                                   : null}
                         </Badge>
                     )}
+                    {selectedCard.commonFriends.slice(0, 5).map(friend => {
+                        const avatar = friend.avatar;
+                        const fallback = getAvatarFallbackForNickname(friend.nickname);
+                        return <Avatar className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer" onClick={() => void routeToUser(friend)}>
+                            <AvatarImage src={avatar ? createFileLink(avatar) : undefined} />
+                            <AvatarFallback>
+                                <span className="text-xl">{fallback}</span>
+                            </AvatarFallback>
+                        </Avatar>
+                    })}
                 </div>
                 <Button
                     variant="ghost"
@@ -375,23 +398,6 @@ function FeedDialogContent(
             </div>
 
             <div className="p-6 pt-0 relative">
-                <div
-                    className="absolute -top-12 left-0 right-0 flex justify-center gap-1">
-                    {selectedCard.commonFriends.slice(0, 5).map(cFriend => (
-                        <Avatar className="w-10 h-10">
-                            <AvatarImage
-                                src={
-                                    cFriend.avatar
-                                        ? createFileLink(
-                                            cFriend.avatar,
-                                        )
-                                        : undefined
-                                    }
-                                className="object-cover w-full h-full"
-                            />
-                        </Avatar>
-                    ))}
-                </div>
                 <div className="flex gap-4">
                     <Button
                         variant="outline"
@@ -485,7 +491,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
                 <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
                     <AvatarImage src={avatarUrl} />
                     <AvatarFallback>
-                        {userDetails?.nickname?.slice(0, 2)}
+                        {getAvatarFallbackForNickname(userDetails?.nickname)}
                     </AvatarFallback>
                 </Avatar>
             </div>
@@ -814,3 +820,16 @@ export default function Home() {
         </div>
     );
 }
+
+function getAvatarFallbackForNickname(
+    nickname: string | undefined,
+): string | undefined {
+    if (!nickname) return;
+    if (nickname.trim().length === 0) return;
+    const words = nickname.toUpperCase().split(' ');
+    return words
+        .slice(0, 2)
+        .map(word => word[0])
+        .join('');
+}
+
