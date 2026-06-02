@@ -8,21 +8,19 @@ import {createFileLink} from '@/lib/utils';
 import {Dialog} from 'radix-ui';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 
-type AllFriendsListType = {
+interface AllFriendsListProps {
     friends: UserDetails[];
     open: boolean;
     setOpen: (open: boolean) => void;
-};
+}
 
-function FriendListItem({
-    id,
-    friend,
-    onClick,
-}: {
+interface FriendListItemProps {
     id: string;
     friend: UserDetails;
     onClick: () => void;
-}) {
+}
+
+function FriendListItem({id, friend, onClick}: FriendListItemProps) {
     const avatarUrl = useMemo(
         () => (friend.avatar ? createFileLink(friend.avatar) : ''),
         [friend],
@@ -47,7 +45,7 @@ function FriendListItem({
     );
 }
 
-export function AllFriendsList({friends, open, setOpen}: AllFriendsListType) {
+export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     const t = useTranslations('profile');
     const userAccessHashes = useUserAccessHashes();
 
