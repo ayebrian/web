@@ -1,33 +1,33 @@
 name: Production deploy
 
 on:
-  push:
-    branches: 
-        - production
-        - experimental/vite-react-rework
-  workflow_dispatch:
+    push:
+        branches:
+            - production
+            - experimental/vite-react-rework
+    workflow_dispatch:
 
 jobs:
-  development-deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup Node
-      uses: pnpm/action-setup@v6
-      with:
-          cache: true
-    - name: Install Dependencies
-      run: pnpm ci
-    - name: Build
-      run: pnpm run build
-    - name: Upload dist
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "dist/**"
-        target: "${{ secrets.REMOTE_TARGET }}"
-        rm: true
-        strip_components: 1
+    development-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Setup Node
+              uses: pnpm/action-setup@v6
+              with:
+                  cache: true
+            - name: Install Dependencies
+              run: pnpm ci
+            - name: Build
+              run: pnpm run build
+            - name: Upload dist
+              uses: appleboy/scp-action@master
+              with:
+                  host: ${{ secrets.REMOTE_HOST }}
+                  username: ${{ secrets.REMOTE_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  source: 'dist/**'
+                  target: '${{ secrets.REMOTE_TARGET }}'
+                  rm: true
+                  strip_components: 1
