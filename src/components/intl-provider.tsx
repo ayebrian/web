@@ -1,4 +1,3 @@
-
 import {IntlProvider as UseIntlProvider} from 'use-intl';
 import {useEffect, useState} from 'react';
 import en from '../messages/en.json';

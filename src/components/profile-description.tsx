@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {cn} from '@/lib/utils';
+import {ChevronDown, ChevronUp} from 'lucide-react';
+import {useEffect, useRef, useState} from 'react';
 
 export function ProfileDescription({description}: {description: string}) {
     const [expanded, setExpanded] = useState(false);
@@ -14,19 +14,21 @@ export function ProfileDescription({description}: {description: string}) {
 
         setCanExpand(el.scrollHeight > el.clientHeight);
     }, [description]);
-    
-    return (<>
-                <p
-                    className={cn(
-                        'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
-                        !expanded && 'line-clamp-4 sm:line-clamp-3',
-                    )}
-                    ref={descriptionRef}
-                >
-                    {description}
-                </p>
 
-                {canExpand && <button
+    return (
+        <>
+            <p
+                className={cn(
+                    'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
+                    !expanded && 'line-clamp-4 sm:line-clamp-3',
+                )}
+                ref={descriptionRef}
+            >
+                {description}
+            </p>
+
+            {canExpand && (
+                <button
                     onClick={() => setExpanded(v => !v)}
                     className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
                 >
@@ -39,6 +41,8 @@ export function ProfileDescription({description}: {description: string}) {
                             <ChevronDown className="w-4 h-4" /> Show more
                         </>
                     )}
-                              </button>}
-            </>);
+                </button>
+            )}
+        </>
+    );
 }

@@ -9,7 +9,7 @@ export default async function getRequestConfig() {
 
     // console.log(`Detected locale: ${locale}`);
     const locale = 'en';
-    const mod = await import('../messages/en.json') as {default: Messages};
+    const mod = (await import('../messages/en.json')) as {default: Messages};
 
     return {
         locale,

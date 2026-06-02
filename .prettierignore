@@ -1,3 +1,9 @@
 # Ignore artifacts:
 build
 coverage
+
+# Specific files
+pnpm-lock.yaml
+
+# Specific file types
+*.md
