@@ -64,7 +64,7 @@
             "email_binding": {
                 "description": "Seems like you enjoy our app. If you want to access your account later, bind a email.",
                 "confirm": "Yes",
-                "decline": "No, don't offer again"
+                "decline": "No"
             }
         },
         "unknown_error": "An unknown error occurred."
