@@ -1,5 +1,5 @@
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
-import { useUserAccessHashes } from '@/components/useraccesshashes-provider';
+import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 import {UserDetails} from '@/types/user-details';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {FeedItem} from '@/network/friendly-client';
@@ -36,7 +36,7 @@ import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {ProfileDescription} from '@/components/profile-description';
-import { FriendsBlock } from './friends/friends-block';
+import {FriendsBlock} from './friends/friends-block';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -246,7 +246,7 @@ function FeedReviewDeck({
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
                     <Dialog.Content className="fixed left-1/2 top-0 bottom-0 lg:top-4 lg:bottom-4 w-full lg:rounded-2xl max-w-md -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
-                        {selectedCard &&
+                        {selectedCard && (
                             <FeedDialogContent
                                 selectedCard={selectedCard}
                                 isAnimating={isAnimating}
@@ -255,15 +255,18 @@ function FeedReviewDeck({
                                     setSelectedCard(null);
                                 }}
                                 isBusy={isBusy}
-                                handleReview={(direction) =>
+                                handleReview={direction =>
                                     void handleReview(direction)
-                                }/>}
+                                }
+                            />
+                        )}
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
             <SuggestEmailBindingDialog
                 status={emailSuggestionStatus}
-                setStatus={setEmailSuggestionStatus} />
+                setStatus={setEmailSuggestionStatus}
+            />
             <EditProfileDialog
                 open={emailSuggestionStatus === 'accepted'}
                 setOpen={isOpen => {
@@ -282,12 +285,13 @@ interface FeedDialogProps {
     handleReview: (direction: SwipeDirection) => void;
 }
 
-function FeedDialogContent(
-    {
-        selectedCard, isAnimating,
-        closeDialog, isBusy, handleReview,
-    }: FeedDialogProps,
-) {
+function FeedDialogContent({
+    selectedCard,
+    isAnimating,
+    closeDialog,
+    isBusy,
+    handleReview,
+}: FeedDialogProps) {
     const t = useTranslations('profile.feed');
     const userAccessHashes = useUserAccessHashes();
     const navigate = useNavigate();
@@ -300,80 +304,89 @@ function FeedDialogContent(
         await navigate(`/user/${friend.id}`);
     }
 
-    return <>
-        <Dialog.Title className="sr-only">
-            {selectedCard.details.nickname}
-        </Dialog.Title>
+    return (
+        <>
+            <Dialog.Title className="sr-only">
+                {selectedCard.details.nickname}
+            </Dialog.Title>
 
-        <div
-            className={`flex flex-col h-full transition-opacity duration-150 ${
-                isAnimating
-                    ? 'opacity-0'
-                    : 'opacity-100'
-            }`}
-        >
-            <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
-                <div className="flex flex-column ms-4">
-                    {(selectedCard.isRequest ||
-                        selectedCard.isExtendedNetwork) && (
-                        <Badge
-                            variant="secondary"
-                            className="bg-secondary/50 -ms-4 me-5 backdrop-blur-md border rounded-md text-sm px-3 py-1"
-                        >
-                            {selectedCard.isRequest
-                                ? t('requests_badge')
-                                : selectedCard.isExtendedNetwork
-                                  ? t(
-                                        'extended_network',
-                                    )
-                                  : null}
-                        </Badge>
-                    )}
-                    {selectedCard.commonFriends.slice(0, 5).map(friend => {
-                        const avatar = friend.avatar;
-                        const fallback = getAvatarFallbackForNickname(friend.nickname);
-                        return <Avatar className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer" onClick={() => void routeToUser(friend)}>
-                            <AvatarImage src={avatar ? createFileLink(avatar) : undefined} />
-                            <AvatarFallback>
-                                <span className="text-xl">{fallback}</span>
-                            </AvatarFallback>
-                        </Avatar>
-                    })}
+            <div
+                className={`flex flex-col h-full transition-opacity duration-150 ${
+                    isAnimating ? 'opacity-0' : 'opacity-100'
+                }`}
+            >
+                <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
+                    <div className="flex flex-column ms-4">
+                        {(selectedCard.isRequest ||
+                            selectedCard.isExtendedNetwork) && (
+                            <Badge
+                                variant="secondary"
+                                className="bg-secondary/50 -ms-4 me-5 backdrop-blur-md border rounded-md text-sm px-3 py-1"
+                            >
+                                {selectedCard.isRequest
+                                    ? t('requests_badge')
+                                    : selectedCard.isExtendedNetwork
+                                      ? t('extended_network')
+                                      : null}
+                            </Badge>
+                        )}
+                        {selectedCard.commonFriends.slice(0, 5).map(friend => {
+                            const avatar = friend.avatar;
+                            const fallback = getAvatarFallbackForNickname(
+                                friend.nickname,
+                            );
+                            return (
+                                <Avatar
+                                    className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
+                                    onClick={() => void routeToUser(friend)}
+                                >
+                                    <AvatarImage
+                                        src={
+                                            avatar
+                                                ? createFileLink(avatar)
+                                                : undefined
+                                        }
+                                    />
+                                    <AvatarFallback>
+                                        <span className="text-xl">
+                                            {fallback}
+                                        </span>
+                                    </AvatarFallback>
+                                </Avatar>
+                            );
+                        })}
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white"
+                        onClick={() => closeDialog()}
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white"
-                    onClick={() => closeDialog()}
-                >
-                    <X className="h-4 w-4" />
-                </Button>
-            </div>
 
-            <div className="relative w-full aspect-square shrink-0 overflow-hidden">
-                <Avatar className="w-full h-full rounded-none object-cover">
-                    <AvatarImage
-                        src={
-                            selectedCard.details.avatar
-                                ? createFileLink(
-                                      selectedCard
-                                          .details
-                                          .avatar,
-                                  )
-                                : undefined
-                        }
-                        className="object-cover w-full h-full"
-                    />
-                    <AvatarFallback className="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800">
-                        {selectedCard.details.nickname
-                            .slice(0, 2)
-                            .toUpperCase()}
-                    </AvatarFallback>
-                </Avatar>
+                <div className="relative w-full aspect-square shrink-0 overflow-hidden">
+                    <Avatar className="w-full h-full rounded-none object-cover">
+                        <AvatarImage
+                            src={
+                                selectedCard.details.avatar
+                                    ? createFileLink(
+                                          selectedCard.details.avatar,
+                                      )
+                                    : undefined
+                            }
+                            className="object-cover w-full h-full"
+                        />
+                        <AvatarFallback className="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800">
+                            {selectedCard.details.nickname
+                                .slice(0, 2)
+                                .toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
 
-                <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">
-                    {selectedCard.details.interests.map(
-                        interest => (
+                    <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">
+                        {selectedCard.details.interests.map(interest => (
                             <Badge
                                 key={interest}
                                 variant="secondary"
@@ -381,51 +394,51 @@ function FeedDialogContent(
                             >
                                 {interest}
                             </Badge>
-                        ),
-                    )}
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex flex-col flex-1 shrink p-6 overflow-y-auto pb-12 relative">
+                    <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
+                        {selectedCard.details.nickname}
+                    </h3>
+
+                    <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                        {selectedCard.details.description ||
+                            t('no_description')}
+                    </p>
+                </div>
+
+                <div className="p-6 pt-0 relative">
+                    <div className="flex gap-4">
+                        <Button
+                            variant="outline"
+                            className="flex-1 h-12 cursor-pointer"
+                            disabled={isBusy}
+                            onClick={() => handleReview('left')}
+                        >
+                            <X className="h-5 w-5 mr-2" />
+                            {t('skip')}
+                        </Button>
+                        <Button
+                            className="flex-1 h-12 cursor-pointer"
+                            disabled={isBusy}
+                            onClick={() => handleReview('right')}
+                        >
+                            {selectedCard.isRequest ? (
+                                <Check className="h-5 w-5 mr-2" />
+                            ) : (
+                                <Heart className="h-5 w-5 mr-2" />
+                            )}
+                            {selectedCard.isRequest
+                                ? t('accept')
+                                : t('connect')}
+                        </Button>
+                    </div>
                 </div>
             </div>
-
-            <div className="flex flex-col flex-1 shrink p-6 overflow-y-auto pb-12 relative">
-                <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
-                    {selectedCard.details.nickname}
-                </h3>
-
-                <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                    {selectedCard.details.description ||
-                        t('no_description')}
-                </p>
-            </div>
-
-            <div className="p-6 pt-0 relative">
-                <div className="flex gap-4">
-                    <Button
-                        variant="outline"
-                        className="flex-1 h-12 cursor-pointer"
-                        disabled={isBusy}
-                        onClick={() => handleReview('left')}
-                    >
-                        <X className="h-5 w-5 mr-2" />
-                        {t('skip')}
-                    </Button>
-                    <Button
-                        className="flex-1 h-12 cursor-pointer"
-                        disabled={isBusy}
-                        onClick={() => handleReview('right')}
-                    >
-                        {selectedCard.isRequest ? (
-                            <Check className="h-5 w-5 mr-2" />
-                        ) : (
-                            <Heart className="h-5 w-5 mr-2" />
-                        )}
-                        {selectedCard.isRequest
-                            ? t('accept')
-                            : t('connect')}
-                    </Button>
-                </div>
-            </div>
-        </div>
-    </>;
+        </>
+    );
 }
 
 interface SuggestEmailBindingDialogProps {
@@ -434,38 +447,41 @@ interface SuggestEmailBindingDialogProps {
 }
 
 function SuggestEmailBindingDialog({
-    status, setStatus,
+    status,
+    setStatus,
 }: SuggestEmailBindingDialogProps) {
     const t = useTranslations('profile.feed');
-    return <Dialog.Root
-        open={status === 'suggested'}
-        onOpenChange={() => setStatus('pending')}
-    >
-        <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-            <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-fit max-w-sm rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg">
-                <>
-                    <h2 className="text-center">
-                        {t('email_binding.description')}
-                    </h2>
-                    <div className="w-full flex flex-row grow-1 gap-2 mt-4">
-                        <Button
-                            className="grow-1"
-                            onClick={() => setStatus('declined')}
-                        >
-                            {t('email_binding.decline')}
-                        </Button>
-                        <Button
-                            className="grow-2"
-                            onClick={() => setStatus('accepted')}
-                        >
-                            {t('email_binding.confirm')}
-                        </Button>
-                    </div>
-                </>
-            </Dialog.Content>
-        </Dialog.Portal>
-    </Dialog.Root>;
+    return (
+        <Dialog.Root
+            open={status === 'suggested'}
+            onOpenChange={() => setStatus('pending')}
+        >
+            <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-fit max-w-sm rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg">
+                    <>
+                        <h2 className="text-center">
+                            {t('email_binding.description')}
+                        </h2>
+                        <div className="w-full flex flex-row grow-1 gap-2 mt-4">
+                            <Button
+                                className="grow-1"
+                                onClick={() => setStatus('declined')}
+                            >
+                                {t('email_binding.decline')}
+                            </Button>
+                            <Button
+                                className="grow-2"
+                                onClick={() => setStatus('accepted')}
+                            >
+                                {t('email_binding.confirm')}
+                            </Button>
+                        </div>
+                    </>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
 }
 
 function ProfileHeader({logOut}: {logOut: () => void}) {
@@ -832,4 +848,3 @@ function getAvatarFallbackForNickname(
         .map(word => word[0])
         .join('');
 }
-
