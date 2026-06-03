@@ -141,5 +141,11 @@
         "description": "Do you really want to remove this user from your friends list?",
         "action": "Remove",
         "cancel": "Cancel"
+    },
+    "redirect": {
+        "friend-token-expired": {
+            "title": "Invite link expired",
+            "description": "Ask for a new invite link from the person you get this link from."
+        }
     }
 }
