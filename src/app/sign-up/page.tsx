@@ -1,4 +1,3 @@
-
 import {Spinner} from '@/components/ui/spinner';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
@@ -17,7 +16,7 @@ import {useBackend} from '@/backend.context';
 import {useState} from 'react';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
-import { useNavigate } from 'react-router';
+import {useNavigate} from 'react-router';
 
 export default function SignInPage() {
     const t = useTranslations('sign-up');
@@ -174,22 +173,24 @@ export default function SignInPage() {
                     </Field>
                 </FieldGroup>
                 <div className="ml-auto flex flex-col">
-	                    <Button
-	                        className="cursor-pointer"
-	                        variant="secondary"
-	                        onClick={() => void onSignUp()}
-	                        disabled={loading || avatarLoading}
-	                    >
+                    <Button
+                        className="cursor-pointer"
+                        variant="secondary"
+                        onClick={() => void onSignUp()}
+                        disabled={loading || avatarLoading}
+                    >
                         {!loading && t('sign-up')}
                         {loading && <Spinner />}
                     </Button>
                     <div className="flex justify-center items-center gap-1">
                         <p className="text-sm">{t('already-have-account')}</p>
-	                        <Button
-	                            className="cursor-pointer text-sm p-0"
-	                            variant="link"
-	                            onClick={() => void onSignIn()}
-	                        >{t('sign-in')}</Button>
+                        <Button
+                            className="cursor-pointer text-sm p-0"
+                            variant="link"
+                            onClick={() => void onSignIn()}
+                        >
+                            {t('sign-in')}
+                        </Button>
                     </div>
                 </div>
             </div>

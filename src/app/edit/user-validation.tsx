@@ -1,4 +1,3 @@
-
 import {useCallback} from 'react';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {useTranslations} from 'use-intl';

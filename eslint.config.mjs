@@ -39,7 +39,7 @@ export default defineConfig([
             'no-trailing-spaces': 'error',
 
             semi: ['error', 'always'],
-            indent: ['error', 4, { SwitchCase: 1 }],
+            indent: ['error', 4, {SwitchCase: 1}],
 
             quotes: [
                 'warn',
@@ -116,6 +116,6 @@ export default defineConfig([
         '**/template/',
 
         // Ignore shadcn components folder
-        'src/components/ui/**'
+        'src/components/ui/**',
     ]),
 ]);

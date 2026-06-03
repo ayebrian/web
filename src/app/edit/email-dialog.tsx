@@ -1,8 +1,8 @@
 import {useAppContext} from '@/app.context';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import {REGEXP_ONLY_DIGITS} from 'input-otp';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
-import { X} from 'lucide-react';
+import {X} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {ReactNode, useState} from 'react';
@@ -21,9 +21,7 @@ export interface EmailDialogProps {
     setOpen: (value: boolean) => void;
 }
 
-export function EmailDialog(
-    props: EmailDialogProps,
-): ReactNode {
+export function EmailDialog(props: EmailDialogProps): ReactNode {
     const {open, setOpen} = props;
     return (
         <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -64,7 +62,7 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
         setLoading(true);
         try {
             const code = Number(value);
-            const result = await backend.emailConfirm({ code });
+            const result = await backend.emailConfirm({code});
             if (!result.ok) {
                 if (result.error.type === 'status') {
                     setError(true);
@@ -83,48 +81,56 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
         }
     }
 
-    return <div
-        className="
+    return (
+        <div
+            className="
         rounded-xl bg-white dark:bg-zinc-900
         shadow-xl
         "
-    >
-        <div className="relative flex items-center mt-1 mx-1">
-            <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
-                {t('title')}
-            </Dialog.Title>
-            <Dialog.Close className="absolute right-0 top-0" asChild>
-                <Button
-                    variant="ghost"
-                    className="cursor-pointer"
+        >
+            <div className="relative flex items-center mt-1 mx-1">
+                <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                    {t('title')}
+                </Dialog.Title>
+                <Dialog.Close className="absolute right-0 top-0" asChild>
+                    <Button variant="ghost" className="cursor-pointer">
+                        <X />
+                    </Button>
+                </Dialog.Close>
+            </div>
+            <div className="p-4 space-y-4 flex flex-col items-center">
+                <p className="text-center">{t('code-sent', {email})}</p>
+                <InputOTP
+                    onComplete={onComplete}
+                    value={value}
+                    onChange={setValue}
+                    maxLength={8}
+                    pattern={REGEXP_ONLY_DIGITS}
+                    inputMode="numeric"
                 >
-                    <X />
+                    <InputOTPGroup>
+                        <InputOTPSlot index={0} aria-invalid={error} />
+                        <InputOTPSlot index={1} aria-invalid={error} />
+                        <InputOTPSlot index={2} aria-invalid={error} />
+                        <InputOTPSlot index={3} aria-invalid={error} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                        <InputOTPSlot index={4} aria-invalid={error} />
+                        <InputOTPSlot index={5} aria-invalid={error} />
+                        <InputOTPSlot index={6} aria-invalid={error} />
+                        <InputOTPSlot index={7} aria-invalid={error} />
+                    </InputOTPGroup>
+                </InputOTP>
+                <Button
+                    onClick={() => void onComplete()}
+                    className="w-30"
+                    disabled={loading}
+                >
+                    {!loading && t('continue')}
+                    {loading && <Spinner />}
                 </Button>
-            </Dialog.Close>
+            </div>
         </div>
-        <div className="p-4 space-y-4 flex flex-col items-center">
-            <p className="text-center">
-                {t('code-sent', { email })}
-            </p>
-            <InputOTP onComplete={onComplete} value={value} onChange={setValue} maxLength={8} pattern={REGEXP_ONLY_DIGITS} inputMode="numeric">
-                <InputOTPGroup>
-                    <InputOTPSlot index={0} aria-invalid={error} />
-                    <InputOTPSlot index={1} aria-invalid={error} />
-                    <InputOTPSlot index={2} aria-invalid={error} />
-                    <InputOTPSlot index={3} aria-invalid={error} />
-                </InputOTPGroup>
-                <InputOTPSeparator />
-                <InputOTPGroup>
-                    <InputOTPSlot index={4} aria-invalid={error} />
-                    <InputOTPSlot index={5} aria-invalid={error} />
-                    <InputOTPSlot index={6} aria-invalid={error} />
-                    <InputOTPSlot index={7} aria-invalid={error} />
-                </InputOTPGroup>
-            </InputOTP>
-            <Button onClick={() => void onComplete()} className="w-30" disabled={loading}>
-                {!loading && t('continue')}
-                {loading && <Spinner />}
-            </Button>
-        </div>
-    </div>;
+    );
 }
