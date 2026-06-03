@@ -357,20 +357,10 @@ export interface NetworkDetailsResponse {
     friends: UserDetails[];
 }
 
-export interface CommonFriend {
-    id: number;
-    accessHash: string;
-    nickname: string;
-    description: string;
-    interests: string[];
-    avatar: FileDescriptor | null;
-    socialLink: string;
-}
-
 export interface FeedItem {
     isRequest: boolean;
     isExtendedNetwork: boolean;
-    commonFriends: CommonFriend[];
+    commonFriends: UserDetails[];
     details: UserDetails;
 }
 
