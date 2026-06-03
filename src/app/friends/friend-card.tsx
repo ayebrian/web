@@ -3,9 +3,11 @@ import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 import {useMemo} from 'react';
 import {createFileLink} from '@/lib/utils';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import {useNavigate} from 'react-router';
 
 export function FriendCard({friend}: {friend: UserDetails}) {
     const userAccessHashes = useUserAccessHashes();
+    const navigate = useNavigate();
 
     const avatarUrl = useMemo(
         () => (friend.avatar ? createFileLink(friend.avatar) : ''),
@@ -17,7 +19,7 @@ export function FriendCard({friend}: {friend: UserDetails}) {
             id: friend.id,
             accessHash: friend.accessHash,
         });
-        document.location.href = `/user/${friend.id}`;
+        await navigate(`/user/${friend.id}`);
     };
 
     return (
