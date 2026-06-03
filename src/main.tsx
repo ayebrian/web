@@ -21,7 +21,8 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/user/:id" element={<UserPage />} />
                     <Route
                         path="/redirect/:deeplink"
-                        element={<DeeplinkPage />} />
+                        element={<DeeplinkPage />}
+                    />
                 </Routes>
             </RootLayout>
         </BrowserRouter>
