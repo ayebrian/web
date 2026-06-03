@@ -132,5 +132,11 @@
         "code-sent": "To verify that you own {email}, we've sent you a code. Please paste it in the field below:",
         "error-connection": "Can't get to our servers :(",
         "continue": "Continue"
+    },
+    "redirect": {
+        "friend-token-expired": {
+            "title": "Invite link expired",
+            "description": "Ask for a new invite link from the person you get this link from."
+        }
     }
 }
