@@ -1,5 +1,6 @@
 import {REGEXP_ONLY_DIGITS} from 'input-otp';
 import {useSession} from '@/components/session-provider';
+import {useBlockingQR} from '@/app/blocking-qr/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
 import {X} from 'lucide-react';
@@ -54,6 +55,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
     const backend = useBackend();
     const navigate = useNavigate();
     const session = useSession();
+    const blockingQR = useBlockingQR();
 
     async function onComplete() {
         setError(false);
@@ -78,6 +80,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
                 result.data.id.toString(),
             );
             session.setAuthed();
+            blockingQR.setShouldBlock(false);
             void navigate('/');
         } finally {
             setLoading(false);
