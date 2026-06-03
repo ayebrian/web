@@ -48,7 +48,7 @@ export function Adjuster({
                     -translate-x-1/2 -translate-y-1/2
 
                     w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
+                    max-h-dvh overflow-y-auto
                     "
                 >
                     <div
@@ -84,13 +84,14 @@ function AdjusterContent({
 }: AdjusterContentProps): ReactNode {
     const t = useTranslations('adjuster');
     const [crop, setCrop] = useState<PercentCrop>();
-    const src = useMemo(() => {
-        return URL.createObjectURL(payload.data);
-    }, [payload.data]);
+    const [src, setSrc] = useState<string | null>(null);
 
     useEffect(() => {
-        return () => URL.revokeObjectURL(src);
-    }, [src]);
+        const url = URL.createObjectURL(payload.data);
+        setSrc(url);
+
+        return () => URL.revokeObjectURL(url);
+    }, [payload.data]);
 
     function onCancel() {
         setOpen(false);
