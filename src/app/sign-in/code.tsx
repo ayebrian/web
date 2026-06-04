@@ -16,6 +16,7 @@ import {
     InputOTPSeparator,
 } from '@/components/ui/input-otp';
 import {useNavigate} from 'react-router';
+import * as Notifications from '@/notifications';
 
 export interface CodeDialogProps {
     email: string;
@@ -81,6 +82,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             );
             session.setAuthed();
             blockingQR.setShouldBlock(false);
+            void Notifications.nudge();
             void navigate('/');
         } finally {
             setLoading(false);

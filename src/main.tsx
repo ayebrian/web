@@ -8,6 +8,9 @@ import SignUpPage from '@/app/sign-up/page';
 import Bypass from '@/app/blocking-qr/bypass/page';
 import UserPage from '@/app/user/[id]/page';
 import DeeplinkPage from '@/app/redirect/[deeplink]/page';
+import * as Notifications from '@/notifications';
+
+void Notifications.nudge();
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>

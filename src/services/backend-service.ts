@@ -43,7 +43,7 @@ export class BackendService {
      *
      * @returns true if auth restored successfully.
      */
-    restoreAuthorizationIsPossible(): boolean {
+    restoreAuthorizationIfPossible(): boolean {
         const userId = localStorage.getItem('userId');
         const authToken = localStorage.getItem('token');
 
@@ -140,6 +140,10 @@ export class BackendService {
 
     authLogin: typeof this.client.authLogin = (...args) => {
         return this.client.authLogin(...args);
+    };
+
+    authFirebase: typeof this.client.authFirebase = (...args) => {
+        return this.client.authFirebase(...args);
     };
 
     addFriend: typeof this.client.addFriend = (...args) => {
