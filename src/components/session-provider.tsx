@@ -25,7 +25,7 @@ export function SessionProvider({children}: {children: React.ReactNode}) {
     const [status, setStatus] = useState<SessionStatus>('loading');
 
     const refresh = useCallback(() => {
-        const ok = backend.restoreAuthorizationIsPossible();
+        const ok = backend.restoreAuthorizationIfPossible();
         setStatus(ok ? 'authed' : 'guest');
     }, [backend]);
 
