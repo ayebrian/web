@@ -22,7 +22,6 @@ export default function DeeplinkPage(): ReactNode {
     const {deeplink} = useParams();
 
     async function addFriend(userId: number, token: string) {
-        console.log(userId, token);
         setHandling(true);
         if (session.status === 'guest') {
             void navigate('/sign-up');
@@ -30,7 +29,6 @@ export default function DeeplinkPage(): ReactNode {
         }
         while (true) {
             const result = await backend.addFriend({userId, token});
-            console.log(result);
             if (!result.ok) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 continue;

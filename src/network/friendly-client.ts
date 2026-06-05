@@ -54,6 +54,9 @@ export interface FriendlyClient {
     authLogin(
         request: AuthLoginRequest,
     ): Promise<Result<AuthLoginResponse, NetworkError>>;
+    authFirebase(
+        request: AuthFirebaseRequest,
+    ): Promise<Result<void, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -298,6 +301,11 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .then(r => r.data),
         );
     }
+    authFirebase(
+        request: AuthFirebaseRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(this.client.post('/auth/firebase', request));
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -389,4 +397,8 @@ export interface AuthLoginResponse {
     token: string;
     id: number;
     accessHash: string;
+}
+
+export interface AuthFirebaseRequest {
+    firebaseToken: string;
 }

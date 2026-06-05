@@ -17,6 +17,7 @@ import {useState} from 'react';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {useNavigate} from 'react-router';
+import * as Notifications from '@/notifications';
 
 export default function SignInPage() {
     const t = useTranslations('sign-up');
@@ -73,6 +74,7 @@ export default function SignInPage() {
                 result.data.id.toString(),
             );
             session.setAuthed();
+            void Notifications.nudge();
             void navigate('/');
         } else {
             toast.error(t('error-connection'));
