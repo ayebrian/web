@@ -396,7 +396,7 @@ function FeedDialogContent({
                     </div>
                 </div>
 
-                <div className="flex flex-col flex-1 shrink p-6 overflow-y-auto pb-12 relative">
+                <div className="flex flex-col flex-1 shrink p-6 pb-12 relative">
                     <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
                         {selectedCard.details.nickname}
                     </h3>
