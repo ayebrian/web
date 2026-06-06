@@ -129,7 +129,7 @@ export function BlockingQR({
                         <FieldError>{linkError}</FieldError>
                     </Field>
                     <Button
-                        className="cursor-pointer w-30"
+                        className="cursor-pointer min-w-38"
                         variant="secondary"
                         onClick={() => void onJoin()}
                         disabled={loading}
