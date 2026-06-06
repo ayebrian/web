@@ -12,6 +12,7 @@ import {
 import {Field, FieldError, FieldLabel} from '@/components/ui/field';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 export interface BlockingQRController {
     shouldBlock: boolean;
@@ -85,68 +86,60 @@ export function BlockingQR({
         }
     }
     return (
-        <Dialog.Root open={true}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
+        <StyledDialogWrapper
+            open={true}
+            preventDefault={true}
+            contentClassName="-translate-y-1/2 p-4"
+        >
+            <>
+                <div className="w-full flex justify-center mb-4">
+                    <HatGlasses className="size-20 rounded-full bg-white dark:bg-zinc-900 p-4" />
+                </div>
+                <div
                     className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-4
-                    max-h-dvh overflow-y-scroll
-                    "
-                    onInteractOutside={e => e.preventDefault()}
-                >
-                    <div className="w-full flex justify-center mb-4">
-                        <HatGlasses className="size-20 rounded-full bg-white dark:bg-zinc-900 p-4" />
-                    </div>
-                    <div
-                        className="
                         rounded-xl bg-white dark:bg-zinc-900
                         shadow-xl
                         py-4 px-6 space-y-4
                         w-full flex flex-col items-center
                         mb-20
                         "
-                    >
-                        <Dialog.Title className="w-full text-md font-semibold text-center">
-                            {t('title')}
-                        </Dialog.Title>
-                        <Field>
-                            <FieldLabel
-                                htmlFor="link"
-                                className="font-normal text-center"
-                            >
-                                {t('description')}
-                            </FieldLabel>
-                            <InputGroup>
-                                <InputGroupInput
-                                    id="link"
-                                    placeholder={t('link-placeholder')}
-                                    type="text"
-                                    value={link}
-                                    onChange={e => setLink(e.target.value)}
-                                />
-                                <InputGroupAddon>
-                                    <Link />
-                                </InputGroupAddon>
-                            </InputGroup>
-                            <FieldError>{linkError}</FieldError>
-                        </Field>
-                        <Button
-                            className="cursor-pointer w-30"
-                            variant="secondary"
-                            onClick={() => void onJoin()}
-                            disabled={loading}
+                >
+                    <Dialog.Title className="w-full text-md font-semibold text-center">
+                        {t('title')}
+                    </Dialog.Title>
+                    <Field>
+                        <FieldLabel
+                            htmlFor="link"
+                            className="font-normal text-center"
                         >
-                            {!loading && t('join')}
-                            {loading && <Spinner />}
-                        </Button>
-                    </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                            {t('description')}
+                        </FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput
+                                id="link"
+                                placeholder={t('link-placeholder')}
+                                type="text"
+                                value={link}
+                                onChange={e => setLink(e.target.value)}
+                            />
+                            <InputGroupAddon>
+                                <Link />
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError>{linkError}</FieldError>
+                    </Field>
+                    <Button
+                        className="cursor-pointer w-30"
+                        variant="secondary"
+                        onClick={() => void onJoin()}
+                        disabled={loading}
+                    >
+                        {!loading && t('join')}
+                        {loading && <Spinner />}
+                    </Button>
+                </div>
+            </>
+        </StyledDialogWrapper>
     );
 }
 

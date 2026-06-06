@@ -7,6 +7,7 @@ import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
 import {createFileLink} from '@/lib/utils';
 import {Dialog} from 'radix-ui';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 interface AllFriendsListProps {
     friends: UserDetails[];
@@ -58,59 +59,48 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     };
 
     return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
-                    className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
-                    "
-                >
-                    <div
-                        className="
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={setOpen}
+            contentClassName="-translate-y-1/2 p-5"
+        >
+            <div
+                className="
                             rounded-xl bg-white dark:bg-zinc-900
                             shadow-xl
                             "
-                    >
-                        <div className="p-0">
-                            <div className="flex flex-col">
-                                <div className="relative flex items-center mt-1 mx-1">
-                                    <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
-                                        {t('friends.see_all')}
-                                    </Dialog.Title>
-                                    <Dialog.Close
-                                        className="absolute right-0 top-0"
-                                        asChild
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            className="cursor-pointer"
-                                        >
-                                            <X />
-                                        </Button>
-                                    </Dialog.Close>
-                                </div>
+            >
+                <div className="p-0">
+                    <div className="flex flex-col">
+                        <div className="relative flex items-center mt-1 mx-1">
+                            <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                                {t('friends.see_all')}
+                            </Dialog.Title>
+                            <Dialog.Close
+                                className="absolute right-0 top-0"
+                                asChild
+                            >
+                                <Button
+                                    variant="ghost"
+                                    className="cursor-pointer"
+                                >
+                                    <X />
+                                </Button>
+                            </Dialog.Close>
+                        </div>
 
-                                <div className="flex flex-col gap-4">
-                                    {friends.map(friend => (
-                                        <FriendListItem
-                                            id={friend.id.toString()}
-                                            friend={friend}
-                                            onClick={() =>
-                                                void openFriendPage(friend)
-                                            }
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                        <div className="flex flex-col gap-4">
+                            {friends.map(friend => (
+                                <FriendListItem
+                                    id={friend.id.toString()}
+                                    friend={friend}
+                                    onClick={() => void openFriendPage(friend)}
+                                />
+                            ))}
                         </div>
                     </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                </div>
+            </div>
+        </StyledDialogWrapper>
     );
 }

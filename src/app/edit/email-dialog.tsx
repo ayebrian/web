@@ -14,6 +14,7 @@ import {
     InputOTPSlot,
     InputOTPSeparator,
 } from '@/components/ui/input-otp';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 export interface EmailDialogProps {
     email: string;
@@ -24,22 +25,13 @@ export interface EmailDialogProps {
 export function EmailDialog(props: EmailDialogProps): ReactNode {
     const {open, setOpen} = props;
     return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
-                    className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
-                    "
-                >
-                    <EmailDialogContent {...props} />
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={setOpen}
+            contentClassName="-translate-y-1/2 p-5"
+        >
+            <EmailDialogContent {...props} />
+        </StyledDialogWrapper>
     );
 }
 
