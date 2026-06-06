@@ -43,13 +43,20 @@ export interface FriendlyClient {
         locale: BackendLocale,
         request: EmailLinkRequest,
     ): Promise<Result<void, NetworkError>>;
-    emailConfirm(request: EmailConfirmRequest): Promise<Result<void, NetworkError>>;
+    emailConfirm(
+        request: EmailConfirmRequest,
+    ): Promise<Result<void, NetworkError>>;
     emailUnlink(): Promise<Result<void, NetworkError>>;
     authEmail(
         locale: BackendLocale,
         request: AuthEmailRequest,
     ): Promise<Result<void, NetworkError>>;
-    authLogin(request: AuthLoginRequest): Promise<Result<AuthLoginResponse, NetworkError>>;
+    authLogin(
+        request: AuthLoginRequest,
+    ): Promise<Result<AuthLoginResponse, NetworkError>>;
+    authFirebase(
+        request: AuthFirebaseRequest,
+    ): Promise<Result<void, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -178,7 +185,7 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async generateFriendInvitationToken(): Promise<
         Result<GenerateFriendInvitationTokenResponse, NetworkError>
-        > {
+    > {
         return this.safeRequest(
             this.client
                 .post<GenerateFriendInvitationTokenResponse>(
@@ -190,7 +197,7 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async friendsGenerateForce(): Promise<
         Result<FriendsGenerateForceResponse, NetworkError>
-        > {
+    > {
         return this.safeRequest(
             this.client
                 .post<GenerateFriendInvitationTokenResponse>(
@@ -228,7 +235,7 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     async getNetworkDetails(): Promise<
         Result<NetworkDetailsResponse, NetworkError>
-        > {
+    > {
         return this.safeRequest(
             this.client
                 .get<NetworkDetailsResponse>('/network/details')
@@ -251,8 +258,9 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .post('/email/link', request, {
                     headers: {
                         'X-Locale': locale,
-                    }
-                }).then(() => undefined),
+                    },
+                })
+                .then(() => undefined),
         );
     }
 
@@ -260,17 +268,13 @@ export class FriendlyClientImpl implements FriendlyClient {
         request: EmailConfirmRequest,
     ): Promise<Result<void, NetworkError>> {
         return this.safeRequest(
-            this.client
-                .post('/email/confirm', request)
-                .then(() => undefined),
+            this.client.post('/email/confirm', request).then(() => undefined),
         );
     }
 
     emailUnlink(): Promise<Result<void, NetworkError>> {
         return this.safeRequest(
-            this.client
-                .post('/email/unlink')
-                .then(() => undefined),
+            this.client.post('/email/unlink').then(() => undefined),
         );
     }
 
@@ -283,17 +287,25 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .post('/auth/email', request, {
                     headers: {
                         'X-Locale': locale,
-                    }
-                }).then(() => undefined),
+                    },
+                })
+                .then(() => undefined),
         );
     }
-    authLogin(request: AuthLoginRequest): Promise<Result<AuthLoginResponse, NetworkError>> {
+    authLogin(
+        request: AuthLoginRequest,
+    ): Promise<Result<AuthLoginResponse, NetworkError>> {
         return this.safeRequest(
             this.client
                 .post<AuthLoginResponse>('/auth/login', request)
                 .then(r => r.data),
         );
-    };
+    }
+    authFirebase(
+        request: AuthFirebaseRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(this.client.post('/auth/firebase', request));
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -353,20 +365,10 @@ export interface NetworkDetailsResponse {
     friends: UserDetails[];
 }
 
-export interface CommonFriend {
-    id: number;
-    accessHash: string;
-    nickname: string;
-    description: string;
-    interests: string[];
-    avatar: FileDescriptor | null;
-    socialLink: string;
-}
-
 export interface FeedItem {
     isRequest: boolean;
     isExtendedNetwork: boolean;
-    commonFriends: CommonFriend[];
+    commonFriends: UserDetails[];
     details: UserDetails;
 }
 
@@ -395,4 +397,8 @@ export interface AuthLoginResponse {
     token: string;
     id: number;
     accessHash: string;
+}
+
+export interface AuthFirebaseRequest {
+    firebaseToken: string;
 }

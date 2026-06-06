@@ -9,8 +9,8 @@
         "watch": "tsc -p tsconfig.json --noEmit --pretty false -w",
         "build": "vite build",
         "start": "vite preview --host 0.0.0.0",
-        "format": "eslint --fix '**/*.ts*'",
-        "lint": "eslint '**/*.ts*'"
+        "format": "eslint --fix '**/*.ts*' && prettier --write .",
+        "lint": "eslint '**/*.ts*' && prettier --check ."
     },
     "engines": {
         "node": ">=24.0.0"
@@ -25,6 +25,7 @@
         "axios": "^1.16.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "firebase": "^12.13.0",
         "input-otp": "^1.4.2",
         "lucide": "^1.14.0",
         "lucide-react": "^1.14.0",

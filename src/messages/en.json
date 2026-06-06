@@ -64,7 +64,7 @@
             "email_binding": {
                 "description": "Seems like you enjoy our app. If you want to access your account later, bind a email.",
                 "confirm": "Yes",
-                "decline": "No, don't offer again"
+                "decline": "No"
             }
         },
         "dropdown": {
@@ -141,5 +141,11 @@
         "description": "Do you really want to remove this user from your friends list?",
         "action": "Remove",
         "cancel": "Cancel"
+    },
+    "redirect": {
+        "friend-token-expired": {
+            "title": "Invite link expired",
+            "description": "Ask for a new invite link from the person you get this link from."
+        }
     }
 }
