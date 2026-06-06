@@ -67,6 +67,9 @@
                 "decline": "No"
             }
         },
+        "dropdown": {
+            "remove_friend": "Remove friend"
+        },
         "unknown_error": "An unknown error occurred."
     },
     "edit_profile_dialog": {
@@ -132,6 +135,12 @@
         "code-sent": "To verify that you own {email}, we've sent you a code. Please paste it in the field below:",
         "error-connection": "Can't get to our servers :(",
         "continue": "Continue"
+    },
+    "remove-friend-dialog": {
+        "title": "Remove friend?",
+        "description": "Do you really want to remove this user from your friends list?",
+        "action": "Remove",
+        "cancel": "Cancel"
     },
     "redirect": {
         "friend-token-expired": {
