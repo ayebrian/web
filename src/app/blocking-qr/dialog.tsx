@@ -63,41 +63,25 @@ export function BlockingQR({
     async function onJoin() {
         setLinkError(null);
         setLoading(true);
-        let linkValid;
-        let resultSuccess;
-        let linkExpired = true;
         try {
-            // https://getfriend.ly/#?reference=add/userId/token
-            const parsed = URL.parse(link);
-            if (!parsed) return;
-            const queryStart = parsed.hash.indexOf('?');
-            if (queryStart === -1) return;
-            const hash = parsed.hash.substring(queryStart);
-            const searchParams = new URLSearchParams(hash);
-            const reference = searchParams.get('reference');
-            if (!reference) return;
-            const segments = reference.split('/');
-            if (segments.length !== 3) return;
-            if (segments[0] !== 'add') return;
-            const userId = Number(segments[1]);
-            if (Number.isNaN(userId)) return;
-            const token = segments[2];
-            linkValid = true;
+            const parseLinkResult = parseLink({raw: link});
+            if (!parseLinkResult.ok) {
+                setLinkError(t('link-invalid'));
+                return;
+            }
+            const {userId, token} = parseLinkResult.data;
             const result = await backend.addFriend({userId, token});
-            if (!result.ok) return;
-            resultSuccess = true;
-            if (result.data.type === 'FriendTokenExpired') return;
-            linkExpired = false;
+            if (!result.ok) {
+                toast.error(t('error-connection'));
+                return;
+            }
+            if (result.data.type === 'FriendTokenExpired') {
+                toast.error(t('link-expired'));
+                return;
+            }
             setShouldBlock(false);
         } finally {
             setLoading(false);
-            if (!linkValid) {
-                setLinkError(t('link-invalid'));
-            } else if (!resultSuccess) {
-                toast.error(t('error-connection'));
-            } else if (linkExpired) {
-                toast.error(t('link-expired'));
-            }
         }
     }
     return (
@@ -164,4 +148,73 @@ export function BlockingQR({
             </Dialog.Portal>
         </Dialog.Root>
     );
+}
+
+type ParseLinkParams = {
+    raw: string;
+};
+
+type ParseLinkResult =
+    | {
+          ok: true;
+          data: {
+              userId: number;
+              token: string;
+          };
+      }
+    | {
+          ok: false;
+          message: string;
+      };
+
+function parseLink({raw}: ParseLinkParams): ParseLinkResult {
+    // https://getfriend.ly/#?reference=add/userId/token
+    const parsed = URL.parse(raw);
+    if (!parsed) {
+        return {
+            ok: false,
+            message: 'URL.parse(raw)',
+        };
+    }
+    const queryStart = parsed.hash.indexOf('?');
+    if (queryStart === -1) {
+        return {
+            ok: false,
+            message: 'indexOf() == -1',
+        };
+    }
+    const hash = parsed.hash.substring(queryStart);
+    const searchParams = new URLSearchParams(hash);
+    const reference = searchParams.get('reference');
+    if (!reference) {
+        return {
+            ok: false,
+            message: '!reference',
+        };
+    }
+    const segments = reference.split('/');
+    if (segments.length !== 3) {
+        return {
+            ok: false,
+            message: `segments.length (${segments.length}) != 3`,
+        };
+    }
+    if (segments[0] !== 'add') {
+        return {
+            ok: false,
+            message: `segments[0] (${segments[0]}) != 'add'`,
+        };
+    }
+    const userId = Number(segments[1]);
+    if (Number.isNaN(userId)) {
+        return {
+            ok: false,
+            message: 'Number.isNan',
+        };
+    }
+    const token = segments[2];
+    return {
+        ok: true,
+        data: {userId, token},
+    };
 }
