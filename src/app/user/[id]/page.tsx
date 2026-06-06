@@ -2,9 +2,9 @@ import {useBackend} from '@/backend.context';
 import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
 import {createFileLink} from '@/lib/utils';
 import {useQuery} from '@tanstack/react-query';
-import {Activity, Loader2} from 'lucide-react';
+import {Activity, Loader2, UserXIcon} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useMemo} from 'react';
+import {useMemo, useState} from 'react';
 import {UserDetails} from '@/types/user-details';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -19,21 +19,49 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {ConfirmationDialog} from '@/components/confirmation-dialog';
 
 function ProfileDropdown() {
+    const tProfile = useTranslations('profile');
+    const tRemoveFriendDialog = useTranslations('remove-friend-dialog');
+
+    const [isRemoveFriendDialogOpen, setIsRemoveFriendDialogOpen] =
+        useState(false);
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="secondary">...</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuGroup>
-                    <DropdownMenuItem variant="destructive">
-                        Remove friend
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="cursor-pointer">
+                        ...
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => setIsRemoveFriendDialogOpen(true)}
+                        >
+                            {tProfile('dropdown.remove_friend')}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <ConfirmationDialog
+                variant="destructive"
+                icon={<UserXIcon />}
+                title={tRemoveFriendDialog('title')}
+                description={tRemoveFriendDialog('description')}
+                actionLabel={tRemoveFriendDialog('action')}
+                cancelLabel={tRemoveFriendDialog('cancel')}
+                onAction={() => {}}
+                open={isRemoveFriendDialogOpen}
+                onOpenChange={isOpen => {
+                    if (!isOpen) setIsRemoveFriendDialogOpen(isOpen);
+                }}
+            />
+        </>
     );
 }
 
