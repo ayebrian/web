@@ -8,6 +8,7 @@ import {Spinner} from '@/components/ui/spinner';
 import {useEffect, useState, ReactNode} from 'react';
 import {useSession} from '@/components/session-provider';
 import {useBlockingQR} from '@/app/blocking-qr/dialog';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 type State = 'loading' | 'friend-token-expired';
 
@@ -76,42 +77,32 @@ export default function DeeplinkPage(): ReactNode {
 function FriendTokenExpired() {
     const t = useTranslations('redirect.friend-token-expired');
     return (
-        <Dialog.Root open={true}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
-                    className="
-                fixed left-1/2 top-1/2
-                -translate-x-1/2 -translate-y-1/2
-
-                w-full max-w-lg p-4
-                max-h-dvh overflow-y-scroll
-                "
-                    onInteractOutside={e => e.preventDefault()}
-                >
-                    <div className="w-full flex justify-center mb-4">
-                        <div className="rounded-full bg-white dark:bg-zinc-900 p-3">
-                            <Link2Off className="size-5" />
-                        </div>
+        <StyledDialogWrapper
+            open={true}
+            preventDefault={true}
+            contentClassName="-translate-y-1/2 p-4"
+        >
+            <>
+                <div className="w-full flex justify-center mb-4">
+                    <div className="rounded-full bg-white dark:bg-zinc-900 p-3">
+                        <Link2Off className="size-5" />
                     </div>
-                    <div
-                        className="
+                </div>
+                <div
+                    className="
                     rounded-xl bg-white dark:bg-zinc-900
                     shadow-xl
                     py-4 px-6 space-y-4
                     w-full flex flex-col items-center
                     mb-20
                     "
-                    >
-                        <Dialog.Title className="w-full text-md font-semibold text-center">
-                            {t('title')}
-                        </Dialog.Title>
-                        <p className="text-md text-center">
-                            {t('description')}
-                        </p>
-                    </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                >
+                    <Dialog.Title className="w-full text-md font-semibold text-center">
+                        {t('title')}
+                    </Dialog.Title>
+                    <p className="text-md text-center">{t('description')}</p>
+                </div>
+            </>
+        </StyledDialogWrapper>
     );
 }

@@ -37,6 +37,7 @@ import {EditProfileDialog} from '@/app/edit/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {ProfileDescription} from '@/components/profile-description';
 import {FriendsBlock} from './friends/friends-block';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 type SwipeDirection = 'left' | 'right';
 
@@ -242,27 +243,24 @@ function FeedReviewDeck({
                 })}
             </div>
 
-            <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    <Dialog.Content className="fixed left-1/2 top-0 bottom-0 lg:top-4 lg:bottom-4 w-full lg:rounded-2xl max-w-md -translate-x-1/2 overflow-y-auto bg-white dark:bg-zinc-950">
-                        {selectedCard && (
-                            <FeedDialogContent
-                                selectedCard={selectedCard}
-                                isAnimating={isAnimating}
-                                closeDialog={() => {
-                                    setIsDialogOpen(false);
-                                    setSelectedCard(null);
-                                }}
-                                isBusy={isBusy}
-                                handleReview={direction =>
-                                    void handleReview(direction)
-                                }
-                            />
-                        )}
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
+            <StyledDialogWrapper
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                contentClassName="top-0 bottom-0 lg:top-4 lg:bottom-4 lg:rounded-2xl max-w-md max-h-none -translate-x-1/2 -translate-y-0 bg-white dark:bg-zinc-950"
+            >
+                {selectedCard && (
+                    <FeedDialogContent
+                        selectedCard={selectedCard}
+                        isAnimating={isAnimating}
+                        closeDialog={() => {
+                            setIsDialogOpen(false);
+                            setSelectedCard(null);
+                        }}
+                        isBusy={isBusy}
+                        handleReview={direction => void handleReview(direction)}
+                    />
+                )}
+            </StyledDialogWrapper>
             <SuggestEmailBindingDialog
                 status={emailSuggestionStatus}
                 setStatus={setEmailSuggestionStatus}
@@ -452,35 +450,31 @@ function SuggestEmailBindingDialog({
 }: SuggestEmailBindingDialogProps) {
     const t = useTranslations('profile.feed');
     return (
-        <Dialog.Root
+        <StyledDialogWrapper
             open={status === 'suggested'}
             onOpenChange={() => setStatus('pending')}
+            contentClassName="-translate-y-1/2 w-fit max-w-sm max-h-none rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg"
         >
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-fit max-w-sm rounded-2xl p-6 bg-white dark:bg-zinc-950 shadow-lg">
-                    <>
-                        <h2 className="text-center">
-                            {t('email_binding.description')}
-                        </h2>
-                        <div className="w-full flex flex-row grow-1 gap-2 mt-4">
-                            <Button
-                                className="grow-1"
-                                onClick={() => setStatus('declined')}
-                            >
-                                {t('email_binding.decline')}
-                            </Button>
-                            <Button
-                                className="grow-2"
-                                onClick={() => setStatus('accepted')}
-                            >
-                                {t('email_binding.confirm')}
-                            </Button>
-                        </div>
-                    </>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+            <>
+                <h2 className="text-center">
+                    {t('email_binding.description')}
+                </h2>
+                <div className="w-full flex flex-row grow-1 gap-2 mt-4">
+                    <Button
+                        className="grow-1"
+                        onClick={() => setStatus('declined')}
+                    >
+                        {t('email_binding.decline')}
+                    </Button>
+                    <Button
+                        className="grow-2"
+                        onClick={() => setStatus('accepted')}
+                    >
+                        {t('email_binding.confirm')}
+                    </Button>
+                </div>
+            </>
+        </StyledDialogWrapper>
     );
 }
 
