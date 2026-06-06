@@ -1,7 +1,7 @@
 import {useBackend} from '@/backend.context';
 import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
 import {createFileLink} from '@/lib/utils';
-import {useQuery} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import {Activity, Loader2, UserXIcon} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useMemo, useState} from 'react';
@@ -9,7 +9,7 @@ import {UserDetails} from '@/types/user-details';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
-import {useParams} from 'react-router';
+import {useNavigate, useParams} from 'react-router';
 import {ProfileDescription} from '@/components/profile-description';
 import {Button} from '@/components/ui/button';
 import {
@@ -21,7 +21,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {ConfirmationDialog} from '@/components/confirmation-dialog';
 
-function ProfileDropdown() {
+interface ProfileDropdownProps {
+    onRemoveFriend: () => void;
+}
+
+function ProfileDropdown({onRemoveFriend}: ProfileDropdownProps) {
     const tProfile = useTranslations('profile');
     const tRemoveFriendDialog = useTranslations('remove-friend-dialog');
 
@@ -56,7 +60,7 @@ function ProfileDropdown() {
                 description={tRemoveFriendDialog('description')}
                 actionLabel={tRemoveFriendDialog('action')}
                 cancelLabel={tRemoveFriendDialog('cancel')}
-                onAction={() => {}}
+                onAction={onRemoveFriend}
                 open={isRemoveFriendDialogOpen}
                 onOpenChange={isOpen => {
                     if (!isOpen) setIsRemoveFriendDialogOpen(isOpen);
@@ -66,7 +70,12 @@ function ProfileDropdown() {
     );
 }
 
-function ProfileHeader({userDetails}: {userDetails: UserDetails}) {
+interface ProfileHeaderProps {
+    userDetails: UserDetails;
+    onRemoveFriend: () => void;
+}
+
+function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -94,7 +103,7 @@ function ProfileHeader({userDetails}: {userDetails: UserDetails}) {
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
-                <ProfileDropdown />
+                <ProfileDropdown onRemoveFriend={onRemoveFriend} />
             </div>
         </div>
     );
@@ -125,10 +134,25 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
 export default function UserPage() {
     const t = useTranslations('profile');
+    const navigate = useNavigate();
     const backend = useBackend();
     const userAccessHashes = useUserAccessHashes();
 
     const {id} = useParams();
+
+    const {mutate: declineFriend, isPending: isDeclinePending} = useMutation({
+        mutationFn: async () => {
+            const userId = parseInt(id ?? '0');
+            await backend.declineFriendRequest({
+                userId: userId,
+                userAccessHash: (await userAccessHashes.service.get(userId))
+                    .accessHash,
+            });
+        },
+        onSuccess: () => {
+            void navigate('/');
+        },
+    });
 
     const userQuery = useQuery({
         queryKey: ['user'],
@@ -144,7 +168,7 @@ export default function UserPage() {
 
     let content;
 
-    if (userQuery.isLoading) {
+    if (userQuery.isLoading || isDeclinePending) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
@@ -160,7 +184,10 @@ export default function UserPage() {
     } else {
         content = (
             <div className="flex flex-col gap-2 pb-12">
-                <ProfileHeader userDetails={userQuery.data.data} />
+                <ProfileHeader
+                    userDetails={userQuery.data.data}
+                    onRemoveFriend={declineFriend}
+                />
                 <Separator className="dark:bg-zinc-800" />
 
                 <div className="flex flex-col md:flex-row gap-8">
