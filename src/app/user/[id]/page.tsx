@@ -42,6 +42,7 @@ function ProfileDropdown() {
                             variant="destructive"
                             onClick={() => setIsRemoveFriendDialogOpen(true)}
                         >
+                            <UserXIcon className="size-4" />
                             {tProfile('dropdown.remove_friend')}
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -49,7 +50,7 @@ function ProfileDropdown() {
             </DropdownMenu>
 
             <ConfirmationDialog
-                variant="destructive"
+                variant="default"
                 icon={<UserXIcon />}
                 title={tRemoveFriendDialog('title')}
                 description={tRemoveFriendDialog('description')}
