@@ -15,13 +15,13 @@ type ConfirmationDialogVariant = 'default' | 'destructive';
 
 interface ConfirmationDialogProps {
     variant: ConfirmationDialogVariant;
-    icon: React.ReactNode | undefined;
+    icon?: React.ReactNode;
     title: string;
     description: string;
     actionLabel: string;
     cancelLabel: string;
-    onAction: () => void;
-    onCancel: () => void;
+    onAction?: () => void;
+    onCancel?: () => void;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
 }
@@ -33,8 +33,8 @@ export function ConfirmationDialog({
     description,
     actionLabel,
     cancelLabel,
-    onAction = () => {},
-    onCancel = () => {},
+    onAction,
+    onCancel,
     ...props
 }: ConfirmationDialogProps) {
     return (
@@ -60,14 +60,14 @@ export function ConfirmationDialog({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel
-                        onClick={onCancel}
+                        onClick={() => onCancel?.()}
                         className="cursor-pointer"
                         variant="outline"
                     >
                         {cancelLabel}
                     </AlertDialogCancel>
                     <AlertDialogAction
-                        onClick={onAction}
+                        onClick={() => onAction?.()}
                         className="cursor-pointer"
                         variant={
                             variant === 'destructive'
