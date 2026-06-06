@@ -7,3 +7,6 @@ pnpm-lock.yaml
 
 # Specific file types
 *.md
+
+# Ignore shadcn components
+src/components/ui/
