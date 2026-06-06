@@ -160,6 +160,8 @@ type ParseLinkResult =
           message: string;
       };
 
+// Add behavior locality by introducing Deeplink entity that can parse both
+// /redirect-like urls and ?reference-like URLs
 function parseLink({raw}: ParseLinkParams): ParseLinkResult {
     // https://getfriend.ly/#?reference=add/userId/token
     const parsed = URL.parse(raw);
