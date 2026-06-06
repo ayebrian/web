@@ -117,7 +117,7 @@
         "description": "Before you can start, we need to make sure you were invited. Ask one of your friends for the invite link and paste it down below.",
         "join": "Join",
         "link-placeholder": "https://getfriend.ly",
-        "link-invalid": "Please provide a valid invite link",
+        "link-invalid": "Please provide a valid invite link. Debug Info: {debug}",
         "link-expired": "This link is expired, ask you friend for a new one",
         "error-connection": "Can't get to our servers :("
     },
