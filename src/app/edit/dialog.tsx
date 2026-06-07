@@ -35,7 +35,7 @@ export function EditProfileDialog(props: EditProfileProps): ReactNode {
         <StyledDialogWrapper
             open={open}
             onOpenChange={setOpen}
-            contentClassName="p-5"
+            contentClassName="-translate-y-1/2 p-5"
         >
             <EditProfileDialogContent {...props} />
         </StyledDialogWrapper>
