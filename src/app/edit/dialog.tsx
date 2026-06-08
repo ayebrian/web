@@ -20,6 +20,7 @@ import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
 import {ReactNode, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 interface EditProfileProps {
     open: boolean;
@@ -31,22 +32,13 @@ interface EditProfileProps {
 export function EditProfileDialog(props: EditProfileProps): ReactNode {
     const {open, setOpen} = props;
     return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
-                    className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
-                    "
-                >
-                    <EditProfileDialogContent {...props} />
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={setOpen}
+            contentClassName="-translate-y-1/2 p-5"
+        >
+            <EditProfileDialogContent {...props} />
+        </StyledDialogWrapper>
     );
 }
 
@@ -378,68 +370,56 @@ function EmailInput({
                 </InputGroupAddon>
             </InputGroup>
             <FieldError>{emailError}</FieldError>
-            <Dialog.Root open={openUnlink} onOpenChange={setOpenUnlink}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                    <Dialog.Content
-                        className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
-                    "
-                    >
-                        <div
-                            className="
+            <StyledDialogWrapper
+                open={openUnlink}
+                onOpenChange={setOpenUnlink}
+                contentClassName="-translate-y-1/2 p-5"
+            >
+                <div
+                    className="
                         rounded-xl bg-white dark:bg-zinc-900
                         shadow-xl
                         "
-                        >
-                            <div className="relative flex items-center mt-1 mx-1">
-                                <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
-                                    {t('email-unlink-sure')}
-                                </Dialog.Title>
+                >
+                    <div className="relative flex items-center mt-1 mx-1">
+                        <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                            {t('email-unlink-sure')}
+                        </Dialog.Title>
 
-                                <Dialog.Close
-                                    className="absolute right-0 top-0"
-                                    asChild
-                                >
-                                    <Button
-                                        variant="ghost"
-                                        className="cursor-pointer"
-                                    >
-                                        <X />
-                                    </Button>
-                                </Dialog.Close>
-                            </div>
-                            <div className="p-4 space-y-4 flex flex-col items-center">
-                                <p className="text-center">
-                                    {t('email-unlink-sure-verbose')}
-                                </p>
-                                <div className="flex gap-2 items-end">
-                                    <Button
-                                        className="cursor-pointer"
-                                        variant="outline"
-                                        onClick={() => setOpenUnlink(false)}
-                                        disabled={loading}
-                                    >
-                                        {t('cancel')}
-                                    </Button>
-                                    <Button
-                                        className="cursor-pointer"
-                                        onClick={() => void onUnlink()}
-                                        disabled={loading}
-                                    >
-                                        {!loading && t('continue')}
-                                        {loading && <Spinner />}
-                                    </Button>
-                                </div>
-                            </div>
+                        <Dialog.Close
+                            className="absolute right-0 top-0"
+                            asChild
+                        >
+                            <Button variant="ghost" className="cursor-pointer">
+                                <X />
+                            </Button>
+                        </Dialog.Close>
+                    </div>
+                    <div className="p-4 space-y-4 flex flex-col items-center">
+                        <p className="text-center">
+                            {t('email-unlink-sure-verbose')}
+                        </p>
+                        <div className="flex gap-2 items-end">
+                            <Button
+                                className="cursor-pointer"
+                                variant="outline"
+                                onClick={() => setOpenUnlink(false)}
+                                disabled={loading}
+                            >
+                                {t('cancel')}
+                            </Button>
+                            <Button
+                                className="cursor-pointer"
+                                onClick={() => void onUnlink()}
+                                disabled={loading}
+                            >
+                                {!loading && t('continue')}
+                                {loading && <Spinner />}
+                            </Button>
                         </div>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
+                    </div>
+                </div>
+            </StyledDialogWrapper>
         </Field>
     );
 }

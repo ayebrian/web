@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/input-otp';
 import {useNavigate} from 'react-router';
 import * as Notifications from '@/notifications';
+import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 
 export interface CodeDialogProps {
     email: string;
@@ -27,22 +28,13 @@ export interface CodeDialogProps {
 export function CodeDialog(props: CodeDialogProps): ReactNode {
     const {open, setOpen} = props;
     return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
-                    className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-scroll
-                    "
-                >
-                    <CodeDialogContent {...props} />
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={setOpen}
+            contentClassName="-translate-y-1/2 p-5"
+        >
+            <CodeDialogContent {...props} />
+        </StyledDialogWrapper>
     );
 }
 

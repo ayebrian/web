@@ -15,6 +15,7 @@ import {
 } from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
+import {StyledDialogWrapper} from './styled-dialog-wrapper';
 
 export type AdjusterPayload =
     | {
@@ -39,35 +40,28 @@ export function Adjuster({
     const open = useMemo(() => payload.type === 'open', [payload]);
 
     return (
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-                <Dialog.Content
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={setOpen}
+            contentClassName="-translate-y-1/2 p-5"
+        >
+            <>
+                <div
                     className="
-                    fixed left-1/2 top-1/2
-                    -translate-x-1/2 -translate-y-1/2
-
-                    w-full max-w-lg p-5
-                    max-h-dvh overflow-y-auto
-                    "
-                >
-                    <div
-                        className="
                         rounded-xl bg-white dark:bg-zinc-900
                         shadow-xl
                         "
-                    >
-                        {payload.type === 'open' && (
-                            <AdjusterContent
-                                payload={payload}
-                                setOpen={setOpen}
-                                onAdjusted={onAdjusted}
-                            />
-                        )}
-                    </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                >
+                    {payload.type === 'open' && (
+                        <AdjusterContent
+                            payload={payload}
+                            setOpen={setOpen}
+                            onAdjusted={onAdjusted}
+                        />
+                    )}
+                </div>
+            </>
+        </StyledDialogWrapper>
     );
 }
 
