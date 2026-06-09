@@ -155,7 +155,7 @@ export default function UserPage() {
     });
 
     const userQuery = useQuery({
-        queryKey: ['user'],
+        queryKey: ['user', id],
         queryFn: async () => {
             if (!id)
                 return Promise.reject(new Error('Id is null or undefined'));
