@@ -18,6 +18,7 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {useNavigate} from 'react-router';
 import * as Notifications from '@/notifications';
+import {cn} from '@/lib/utils';
 
 export default function SignInPage() {
     const t = useTranslations('sign-up');
@@ -87,11 +88,11 @@ export default function SignInPage() {
 
     return (
         <div
-            className="
-            mx-auto
-            md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
-            bg-white dark:bg-zinc-950
-            "
+            className={cn(
+                'mx-auto',
+                'md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800',
+                'bg-white dark:bg-zinc-950',
+            )}
         >
             <div className="relative flex items-center mt-1 mx-1">
                 <div className="w-full text-md font-semibold text-center pt-2">
