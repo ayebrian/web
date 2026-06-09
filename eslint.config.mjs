@@ -76,6 +76,11 @@ export default defineConfig([
             '@typescript-eslint/require-await': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
+            '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+            '@typescript-eslint/consistent-type-definitions': [
+                'error',
+                'interface',
+            ],
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
