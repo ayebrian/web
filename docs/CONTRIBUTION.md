@@ -6,8 +6,11 @@ P.S. If you're on Windows - don't forget to force EOL replacing for git: `git co
 # Semantic Versioning
 <a href="https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases">https://github.com/friendly-social/knowledge/blob/dev/PROCESS.md#releases</a>
 
-# Branch Organisation
+# Git Workflow
+
 Submit all changes only to the <a href="https://github.com/friendly-social/web/tree/dev">dev branch</a>. Code that lands in the `dev` branch can contain any kind of changes related to project and its goals. Core team can create alternative branches based on the dev branch instead of working in forks.
+
+Read more here: [WORKFLOW.md](WORKFLOW.md)
 
 # Bugs
 For any Web client related bugs and problems we use <a href="https://github.com/friendly-social/web/issues">GitHub Issues</a>. We keep a close eye on this and try to make it clear when we have an internal fix in progress. Before filing a new commit, try to make sure your problem doesn’t already exist.
