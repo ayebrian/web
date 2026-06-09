@@ -21,3 +21,15 @@ export function truncateString(str: string, maxLength: number): string {
     }
     return str.substring(0, maxLength - 3) + '...';
 }
+
+export function getAvatarFallbackForNickname(
+    nickname: string | undefined,
+): string | undefined {
+    if (!nickname) return;
+    if (nickname.trim().length === 0) return;
+    const words = nickname.toUpperCase().split(' ');
+    return words
+        .slice(0, 2)
+        .map(word => word[0])
+        .join('');
+}
