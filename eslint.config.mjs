@@ -71,7 +71,7 @@ export default defineConfig([
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-use-before-define': 'off',
             '@typescript-eslint/no-warning-comments': 'off',
-            '@typescript-eslint/no-empty-function': 'warn',
+            '@typescript-eslint/no-empty-function': 'off',
             '@typescript-eslint/no-var-requires': 'off',
             '@typescript-eslint/require-await': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
