@@ -14,7 +14,7 @@ import {
     createFriendInviteLink,
     getAvatarFallbackForNickname,
 } from '@/lib/utils';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
@@ -114,6 +114,7 @@ export default function Home() {
     const appRef = useAppContextRef();
     const navigate = useNavigate();
     const backend = useBackend();
+    const queryClient = useQueryClient();
     const session = useSession();
     const blockingQR = useBlockingQR();
 
@@ -122,6 +123,7 @@ export default function Home() {
     }, [session.status]);
 
     const logOut = () => {
+        queryClient.clear();
         session.logOut();
         void navigate('/sign-up');
     };
