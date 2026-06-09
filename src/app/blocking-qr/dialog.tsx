@@ -143,9 +143,9 @@ export function BlockingQR({
     );
 }
 
-type ParseLinkParams = {
+interface ParseLinkParams {
     raw: string;
-};
+}
 
 type ParseLinkResult =
     | {
