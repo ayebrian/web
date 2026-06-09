@@ -10,7 +10,7 @@ import {useMemo, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {SuggestEmailBindingDialog} from '@/app/suggest-email-binding-dialog';
-import {FeedDialogContent} from '@/app/feed-dialog-content';
+import {FeedDialog} from '@/app/feed-dialog';
 
 export type EmailBindingSuggestionStatus =
     | 'pending'
@@ -222,7 +222,7 @@ export function FeedReviewDeck({
                 contentClassName="top-0 bottom-0 lg:top-4 lg:bottom-4 lg:rounded-2xl max-w-md max-h-none -translate-x-1/2 -translate-y-0 bg-white dark:bg-zinc-950"
             >
                 {selectedCard && (
-                    <FeedDialogContent
+                    <FeedDialog
                         selectedCard={selectedCard}
                         isAnimating={isAnimating}
                         closeDialog={() => {
