@@ -1,6 +1,7 @@
 import {UserDetails} from '@/types/user-details';
 import {useMemo} from 'react';
 import {useTranslations} from 'use-intl';
+import {cn} from '@/lib/utils';
 import {Button} from '@/components/ui/button';
 import {X} from 'lucide-react';
 import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
@@ -31,9 +32,14 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
         <button
             id={id}
             onClick={onClick}
-            className="p-4 grow-1 flex flex-row items-center gap-4 rounded-xl cursor-pointer hover:bg-zinc-200/30 hover:dark:bg-zinc-200/50"
+            className={cn(
+                'p-2 grow-1 flex flex-row',
+                'items-center gap-4 rounded-xl',
+                'cursor-pointer',
+                'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+            )}
         >
-            <Avatar className="w-16 h-16">
+            <Avatar className="w-12 h-12">
                 <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
                     {friend?.nickname.toString().slice(0, 2)}
@@ -89,7 +95,7 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
                             </Dialog.Close>
                         </div>
 
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col p-2">
                             {friends.map(friend => (
                                 <FriendListItem
                                     id={friend.id.toString()}
