@@ -14,10 +14,7 @@ export function useEmailBindingSuggestion(userEmail: string | null) {
         useState<EmailBindingSuggestionStatus>('pending');
 
     const trackSwipe = useCallback(() => {
-        const prev = parseInt(
-            localStorage.getItem(STORAGE_KEY) ?? '0',
-            10,
-        );
+        const prev = parseInt(localStorage.getItem(STORAGE_KEY) ?? '0', 10);
         const next = prev + 1;
         localStorage.setItem(STORAGE_KEY, next.toString());
         if (!userEmail && prev < THRESHOLD && next >= THRESHOLD) {

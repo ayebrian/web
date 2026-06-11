@@ -24,7 +24,11 @@ export function SuggestEmailBindingDialog({
             <div>
                 <div className="flex justify-end pt-2 pr-2">
                     <Dialog.Close asChild>
-                        <Button variant="ghost" size="icon-sm">
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="cursor-pointer"
+                        >
                             <X className="h-4 w-4" />
                         </Button>
                     </Dialog.Close>
@@ -35,13 +39,13 @@ export function SuggestEmailBindingDialog({
                     </h2>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         <Button
-                            className="grow-1"
+                            className="grow-1 cursor-pointer"
                             onClick={() => setStatus('declined')}
                         >
                             {t('email_binding.decline')}
                         </Button>
                         <Button
-                            className="grow-2"
+                            className="grow-2 cursor-pointer"
                             onClick={() => setStatus('accepted')}
                         >
                             {t('email_binding.confirm')}

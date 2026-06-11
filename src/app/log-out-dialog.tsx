@@ -29,7 +29,11 @@ export function LogoutDialog({
             <div>
                 <div className="flex justify-end pt-2 pr-2">
                     <Dialog.Close asChild>
-                        <Button variant="ghost" size="icon-sm">
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="cursor-pointer"
+                        >
                             <X className="h-4 w-4" />
                         </Button>
                     </Dialog.Close>
@@ -41,7 +45,7 @@ export function LogoutDialog({
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         {!hasEmail && (
                             <Button
-                                className="grow-1"
+                                className="grow-1 cursor-pointer"
                                 onClick={() => {
                                     onBindEmail();
                                 }}
@@ -50,7 +54,7 @@ export function LogoutDialog({
                             </Button>
                         )}
                         <Button
-                            className="grow-1"
+                            className="grow-1 cursor-pointer"
                             variant="destructive"
                             onClick={onLogout}
                         >
