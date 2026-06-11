@@ -1,14 +1,12 @@
 import {UserDetails} from '@/types/user-details';
-import {useMemo} from 'react';
 import {useTranslations} from 'use-intl';
 import {cn} from '@/lib/utils';
 import {Button} from '@/components/ui/button';
 import {X} from 'lucide-react';
-import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
-import {createFileLink} from '@/lib/utils';
 import {Dialog} from 'radix-ui';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
+import {StyledAvatar} from '@/components/styled-avatar';
 
 interface AllFriendsListProps {
     friends: UserDetails[];
@@ -23,11 +21,6 @@ interface FriendListItemProps {
 }
 
 function FriendListItem({id, friend, onClick}: FriendListItemProps) {
-    const avatarUrl = useMemo(
-        () => (friend.avatar ? createFileLink(friend.avatar) : ''),
-        [friend],
-    );
-
     return (
         <button
             id={id}
@@ -39,12 +32,11 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
                 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
             )}
         >
-            <Avatar className="w-12 h-12">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback>
-                    {friend?.nickname.toString().slice(0, 2)}
-                </AvatarFallback>
-            </Avatar>
+            <StyledAvatar
+                avatarClassname="w-12 h-12"
+                file={friend.avatar}
+                nickname={friend.nickname}
+            />
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {friend?.nickname}
             </p>

@@ -1,9 +1,8 @@
 import {useAppContext} from '@/app.context';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {createFileLink, truncateString} from '@/lib/utils';
+import {truncateString} from '@/lib/utils';
 import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
 import {Activity, Loader2} from 'lucide-react';
@@ -12,6 +11,7 @@ import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {SuggestEmailBindingDialog} from '@/app/suggest-email-binding-dialog';
 import {FeedDialog} from '@/app/feed-dialog';
+import {StyledAvatar} from '@/components/styled-avatar';
 
 export type SwipeDirection = 'left' | 'right';
 
@@ -138,9 +138,6 @@ export function FeedReviewDeck({
                         : card.isExtendedNetwork
                           ? t('extended_network')
                           : null;
-                    const avatarUrl = card.details.avatar
-                        ? createFileLink(card.details.avatar)
-                        : '';
 
                     return (
                         <div
@@ -149,14 +146,12 @@ export function FeedReviewDeck({
                             onClick={() => handleCardClick(card)}
                         >
                             <div className="flex flex-col items-center gap-3 bg-white dark:bg-zinc-950 hover:bg-zinc-50 hover:dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm transition-colors min-h-58">
-                                <Avatar className="w-16 h-16 border border-zinc-200 dark:border-zinc-800">
-                                    <AvatarImage src={avatarUrl} />
-                                    <AvatarFallback className="text-sm font-semibold">
-                                        {card.details.nickname
-                                            .slice(0, 2)
-                                            .toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
+                                <StyledAvatar
+                                    avatarClassname="w-16 h-16 border border-zinc-200 dark:border-zinc-800"
+                                    file={card.details.avatar}
+                                    nickname={card.details.nickname}
+                                    fallbackClassname="text-sm font-semibold"
+                                />
                                 <div className="text-center min-w-0 flex-1">
                                     <h3 className="truncate text-sm font-semibold text-zinc-950 dark:text-zinc-50">
                                         {card.details.nickname}

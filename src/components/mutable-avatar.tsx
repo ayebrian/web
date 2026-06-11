@@ -12,10 +12,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {Upload} from 'lucide-react';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {ReactNode, useState, useRef} from 'react';
 import {useTranslations} from 'use-intl';
+import {StyledAvatar} from './styled-avatar';
 
 interface MutableAvatarContentProps {
     nickname: string;
@@ -95,8 +94,6 @@ export function MutableAvatarContent({
         }
     }
 
-    const fallback = getAvatarFallbackForNickname(nickname);
-
     return (
         <div className="w-full flex justify-center">
             <Adjuster
@@ -110,19 +107,14 @@ export function MutableAvatarContent({
                 show={!!avatar}
             >
                 <div className="relative cursor-pointer">
-                    <Avatar className="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm">
-                        <AvatarImage
-                            className={loading ? 'blur-xs brightness-80' : ''}
-                            src={avatarUrl ?? undefined}
-                        />
-                        <AvatarFallback>
-                            {fallback ? (
-                                <span className="text-xl">{fallback}</span>
-                            ) : (
-                                <Upload />
-                            )}
-                        </AvatarFallback>
-                    </Avatar>
+                    <StyledAvatar
+                        avatarClassname="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm"
+                        avatarImageClassname={
+                            loading ? 'blur-xs brightness-80' : undefined
+                        }
+                        file={avatar ?? null}
+                        nickname={nickname}
+                    />
                     <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
                         <Pencil className="size-full p-1" />
                     </div>
@@ -146,15 +138,6 @@ export function MutableAvatarContent({
             />
         </div>
     );
-}
-
-function getAvatarFallbackForNickname(nickname: string): string | undefined {
-    if (nickname.trim().length === 0) return;
-    const words = nickname.toUpperCase().split(' ');
-    return words
-        .slice(0, 2)
-        .map(word => word[0])
-        .join('');
 }
 
 interface AvatarDropdownProps {

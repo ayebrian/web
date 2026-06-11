@@ -1,7 +1,6 @@
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {useEffect, useMemo, useState, useCallback} from 'react';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import {Activity, Loader2, LogOut, Pencil} from 'lucide-react';
@@ -9,11 +8,7 @@ import {Button} from '@/components/ui/button';
 import {useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
-import {
-    createFileLink,
-    createFriendInviteLink,
-    getAvatarFallbackForNickname,
-} from '@/lib/utils';
+import {createFriendInviteLink} from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
@@ -23,16 +18,12 @@ import {ProfileDescription} from '@/components/profile-description';
 import {FriendsBlock} from '@/app/friends/friends-block';
 import {DiscoveryFeedBlock} from '@/app/discovery-feed-block';
 import {QrCodeCard} from '@/app/qrcode-card';
+import {StyledAvatar} from '@/components/styled-avatar';
 
 function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
     const userDetails = app.userDetails;
-
-    const avatarUrl = useMemo(
-        () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
-        [userDetails],
-    );
 
     const [openEdit, setOpenEdit] = useState(false);
     const onEditClick = useCallback(() => setOpenEdit(true), []);
@@ -55,12 +46,11 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
             />
 
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
-                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
-                    <AvatarImage src={avatarUrl} />
-                    <AvatarFallback>
-                        {getAvatarFallbackForNickname(userDetails?.nickname)}
-                    </AvatarFallback>
-                </Avatar>
+                <StyledAvatar
+                    avatarClassname="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
+                    file={userDetails?.avatar ?? null}
+                    nickname={userDetails?.nickname}
+                />
             </div>
 
             <div className="flex flex-1 flex-col gap-2 min-w-0 items-center sm:items-start">
