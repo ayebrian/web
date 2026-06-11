@@ -18,6 +18,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
+import {LogoutDialog} from '@/app/log-out-dialog';
 import {ProfileDescription} from '@/components/profile-description';
 import {FriendsBlock} from '@/app/friends/friends-block';
 import {DiscoveryFeedBlock} from '@/app/discovery-feed-block';
@@ -35,12 +36,23 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
 
     const [openEdit, setOpenEdit] = useState(false);
     const onEditClick = useCallback(() => setOpenEdit(true), []);
+    const [openLogout, setOpenLogout] = useState(false);
 
     return (
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             {userDetails && (
                 <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}
+            <LogoutDialog
+                open={openLogout}
+                onOpenChange={setOpenLogout}
+                hasEmail={!!userDetails?.email}
+                onLogout={logOut}
+                onBindEmail={() => {
+                    setOpenLogout(false);
+                    setOpenEdit(true);
+                }}
+            />
 
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
@@ -74,7 +86,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
                 <Button
                     className="cursor-pointer flex-1 sm:flex-none"
                     variant="secondary"
-                    onClick={logOut}
+                    onClick={() => setOpenLogout(true)}
                 >
                     <LogOut className="w-4 h-4" />
                     <p className="hidden sm:block">{t('log_out')}</p>

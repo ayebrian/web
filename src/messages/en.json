@@ -143,6 +143,13 @@
         "action": "Remove",
         "cancel": "Cancel"
     },
+    "log_out_dialog": {
+        "title": "Are you sure?",
+        "title_no_email": "You have no email bound. Are you sure you want to log out?",
+        "bind_email": "Bind email",
+        "yes": "Yes",
+        "no": "No"
+    },
     "redirect": {
         "friend-token-expired": {
             "title": "Invite link expired",
