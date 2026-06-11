@@ -76,6 +76,8 @@ interface ProfileHeaderProps {
 }
 
 function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
+    const t = useTranslations('profile');
+
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -104,6 +106,20 @@ function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
                 <ProfileDropdown onRemoveFriend={onRemoveFriend} />
+                {userDetails?.socialLink && (
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            window.open(
+                                userDetails?.socialLink ?? '#',
+                                '_blank',
+                            );
+                        }}
+                        className="grow-1 sm:grow-0 cursor-pointer"
+                    >
+                        {t('open_social')}
+                    </Button>
+                )}
             </div>
         </div>
     );
