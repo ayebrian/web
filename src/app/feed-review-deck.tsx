@@ -4,23 +4,16 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {createFileLink, truncateString} from '@/lib/utils';
+import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
 import {Activity, Loader2} from 'lucide-react';
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {SuggestEmailBindingDialog} from '@/app/suggest-email-binding-dialog';
 import {FeedDialog} from '@/app/feed-dialog';
 
-export type EmailBindingSuggestionStatus =
-    | 'pending'
-    | 'suggested'
-    | 'declined'
-    | 'accepted';
-
 export type SwipeDirection = 'left' | 'right';
-
-const FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION = 20;
 
 function getFeedItemKey(item: FeedItem) {
     return `${item.details.id}-${item.isRequest ? 'request' : 'suggested'}`;
@@ -66,29 +59,11 @@ export function FeedReviewDeck({
     const isBusy = pendingCardId !== null;
 
     const app = useAppContext();
-    const [swipeCount, setSwipeCount] = useState<number>(() => {
-        return parseInt(localStorage.getItem('feed-swipes') ?? '0', 10);
-    });
-    const isNeedSuggestEmail = useMemo(() => {
-        if (swipeCount > FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION) {
-            return false;
-        }
-        return !app.userDetails?.email;
-    }, [app.userDetails?.email, swipeCount]);
-
-    const [emailSuggestionStatus, setEmailSuggestionStatus] =
-        useState<EmailBindingSuggestionStatus>('pending');
-
-    const increaseSwipesCounter = () => {
-        const prevValue = parseInt(
-            localStorage.getItem('feed-swipes') ?? '0',
-            10,
-        );
-        const nextCount = prevValue + 1;
-        localStorage.setItem('feed-swipes', nextCount.toString());
-        setSwipeCount(nextCount);
-        return nextCount;
-    };
+    const {
+        status: emailSuggestionStatus,
+        setStatus: setEmailSuggestionStatus,
+        trackSwipe,
+    } = useEmailBindingSuggestion(app.userDetails?.email ?? null);
 
     const handleCardClick = (card: FeedItem) => {
         setSelectedCard(card);
@@ -101,14 +76,7 @@ export function FeedReviewDeck({
         setPendingCardId(getFeedItemKey(selectedCard));
         setIsAnimating(true);
 
-        const updatedCount = increaseSwipesCounter();
-
-        if (
-            isNeedSuggestEmail &&
-            updatedCount === FEED_CARDS_BEFORE_EMAIL_BINDING_SUGGESTION
-        ) {
-            setEmailSuggestionStatus('suggested');
-        }
+        trackSwipe();
 
         try {
             await onReview(selectedCard, direction);
