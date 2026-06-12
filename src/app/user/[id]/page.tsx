@@ -1,5 +1,4 @@
 import {useBackend} from '@/backend.context';
-import {AvatarImage, AvatarFallback, Avatar} from '@/components/ui/avatar';
 import {createFileLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {Activity, Loader2, UserXIcon} from 'lucide-react';
@@ -20,6 +19,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {ConfirmationDialog} from '@/components/confirmation-dialog';
+import {StyledAvatar} from '@/components/styled-avatar';
 
 interface ProfileDropdownProps {
     onRemoveFriend: () => void;
@@ -86,12 +86,11 @@ function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
     return (
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
-                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm">
-                    <AvatarImage src={avatarUrl} />
-                    <AvatarFallback>
-                        {userDetails?.nickname?.slice(0, 2)}
-                    </AvatarFallback>
-                </Avatar>
+                <StyledAvatar
+                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
+                    src={avatarUrl}
+                    nickname={userDetails?.nickname}
+                />
             </div>
 
             <div className="flex flex-1 flex-col gap-2 min-w-0 items-center sm:items-start">
