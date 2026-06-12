@@ -1,5 +1,6 @@
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
+import {TopBar} from './top-bar';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -114,7 +115,17 @@ function InterestsBlock({interests}: {interests: string[]}) {
     );
 }
 
-export default function Home() {
+export default function Content() {
+    return (
+        <div className="min-h-screen bg-zinc-50 dark:bg-black">
+            <TopBar />
+            <div className="h-16" />
+            <Home />
+        </div>
+    );
+}
+
+function Home() {
     const t = useTranslations('profile');
 
     const app = useAppContext();
@@ -239,11 +250,9 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
-                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {content}
-                </div>
+        <div className="mx-auto md:p-8 md:pt-4 max-w-5xl">
+            <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+                {content}
             </div>
         </div>
     );
