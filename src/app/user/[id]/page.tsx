@@ -1,5 +1,5 @@
 import {useBackend} from '@/backend.context';
-import {createFileLink} from '@/lib/utils';
+import {createFileLink, normalizeLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {Activity, Loader2, UserXIcon} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -110,7 +110,9 @@ function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
                         variant="secondary"
                         onClick={() => {
                             window.open(
-                                userDetails?.socialLink ?? '#',
+                                userDetails?.socialLink
+                                    ? normalizeLink(userDetails?.socialLink)
+                                    : '#',
                                 '_blank',
                             );
                         }}
