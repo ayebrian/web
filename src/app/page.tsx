@@ -8,7 +8,7 @@ import {Button} from '@/components/ui/button';
 import {useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
-import {createFriendInviteLink} from '@/lib/utils';
+import {createFileLink, createFriendInviteLink} from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
@@ -24,6 +24,11 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
     const userDetails = app.userDetails;
+
+    const avatarUrl = useMemo(
+        () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
+        [userDetails],
+    );
 
     const [openEdit, setOpenEdit] = useState(false);
     const onEditClick = useCallback(() => setOpenEdit(true), []);
@@ -48,7 +53,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
                     avatarClassname="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
-                    file={userDetails?.avatar ?? null}
+                    src={avatarUrl}
                     nickname={userDetails?.nickname}
                 />
             </div>

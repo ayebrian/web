@@ -1,6 +1,7 @@
 import {UserDetails} from '@/types/user-details';
+import {useMemo} from 'react';
 import {useTranslations} from 'use-intl';
-import {cn} from '@/lib/utils';
+import {cn, createFileLink} from '@/lib/utils';
 import {Button} from '@/components/ui/button';
 import {X} from 'lucide-react';
 import {Dialog} from 'radix-ui';
@@ -21,6 +22,11 @@ interface FriendListItemProps {
 }
 
 function FriendListItem({id, friend, onClick}: FriendListItemProps) {
+    const avatarUrl = useMemo(
+        () => (friend.avatar ? createFileLink(friend.avatar) : ''),
+        [friend],
+    );
+
     return (
         <button
             id={id}
@@ -34,7 +40,7 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
         >
             <StyledAvatar
                 avatarClassname="w-12 h-12"
-                file={friend.avatar}
+                src={avatarUrl}
                 nickname={friend.nickname}
             />
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">

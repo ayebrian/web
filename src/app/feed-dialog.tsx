@@ -1,6 +1,7 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {createFileLink} from '@/lib/utils';
 import {FeedItem} from '@/network/friendly-client';
 import {UserDetails} from '@/types/user-details';
 import {Check, Heart, X} from 'lucide-react';
@@ -67,7 +68,11 @@ export function FeedDialog({
                             return (
                                 <StyledAvatar
                                     avatarClassname="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
-                                    file={friend.avatar}
+                                    src={
+                                        friend.avatar
+                                            ? createFileLink(friend.avatar)
+                                            : undefined
+                                    }
                                     nickname={friend.nickname}
                                     onClick={() => void routeToUser(friend)}
                                 />
@@ -87,7 +92,11 @@ export function FeedDialog({
                 <div className="relative w-full aspect-square shrink-0 overflow-hidden">
                     <StyledAvatar
                         avatarClassname="w-full h-full rounded-none object-cover"
-                        file={selectedCard.details.avatar}
+                        src={
+                            selectedCard.details.avatar
+                                ? createFileLink(selectedCard.details.avatar)
+                                : undefined
+                        }
                         nickname={selectedCard.details.nickname}
                         avatarImageClassname="object-cover w-full h-full"
                         fallbackClassname="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800"

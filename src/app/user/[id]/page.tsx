@@ -1,8 +1,9 @@
 import {useBackend} from '@/backend.context';
+import {createFileLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {Activity, Loader2, UserXIcon} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {UserDetails} from '@/types/user-details';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -77,12 +78,17 @@ interface ProfileHeaderProps {
 function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
     const t = useTranslations('profile');
 
+    const avatarUrl = useMemo(
+        () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
+        [userDetails],
+    );
+
     return (
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
                     avatarClassname="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
-                    file={userDetails?.avatar}
+                    src={avatarUrl}
                     nickname={userDetails?.nickname}
                 />
             </div>

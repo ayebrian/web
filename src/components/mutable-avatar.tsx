@@ -3,7 +3,7 @@ import {FileDescriptor} from '@/types/file-descriptor';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
 import {toast} from 'sonner';
-import {Pencil, Trash2, ImageIcon} from 'lucide-react';
+import {Pencil, Trash2, ImageIcon, Upload} from 'lucide-react';
 import {useBackend} from '@/backend.context';
 import {Spinner} from '@/components/ui/spinner';
 import {
@@ -112,8 +112,9 @@ export function MutableAvatarContent({
                         avatarImageClassname={
                             loading ? 'blur-xs brightness-80' : undefined
                         }
-                        file={avatar ?? null}
+                        src={avatarUrl ?? undefined}
                         nickname={nickname}
+                        fallbackContent={<Upload />}
                     />
                     <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
                         <Pencil className="size-full p-1" />

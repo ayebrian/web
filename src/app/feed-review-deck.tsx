@@ -2,7 +2,7 @@ import {useAppContext} from '@/app.context';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {truncateString} from '@/lib/utils';
+import {createFileLink, truncateString} from '@/lib/utils';
 import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
 import {Activity, Loader2} from 'lucide-react';
@@ -138,6 +138,9 @@ export function FeedReviewDeck({
                         : card.isExtendedNetwork
                           ? t('extended_network')
                           : null;
+                    const avatarUrl = card.details.avatar
+                        ? createFileLink(card.details.avatar)
+                        : '';
 
                     return (
                         <div
@@ -148,7 +151,7 @@ export function FeedReviewDeck({
                             <div className="flex flex-col items-center gap-3 bg-white dark:bg-zinc-950 hover:bg-zinc-50 hover:dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm transition-colors min-h-58">
                                 <StyledAvatar
                                     avatarClassname="w-16 h-16 border border-zinc-200 dark:border-zinc-800"
-                                    file={card.details.avatar}
+                                    src={avatarUrl}
                                     nickname={card.details.nickname}
                                     fallbackClassname="text-sm font-semibold"
                                 />

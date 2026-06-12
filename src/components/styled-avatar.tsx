@@ -1,32 +1,36 @@
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import {createFileLink, getAvatarFallbackForNickname} from '@/lib/utils';
-import {FileDescriptor} from '@/types/file-descriptor';
+import {getAvatarFallbackForNickname} from '@/lib/utils';
 
 interface StyledAvatarProps {
     avatarClassname: string;
-    file: FileDescriptor | null;
+    src: string | undefined;
     nickname: string | undefined;
     onClick?: () => void;
     avatarImageClassname?: string | undefined;
-    fallbackClassname?: string | undefined;
+    fallbackClassname?: string;
+    fallbackContent?: React.ReactNode;
 }
 
 export function StyledAvatar({
     avatarClassname,
-    file,
+    src,
     nickname,
     onClick,
     avatarImageClassname,
     fallbackClassname,
+    fallbackContent,
 }: StyledAvatarProps) {
+    const fallbackFromNickname = getAvatarFallbackForNickname(nickname);
+
     return (
         <Avatar className={avatarClassname} onClick={onClick}>
-            <AvatarImage
-                className={avatarImageClassname}
-                src={file ? createFileLink(file) : undefined}
-            />
+            <AvatarImage className={avatarImageClassname} src={src} />
             <AvatarFallback className={fallbackClassname}>
-                <span>{getAvatarFallbackForNickname(nickname)}</span>
+                {fallbackFromNickname ? (
+                    <span>{fallbackFromNickname}</span>
+                ) : (
+                    fallbackContent
+                )}
             </AvatarFallback>
         </Avatar>
     );
