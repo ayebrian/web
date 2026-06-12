@@ -2,6 +2,7 @@ import {AdjusterPayload, Adjuster} from '@/components/adjuster';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
+import {AVATAR_MAX_SIZE_BYTES} from '@/network/image-constants';
 import {toast} from 'sonner';
 import {Pencil, Trash2, ImageIcon} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -25,17 +26,6 @@ interface MutableAvatarContentProps {
     setAvatar: (value: FileDescriptor | null) => void;
 }
 
-/**
- * Avatar Pipeline and Definitions:
- *
- * o User clicks on avatar.
- * o User selects either remove or pick.
- * o If user selects pick, system picker for image is shown
- * o After user selected image, adjuster is shown that allows to
- *   interactively resize image.
- * o After interactive adjust, image is compressed to be under 200KB.
- * o Then, setAvatar function is called.
- */
 export function MutableAvatarContent({
     nickname,
     loading,
@@ -80,7 +70,7 @@ export function MutableAvatarContent({
         try {
             const compressed = await resizeImage({
                 file,
-                maxSizeBytes: 204_800, // 200kb
+                maxSizeBytes: AVATAR_MAX_SIZE_BYTES,
             });
             const result = await backend.uploadFile(compressed);
             if (result.ok) {

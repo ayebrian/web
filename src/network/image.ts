@@ -1,3 +1,6 @@
+import {GIF_MAX_W, GIF_MAX_H, GIF_FPS} from './image-constants';
+import {compressGif} from './gif';
+
 export interface ResizeImageProps {
     file: File;
     maxSizeBytes: number;
@@ -5,22 +8,22 @@ export interface ResizeImageProps {
     scalePrecisionFactor?: number;
 }
 
-/**
- * Compresses image by resizing it and searching for a first dimensions that
- * meets maxSizeBytes with precision being scalePrecisionFactor.
- *
- * For the returned image it is true that:
- *
- * sizeof image * resultScaleFactor <= maxSizeBytes
- * AND
- * sizeof image * resultScaleFactor + scalePrecisionFactor > maxSizeBytes
- */
 export async function resizeImage({
     file,
     maxSizeBytes,
     maxIterations = 8,
     scalePrecisionFactor = 0.01,
 }: ResizeImageProps): Promise<File> {
+    if (file.type === 'image/gif') {
+        return await compressGif({
+            file,
+            maxSizeBytes,
+            maxWidth: GIF_MAX_W,
+            maxHeight: GIF_MAX_H,
+            fps: GIF_FPS,
+        });
+    }
+
     const src = URL.createObjectURL(file);
 
     const image: HTMLImageElement = await new Promise((resolve, reject) => {
@@ -76,7 +79,6 @@ export async function resizeImage({
                 try {
                     blob = await render(mid);
                 } catch {
-                    // Worst case: no compression applied
                     return file;
                 }
                 const needsMoreShrinking = blob.size > maxSizeBytes;

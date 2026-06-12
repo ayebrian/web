@@ -16,6 +16,7 @@ import {
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from './styled-dialog-wrapper';
+import {cropGif} from '@/network/gif';
 
 export type AdjusterPayload =
     | {
@@ -162,6 +163,16 @@ function AdjusterContent({
 }
 
 async function render(file: File, crop: PercentCrop): Promise<File> {
+    if (file.type === 'image/gif') {
+        return await cropGif({
+            file,
+            cropX: crop.x,
+            cropY: crop.y,
+            cropW: crop.width,
+            cropH: crop.height,
+        });
+    }
+
     const src = URL.createObjectURL(file);
     try {
         const canvas = document.createElement('canvas');
