@@ -52,7 +52,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
 
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
-                    avatarClassname="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
+                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
                     src={avatarUrl}
                     nickname={userDetails?.nickname}
                 />

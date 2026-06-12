@@ -67,7 +67,7 @@ export function FeedDialog({
                         {selectedCard.commonFriends.slice(0, 5).map(friend => {
                             return (
                                 <StyledAvatar
-                                    avatarClassname="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
+                                    avatarClassName="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
                                     src={
                                         friend.avatar
                                             ? createFileLink(friend.avatar)
@@ -91,15 +91,15 @@ export function FeedDialog({
 
                 <div className="relative w-full aspect-square shrink-0 overflow-hidden">
                     <StyledAvatar
-                        avatarClassname="w-full h-full rounded-none object-cover"
+                        avatarClassName="w-full h-full rounded-none object-cover"
                         src={
                             selectedCard.details.avatar
                                 ? createFileLink(selectedCard.details.avatar)
                                 : undefined
                         }
                         nickname={selectedCard.details.nickname}
-                        avatarImageClassname="object-cover w-full h-full"
-                        fallbackClassname="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800"
+                        avatarImageClassName="object-cover w-full h-full"
+                        fallbackClassName="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800"
                     />
 
                     <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">

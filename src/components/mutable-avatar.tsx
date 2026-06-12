@@ -108,8 +108,8 @@ export function MutableAvatarContent({
             >
                 <div className="relative cursor-pointer">
                     <StyledAvatar
-                        avatarClassname="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm"
-                        avatarImageClassname={
+                        avatarClassName="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm"
+                        avatarImageClassName={
                             loading ? 'blur-xs brightness-80' : undefined
                         }
                         src={avatarUrl ?? undefined}

@@ -150,10 +150,10 @@ export function FeedReviewDeck({
                         >
                             <div className="flex flex-col items-center gap-3 bg-white dark:bg-zinc-950 hover:bg-zinc-50 hover:dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm transition-colors min-h-58">
                                 <StyledAvatar
-                                    avatarClassname="w-16 h-16 border border-zinc-200 dark:border-zinc-800"
+                                    avatarClassName="w-16 h-16 border border-zinc-200 dark:border-zinc-800"
                                     src={avatarUrl}
                                     nickname={card.details.nickname}
-                                    fallbackClassname="text-sm font-semibold"
+                                    fallbackClassName="text-sm font-semibold"
                                 />
                                 <div className="text-center min-w-0 flex-1">
                                     <h3 className="truncate text-sm font-semibold text-zinc-950 dark:text-zinc-50">

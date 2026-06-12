@@ -39,7 +39,7 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
             )}
         >
             <StyledAvatar
-                avatarClassname="w-12 h-12"
+                avatarClassName="w-12 h-12"
                 src={avatarUrl}
                 nickname={friend.nickname}
             />

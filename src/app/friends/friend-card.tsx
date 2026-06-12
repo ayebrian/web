@@ -26,7 +26,7 @@ export function FriendCard({friend}: {friend: UserDetails}) {
         <button onClick={() => void openFriendPage()}>
             <div className="w-40 h-50 flex flex-col items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-200 hover:dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-2xs cursor-pointer">
                 <StyledAvatar
-                    avatarClassname="w-16 h-16"
+                    avatarClassName="w-16 h-16"
                     src={avatarUrl}
                     nickname={friend.nickname}
                 />
