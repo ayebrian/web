@@ -1,5 +1,8 @@
+import {AdjusterCrop} from '@/components/adjuster';
+
 export interface ResizeImageProps {
     file: File;
+    crop: AdjusterCrop;
     maxSizeBytes: number;
     maxIterations?: number;
     scalePrecisionFactor?: number;
@@ -17,6 +20,7 @@ export interface ResizeImageProps {
  */
 export async function resizeImage({
     file,
+    crop,
     maxSizeBytes,
     maxIterations = 8,
     scalePrecisionFactor = 0.01,
@@ -31,10 +35,11 @@ export async function resizeImage({
     });
 
     try {
-        const originalWidth = image.width;
-        const originalHeight = image.height;
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
+
+        const originalWidth = image.naturalWidth;
+        const originalHeight = image.naturalHeight;
 
         if (!context) {
             return file;
@@ -46,14 +51,24 @@ export async function resizeImage({
         }
 
         const render = async (scale: number): Promise<Blob> => {
-            const width = Math.max(1, Math.round(originalWidth * scale));
-            const height = Math.max(1, Math.round(originalHeight * scale));
-            canvas.width = width;
-            canvas.height = height;
-            context.clearRect(0, 0, width, height);
+            const sx = (originalWidth * crop.x) / 100;
+            const sy = (originalHeight * crop.y) / 100;
+            const sw = (originalWidth * crop.width) / 100;
+            const sh = (originalHeight * crop.height) / 100;
+
+            const dw = Math.max(1, Math.round(sw * scale));
+            const dh = Math.max(1, Math.round(sh * scale));
+
+            canvas.width = dw;
+            canvas.height = dh;
+
+            // Fill black to prevent transparent
+            context.fillStyle = 'black';
+            context.fillRect(0, 0, dw, dh);
+
+            context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh);
             await letUIThreadBreathe();
-            context.drawImage(image, 0, 0, width, height);
-            await letUIThreadBreathe();
+
             return await new Promise((resolve, reject) =>
                 canvas.toBlob(blob => {
                     if (!blob) {

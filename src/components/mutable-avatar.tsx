@@ -1,4 +1,4 @@
-import {AdjusterPayload, Adjuster} from '@/components/adjuster';
+import {AdjusterPayload, Adjuster, AdjusterCrop} from '@/components/adjuster';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
@@ -67,23 +67,25 @@ export function MutableAvatarContent({
         }
     }
 
-    async function onAdjusted(file: File | null) {
+    async function onAdjusted(file: File | null, crop: AdjusterCrop) {
         if (!file) {
             setAvatar(null);
             setAvatarUrl(null);
             return;
         }
         const previousAvatarUrl = avatarUrl;
-        setAvatarUrl(URL.createObjectURL(file));
+        // setAvatarUrl(URL.createObjectURL(file));
         setLoading(true);
         try {
             const compressed = await resizeImage({
                 file,
+                crop,
                 maxSizeBytes: 204_800, // 200kb
             });
             const result = await backend.uploadFile(compressed);
             if (result.ok) {
                 setAvatar(result.data);
+                setAvatarUrl(createFileLink(result.data));
                 if (previousAvatarUrl) URL.revokeObjectURL(previousAvatarUrl);
             } else {
                 toast.error(t('error-connection'));
@@ -99,10 +101,12 @@ export function MutableAvatarContent({
             <Adjuster
                 payload={adjuster}
                 setOpen={adjusterSetOpen}
-                onAdjusted={file => void onAdjusted(file)}
+                onAdjusted={(file, result) => void onAdjusted(file, result)}
             />
             <AvatarDropdown
-                onDelete={() => void onAdjusted(null)}
+                onDelete={() =>
+                    void onAdjusted(null, {x: 0, y: 0, width: 0, height: 0})
+                }
                 onSelect={() => avatarInputRef?.current?.click()}
                 show={!!avatar}
             >
