@@ -1,4 +1,5 @@
 import {AdjusterCrop} from '@/components/adjuster';
+import {resizeGif} from '@/network/gif';
 
 interface ResizeStaticParams {
     file: File;
@@ -6,12 +7,6 @@ interface ResizeStaticParams {
     maxSizeBytes: number;
     maxIterations?: number;
     scalePrecisionFactor?: number;
-}
-
-interface ResizeGifParams {
-    file: File;
-    crop: AdjusterCrop;
-    maxSizeBytes: number;
 }
 
 export async function resizeImage(
@@ -31,14 +26,6 @@ export async function resizeImage(
         crop,
         maxSizeBytes: 200_000,
     });
-}
-
-async function resizeGif({
-    file,
-    crop,
-    maxSizeBytes,
-}: ResizeGifParams): Promise<File> {
-    return file;
 }
 
 async function resizeStatic({
