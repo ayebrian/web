@@ -1,6 +1,6 @@
 import {AdjusterCrop} from '@/components/adjuster';
 
-export interface ResizeImageProps {
+interface ResizeStaticParams {
     file: File;
     crop: AdjusterCrop;
     maxSizeBytes: number;
@@ -8,23 +8,46 @@ export interface ResizeImageProps {
     scalePrecisionFactor?: number;
 }
 
-/**
- * Compresses image by resizing it and searching for a first dimensions that
- * meets maxSizeBytes with precision being scalePrecisionFactor.
- *
- * For the returned image it is true that:
- *
- * sizeof image * resultScaleFactor <= maxSizeBytes
- * AND
- * sizeof image * resultScaleFactor + scalePrecisionFactor > maxSizeBytes
- */
-export async function resizeImage({
+interface ResizeGifParams {
+    file: File;
+    crop: AdjusterCrop;
+    maxSizeBytes: number;
+}
+
+export async function resizeImage(
+    file: File,
+    crop: AdjusterCrop,
+): Promise<File> {
+    if (file.type === 'image/gif') {
+        return resizeGif({
+            file,
+            crop,
+            maxSizeBytes: 450_000,
+        });
+    }
+
+    return resizeStatic({
+        file,
+        crop,
+        maxSizeBytes: 230_00,
+    });
+}
+
+async function resizeGif({
+    file,
+    crop,
+    maxSizeBytes,
+}: ResizeGifParams): Promise<File> {
+    return file;
+}
+
+async function resizeStatic({
     file,
     crop,
     maxSizeBytes,
     maxIterations = 8,
     scalePrecisionFactor = 0.01,
-}: ResizeImageProps): Promise<File> {
+}: ResizeStaticParams): Promise<File> {
     const src = URL.createObjectURL(file);
 
     const image: HTMLImageElement = await new Promise((resolve, reject) => {
@@ -50,46 +73,32 @@ export async function resizeImage({
             return file;
         }
 
-        const render = async (scale: number): Promise<Blob> => {
-            const sx = (originalWidth * crop.x) / 100;
-            const sy = (originalHeight * crop.y) / 100;
-            const sw = (originalWidth * crop.width) / 100;
-            const sh = (originalHeight * crop.height) / 100;
-
-            const dw = Math.max(1, Math.round(sw * scale));
-            const dh = Math.max(1, Math.round(sh * scale));
-
-            canvas.width = dw;
-            canvas.height = dh;
-
-            // Fill black to prevent transparent
-            context.fillStyle = 'black';
-            context.fillRect(0, 0, dw, dh);
-
-            context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh);
-            await letUIThreadBreathe();
-
-            return await new Promise((resolve, reject) =>
-                canvas.toBlob(blob => {
-                    if (!blob) {
-                        reject(new Error('Canvas toBlob returned !blob'));
-                    } else {
-                        resolve(blob);
-                    }
-                }, format),
-            );
-        };
-
         let low = 0;
         let high = 1;
-        let bestBlob = await render(1);
+        let bestBlob = await render(
+            canvas,
+            image,
+            1,
+            crop,
+            originalWidth,
+            originalHeight,
+            format,
+        );
 
         if (bestBlob.size > maxSizeBytes) {
             for (let i = 0; i < maxIterations; i++) {
                 const mid = (low + high) / 2;
                 let blob: Blob;
                 try {
-                    blob = await render(mid);
+                    blob = await render(
+                        canvas,
+                        image,
+                        mid,
+                        crop,
+                        originalWidth,
+                        originalHeight,
+                        format,
+                    );
                 } catch {
                     // Worst case: no compression applied
                     return file;
@@ -115,6 +124,47 @@ export async function resizeImage({
     } finally {
         URL.revokeObjectURL(src);
     }
+}
+
+async function render(
+    canvas: HTMLCanvasElement,
+    image: HTMLImageElement,
+    scale: number,
+    crop: AdjusterCrop,
+    originalWidth: number,
+    originalHeight: number,
+    format: string,
+): Promise<Blob> {
+    const context = canvas.getContext('2d');
+    if (!context) throw Error('Canvas context is null or undefined!');
+
+    const sx = (originalWidth * crop.x) / 100;
+    const sy = (originalHeight * crop.y) / 100;
+    const sw = (originalWidth * crop.width) / 100;
+    const sh = (originalHeight * crop.height) / 100;
+
+    const dw = Math.max(1, Math.round(sw * scale));
+    const dh = Math.max(1, Math.round(sh * scale));
+
+    canvas.width = dw;
+    canvas.height = dh;
+
+    // Fill black to prevent transparent
+    context.fillStyle = 'black';
+    context.fillRect(0, 0, dw, dh);
+
+    context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh);
+    await letUIThreadBreathe();
+
+    return await new Promise((resolve, reject) =>
+        canvas.toBlob(blob => {
+            if (!blob) {
+                reject(new Error('Canvas toBlob returned !blob'));
+            } else {
+                resolve(blob);
+            }
+        }, format),
+    );
 }
 
 async function letUIThreadBreathe() {

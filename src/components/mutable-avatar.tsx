@@ -77,11 +77,7 @@ export function MutableAvatarContent({
         // setAvatarUrl(URL.createObjectURL(file));
         setLoading(true);
         try {
-            const compressed = await resizeImage({
-                file,
-                crop,
-                maxSizeBytes: 204_800, // 200kb
-            });
+            const compressed = await resizeImage(file, crop);
             const result = await backend.uploadFile(compressed);
             if (result.ok) {
                 setAvatar(result.data);
