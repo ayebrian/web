@@ -51,7 +51,7 @@ export async function resizeGif({
         maxSizeBytes,
         maxWidth: crop.width,
         maxHeight: crop.height,
-        fps: 6,
+        fps: 12,
     });
 
     return compressed;
