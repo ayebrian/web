@@ -74,7 +74,6 @@ export function MutableAvatarContent({
             return;
         }
         const previousAvatarUrl = avatarUrl;
-        // setAvatarUrl(URL.createObjectURL(file));
         setLoading(true);
         try {
             const compressed = await resizeImage(file, crop);
