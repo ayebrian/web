@@ -10,6 +10,7 @@ import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {SwipeDirection} from '@/app/feed-review-deck';
 import {StyledAvatar} from '@/components/styled-avatar';
+import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
@@ -64,20 +65,34 @@ export function FeedDialog({
                                       : null}
                             </Badge>
                         )}
-                        {selectedCard.commonFriends.slice(0, 5).map(friend => {
-                            return (
-                                <StyledAvatar
-                                    avatarClassName="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
-                                    src={
-                                        friend.avatar
-                                            ? createFileLink(friend.avatar)
-                                            : undefined
-                                    }
-                                    nickname={friend.nickname}
-                                    onClick={() => void routeToUser(friend)}
-                                />
-                            );
-                        })}
+                        <AvatarGroup className="space-x-2">
+                            {selectedCard.commonFriends
+                                .slice(0, 5)
+                                .map(friend => {
+                                    return (
+                                        <StyledAvatar
+                                            avatarClassName="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
+                                            key={friend.id}
+                                            src={
+                                                friend.avatar
+                                                    ? createFileLink(
+                                                          friend.avatar,
+                                                      )
+                                                    : undefined
+                                            }
+                                            nickname={friend.nickname}
+                                            onClick={() =>
+                                                void routeToUser(friend)
+                                            }
+                                        />
+                                    );
+                                })}
+                            {selectedCard.commonFriends.length > 5 && (
+                                <AvatarGroupCount className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer">
+                                    +{selectedCard.commonFriends.length - 5}
+                                </AvatarGroupCount>
+                            )}
+                        </AvatarGroup>
                     </div>
                     <Button
                         variant="ghost"
