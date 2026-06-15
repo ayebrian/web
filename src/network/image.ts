@@ -17,14 +17,14 @@ export async function resizeImage(
         return resizeGif({
             file,
             crop,
-            maxSizeBytes: 500_000,
+            maxSizeBytes: 600_000,
         });
     }
 
     return resizeStatic({
         file,
         crop,
-        maxSizeBytes: 200_000,
+        maxSizeBytes: 260_000,
     });
 }
 

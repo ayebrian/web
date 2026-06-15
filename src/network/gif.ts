@@ -68,17 +68,16 @@ async function compressGif({
     const arrayBuf = await file.arrayBuffer();
     const reader = new GifReader(new Uint8Array(arrayBuf));
 
-    const srcWidth = reader.width;
-    const srcHeight = reader.height;
+    const srcWidth = maxWidth;
+    const srcHeight = maxHeight;
     const numFrames = reader.numFrames();
 
     console.log(
         `gif: compress start ${file.name} (${file.size}B, ${srcWidth}x${srcHeight}, ${numFrames}f, target ${maxSizeBytes}B @ ${fps}fps)`,
     );
 
-    const scale = Math.min(maxWidth / srcWidth, maxHeight / srcHeight, 1);
-    let newWidth = Math.max(1, Math.round(srcWidth * scale));
-    let newHeight = Math.max(1, Math.round(srcHeight * scale));
+    let newWidth = srcWidth;
+    let newHeight = srcHeight;
 
     const frames = await extractFrames(
         reader,
@@ -114,8 +113,10 @@ async function compressGif({
             });
         }
         bestBytes = bytes;
-        newWidth = Math.max(1, Math.round(newWidth * 0.75));
-        newHeight = Math.max(1, Math.round(newHeight * 0.75));
+
+        const scale = 0.9;
+        newWidth = Math.max(1, Math.round(newWidth * scale));
+        newHeight = Math.max(1, Math.round(newHeight * scale));
         await letUIThreadBreathe();
     }
 
