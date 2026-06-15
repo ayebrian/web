@@ -135,15 +135,21 @@ function InterestsBlock({interests}: {interests: string[]}) {
                 {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
-                {interests.map(interest => (
-                    <Badge
-                        key={interest}
-                        variant="secondary"
-                        className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                        {interest}
-                    </Badge>
-                ))}
+                {interests.length === 0 ? (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        {t('no_interests')}
+                    </p>
+                ) : (
+                    interests.map(interest => (
+                        <Badge
+                            key={interest}
+                            variant="secondary"
+                            className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                        >
+                            {interest}
+                        </Badge>
+                    ))
+                )}
             </div>
         </div>
     );
