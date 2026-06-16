@@ -13,7 +13,7 @@ export function TopBar(): ReactNode {
                 className={cn(
                     'flex p-4',
                     'bg-white dark:bg-zinc-950',
-                    'w-full grow min-h-0',
+                    'w-full flex-1 min-h-0',
                     'items-center',
                 )}
             >
@@ -23,7 +23,7 @@ export function TopBar(): ReactNode {
                     src="banner-dark.svg"
                 />
             </div>
-            <div className="w-full h-3 bg-zinc-200 dark:bg-zinc-800" />
+            <div className="w-full h-px bg-zinc-200 dark:bg-zinc-800" />
         </div>
     );
 }
