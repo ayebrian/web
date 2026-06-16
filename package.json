@@ -5,12 +5,12 @@
     "packageManager": "pnpm@11.1.2",
     "scripts": {
         "dev": "vite",
-        "compile": "tsc -p tsconfig.json --noEmit --pretty false",
+        "compile": "tsc --pretty false --noErrorTruncation",
         "watch": "tsc -p tsconfig.json --noEmit --pretty false -w",
         "build": "vite build",
         "start": "vite preview --host 0.0.0.0",
         "format": "eslint --fix '**/*.ts*' && prettier --write .",
-        "lint": "eslint '**/*.ts*' && prettier --check ."
+        "lint": "tsc && eslint '**/*.ts*' && prettier --check ."
     },
     "engines": {
         "node": ">=24.0.0"
