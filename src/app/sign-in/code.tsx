@@ -1,5 +1,6 @@
 import {REGEXP_ONLY_DIGITS} from 'input-otp';
 import {useSession} from '@/components/session-provider';
+import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
 import {useBlockingQR} from '@/app/blocking-qr/dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
@@ -49,7 +50,30 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
     const backend = useBackend();
     const navigate = useNavigate();
     const session = useSession();
+    const [deferredLink, setDeferredLink] = useDeferredLink();
     const blockingQR = useBlockingQR();
+
+    async function handleAddFriend() {
+        const link = deferredLink;
+        if (!link) return;
+        if (link.type !== 'add-friend') return;
+        const {userId, token} = link;
+        while (true) {
+            // If profile account is created, network conditions were good.
+            // If we have a problem after we already created account,
+            // it's very hard to rollback. So we just retry indefinitely and
+            // show no indication on failure since it's very unlikely also.
+            const result = await backend.addFriend({userId, token});
+            if (result.ok) {
+                if (result.data.type === 'Success') {
+                    blockingQR.setShouldBlock(false);
+                }
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1_000));
+        }
+        setDeferredLink(undefined);
+    }
 
     async function onComplete() {
         setError(false);
@@ -58,28 +82,26 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             return;
         }
         setLoading(true);
-        try {
-            const code = Number(value);
-            const result = await backend.authLogin({email, code});
-            if (!result.ok) {
-                if (result.error.type === 'status') {
-                    setError(true);
-                } else {
-                    toast.error(t('error-connection'));
-                }
-                return;
+        const code = Number(value);
+        const result = await backend.authLogin({email, code});
+        if (!result.ok) {
+            if (result.error.type === 'status') {
+                setError(true);
+            } else {
+                toast.error(t('error-connection'));
             }
-            backend.storeAuthorization(
-                result.data.token,
-                result.data.id.toString(),
-            );
-            session.setAuthed();
-            blockingQR.setShouldBlock(false);
-            void Notifications.nudge();
-            void navigate('/');
-        } finally {
-            setLoading(false);
+            return;
         }
+        backend.storeAuthorization(
+            result.data.token,
+            result.data.id.toString(),
+        );
+        session.setAuthed();
+        blockingQR.setShouldBlock(false);
+        await handleAddFriend();
+        await Notifications.nudge();
+        void navigate('/');
+        setLoading(false);
     }
 
     return (

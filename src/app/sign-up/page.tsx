@@ -1,6 +1,7 @@
 import {Spinner} from '@/components/ui/spinner';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
+import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
 import {
     InputGroup,
     InputGroupAddon,
@@ -18,13 +19,16 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {useNavigate} from 'react-router';
 import * as Notifications from '@/notifications';
+import {useBlockingQR} from '@/app/blocking-qr/dialog';
 import {cn} from '@/lib/utils';
 
-export default function SignInPage() {
+export default function SignUpPage() {
     const t = useTranslations('sign-up');
 
     const navigate = useNavigate();
     const session = useSession();
+    const [deferredLink, setDeferredLink] = useDeferredLink();
+    const blockingQR = useBlockingQR();
 
     const [loading, setLoading] = useState(false);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -57,6 +61,28 @@ export default function SignInPage() {
         setInterestsError,
     });
 
+    async function handleAddFriend() {
+        const link = deferredLink;
+        if (!link) return;
+        if (link.type !== 'add-friend') return;
+        const {userId, token} = link;
+        while (true) {
+            // If profile account is created, network conditions were good.
+            // If we have a problem after we already created account,
+            // it's very hard to rollback. So we just retry indefinitely and
+            // show no indication on failure since it's very unlikely also.
+            const result = await backend.addFriend({userId, token});
+            if (result.ok) {
+                if (result.data.type === 'Success') {
+                    blockingQR.setShouldBlock(false);
+                }
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1_000));
+        }
+        setDeferredLink(undefined);
+    }
+
     async function onSignUp() {
         const validated = validator();
         if (!validated) return;
@@ -75,7 +101,8 @@ export default function SignInPage() {
                 result.data.id.toString(),
             );
             session.setAuthed();
-            void Notifications.nudge();
+            await handleAddFriend();
+            await Notifications.nudge();
             void navigate('/');
         } else {
             toast.error(t('error-connection'));

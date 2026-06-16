@@ -27,6 +27,7 @@
     },
     "profile": {
         "edit_profile": "Редактировать",
+        "no_interests": "У пользователя ещё нет интересов",
         "log_out": "Выйти",
         "interests": "Интересы",
         "open_social": "Связаться",

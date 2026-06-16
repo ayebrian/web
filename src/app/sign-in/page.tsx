@@ -54,20 +54,17 @@ function EmailContent(): ReactNode {
             return;
         }
         setLoading(true);
-        try {
-            const result = await backend.authEmail(locale, {email});
-            if (!result.ok) {
-                if (result.error.type === 'unauthorized') {
-                    setError(t('unknown-email'));
-                } else {
-                    toast.error(t('error-connection'));
-                }
-                return;
+        const result = await backend.authEmail(locale, {email});
+        if (!result.ok) {
+            if (result.error.type === 'unauthorized') {
+                setError(t('unknown-email'));
+            } else {
+                toast.error(t('error-connection'));
             }
-            setOpenCode(true);
-        } finally {
-            setLoading(false);
+            return;
         }
+        setOpenCode(true);
+        setLoading(false);
     }
 
     function onSignUp() {
