@@ -116,7 +116,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
         setLoading(false);
         if (result.ok) {
             setOpen(false);
-            app.setUserDetails({...userDetails, ...validated});
+            app.setUserDetails({...userDetails, ...validated, avatar});
         } else {
             toast.error(t('error-connection'));
         }
