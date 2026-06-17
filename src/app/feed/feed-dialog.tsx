@@ -13,7 +13,6 @@ import {StyledAvatar} from '@/components/styled-avatar';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
-    isAnimating: boolean;
     isBusy: boolean;
     closeDialog: () => void;
     handleReview: (direction: SwipeDirection) => void;
@@ -21,7 +20,6 @@ interface FeedDialogProps {
 
 export function FeedDialog({
     selectedCard,
-    isAnimating,
     closeDialog,
     isBusy,
     handleReview,
@@ -45,9 +43,8 @@ export function FeedDialog({
             </Dialog.Title>
 
             <div
-                className={`flex flex-col h-full transition-opacity duration-150 ${
-                    isAnimating ? 'opacity-0' : 'opacity-100'
-                }`}
+                key={selectedCard.details.id}
+                className="flex flex-col h-full animate-fade-in"
             >
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
                     <div className="flex flex-column ms-4">

@@ -55,7 +55,6 @@ export function FeedReviewDeck({
     const [selectedCard, setSelectedCard] = useState<FeedItem | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [pendingCardId, setPendingCardId] = useState<string | null>(null);
-    const [isAnimating, setIsAnimating] = useState(false);
     const isBusy = pendingCardId !== null;
 
     const app = useAppContext();
@@ -74,7 +73,6 @@ export function FeedReviewDeck({
         if (!selectedCard || isBusy) return;
 
         setPendingCardId(getFeedItemKey(selectedCard));
-        setIsAnimating(true);
 
         trackSwipe();
 
@@ -84,17 +82,15 @@ export function FeedReviewDeck({
             // Wait for fade out animation
             await new Promise(resolve => setTimeout(resolve, 150));
 
-            // Find the current card index and show the next card
             const currentIndex = cards.findIndex(
                 card => getFeedItemKey(card) === getFeedItemKey(selectedCard),
             );
             const nextIndex = currentIndex + 1;
+            const haveMoreCards = nextIndex < cards.length;
 
-            if (nextIndex < cards.length) {
+            if (haveMoreCards) {
                 setSelectedCard(cards[nextIndex]);
-                setIsAnimating(false);
             } else {
-                // No more cards, close the dialog
                 setIsDialogOpen(false);
                 setSelectedCard(null);
             }
@@ -187,7 +183,6 @@ export function FeedReviewDeck({
                 {selectedCard && (
                     <FeedDialog
                         selectedCard={selectedCard}
-                        isAnimating={isAnimating}
                         closeDialog={() => {
                             setIsDialogOpen(false);
                             setSelectedCard(null);
