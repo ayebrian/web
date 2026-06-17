@@ -17,11 +17,16 @@ export function TopBar(): ReactNode {
                     'items-center',
                 )}
             >
-                <img className="dark:hidden h-full" src="banner-light.svg" />
-                <img
-                    className="hidden dark:block h-full"
-                    src="banner-dark.svg"
-                />
+                <a className="h-full" href="/">
+                    <img
+                        className="dark:hidden h-full"
+                        src="banner-light.svg"
+                    />
+                    <img
+                        className="hidden dark:block h-full"
+                        src="banner-dark.svg"
+                    />
+                </a>
             </div>
             <div className="w-full h-3 bg-zinc-200 dark:bg-zinc-800" />
         </div>
