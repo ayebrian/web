@@ -157,5 +157,10 @@
             "title": "Invite link expired",
             "description": "Ask for a new invite link from the person you get this link from."
         }
+    },
+    "not-found": {
+        "title": "Well, this is akward.",
+        "subtitle": "Sorry, the page you've requested does not exist.",
+        "goback": "Go home"
     }
 }

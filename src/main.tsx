@@ -9,6 +9,7 @@ import Bypass from '@/app/blocking-qr/bypass/page';
 import UserPage from '@/app/user/[id]/page';
 import DeeplinkPage from '@/app/redirect/[deeplink]/page';
 import * as Notifications from '@/notifications';
+import {NotFoundPage} from '@/app/not-found';
 
 void Notifications.nudge();
 
@@ -26,6 +27,8 @@ createRoot(document.getElementById('root')!).render(
                         path="/redirect/:deeplink"
                         element={<DeeplinkPage />}
                     />
+
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </RootLayout>
         </BrowserRouter>
