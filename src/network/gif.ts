@@ -174,7 +174,9 @@ async function cropGif({
         imageData.data.set(frame.data);
         srcCtx.putImageData(imageData, 0, 0);
 
-        dstCtx.clearRect(0, 0, newWidth, newHeight);
+        dstCtx.fillStyle = 'rgb(24, 24, 24)';
+        dstCtx.fillRect(0, 0, newWidth, newHeight);
+
         dstCtx.drawImage(srcCanvas, offsetX, offsetY);
 
         const outData = dstCtx.getImageData(0, 0, newWidth, newHeight);
