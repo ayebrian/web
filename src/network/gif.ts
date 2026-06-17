@@ -68,16 +68,16 @@ async function compressGif({
     const arrayBuf = await file.arrayBuffer();
     const reader = new GifReader(new Uint8Array(arrayBuf));
 
-    const srcWidth = maxWidth;
-    const srcHeight = maxHeight;
+    const srcWidth = reader.width;
+    const srcHeight = reader.height;
     const numFrames = reader.numFrames();
 
     console.log(
         `gif: compress start ${file.name} (${file.size}B, ${srcWidth}x${srcHeight}, ${numFrames}f, target ${maxSizeBytes}B @ ${fps}fps)`,
     );
 
-    let newWidth = srcWidth;
-    let newHeight = srcHeight;
+    let newWidth = maxWidth;
+    let newHeight = maxHeight;
 
     const frames = await extractFrames(
         reader,

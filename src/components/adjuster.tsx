@@ -103,10 +103,10 @@ function AdjusterContent({
         if (!crop) return;
 
         onAdjusted(payload.data, {
-            x: crop.x,
-            y: crop.y,
-            width: crop.width,
-            height: crop.height,
+            x: Math.round(crop.x),
+            y: Math.round(crop.y),
+            width: Math.round(crop.width),
+            height: Math.round(crop.height),
         });
     }
 
