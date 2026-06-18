@@ -20,11 +20,11 @@ export function TopBar(): ReactNode {
                 <a className="h-full" href="/">
                     <img
                         className="dark:hidden h-full"
-                        src="banner-light.svg"
+                        src="/banner-light.svg"
                     />
                     <img
                         className="hidden dark:block h-full"
-                        src="banner-dark.svg"
+                        src="/banner-dark.svg"
                     />
                 </a>
             </div>

@@ -59,15 +59,12 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
         if (link.type !== 'add-friend') return;
         const {userId, token} = link;
         while (true) {
-            // If profile account is created, network conditions were good.
-            // If we have a problem after we already created account,
-            // it's very hard to rollback. So we just retry indefinitely and
+            // If sign in was successful, network conditions were good.
+            // If we have a problem after we already signed-in account,
+            // it's hard to rollback. So we just retry indefinitely and
             // show no indication on failure since it's very unlikely also.
             const result = await backend.addFriend({userId, token});
             if (result.ok) {
-                if (result.data.type === 'Success') {
-                    blockingQR.setShouldBlock(false);
-                }
                 break;
             }
             await new Promise(resolve => setTimeout(resolve, 1_000));

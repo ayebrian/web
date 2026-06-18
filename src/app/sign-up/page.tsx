@@ -1,4 +1,5 @@
 import {Spinner} from '@/components/ui/spinner';
+import {TopBar} from '@/app/top-bar';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
 import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
@@ -87,25 +88,28 @@ export default function SignUpPage() {
         const validated = validator();
         if (!validated) return;
         setLoading(true);
-        const result = await backend.generateAccount(
-            validated.nickname,
-            validated.description,
-            validated.interests,
-            avatar,
-            validated.socialLink,
-        );
-        setLoading(false);
-        if (result.ok) {
-            backend.storeAuthorization(
-                result.data.token,
-                result.data.id.toString(),
+        try {
+            const result = await backend.generateAccount(
+                validated.nickname,
+                validated.description,
+                validated.interests,
+                avatar,
+                validated.socialLink,
             );
-            session.setAuthed();
-            await handleAddFriend();
-            await Notifications.nudge();
-            void navigate('/');
-        } else {
-            toast.error(t('error-connection'));
+            if (result.ok) {
+                backend.storeAuthorization(
+                    result.data.token,
+                    result.data.id.toString(),
+                );
+                session.setAuthed();
+                await handleAddFriend();
+                await Notifications.nudge();
+                void navigate('/');
+            } else {
+                toast.error(t('error-connection'));
+            }
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -114,113 +118,120 @@ export default function SignUpPage() {
     }
 
     return (
-        <div
-            className={cn(
-                'mx-auto',
-                'md:mt-8 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800',
-                'bg-white dark:bg-zinc-950',
-            )}
-        >
-            <div className="relative flex items-center mt-1 mx-1">
-                <div className="w-full text-md font-semibold text-center pt-2">
-                    {t('title')}
+        <div className="min-h-dvh w-full flex flex-col pt-16">
+            <TopBar />
+            <div
+                className={cn(
+                    'mx-auto w-full',
+                    'md:mt-4 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800',
+                    'bg-white dark:bg-zinc-950',
+                )}
+            >
+                <div className="relative flex items-center mt-1 mx-1">
+                    <div className="w-full text-md font-semibold text-center pt-2">
+                        {t('title')}
+                    </div>
                 </div>
-            </div>
-            <div className="p-4 space-y-4">
-                <MutableAvatarContent
-                    nickname={nickname}
-                    loading={avatarLoading}
-                    setLoading={setAvatarLoading}
-                    avatar={avatar}
-                    setAvatar={setAvatar}
-                />
-                <FieldGroup className="gap-4">
-                    <Field>
-                        <FieldLabel htmlFor="nickname">
-                            {t('nickname')}
-                        </FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput
-                                id="nickname"
-                                placeholder={t('nickname-placeholder')}
-                                type="text"
-                                value={nickname}
-                                onChange={e => setNickname(e.target.value)}
+                <div className="p-4 space-y-4">
+                    <MutableAvatarContent
+                        nickname={nickname}
+                        loading={avatarLoading}
+                        setLoading={setAvatarLoading}
+                        avatar={avatar}
+                        setAvatar={setAvatar}
+                    />
+                    <FieldGroup className="gap-4">
+                        <Field>
+                            <FieldLabel htmlFor="nickname">
+                                {t('nickname')}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
+                                    id="nickname"
+                                    placeholder={t('nickname-placeholder')}
+                                    type="text"
+                                    value={nickname}
+                                    onChange={e => setNickname(e.target.value)}
+                                />
+                                <InputGroupAddon>
+                                    <User />
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <FieldError>{nicknameError}</FieldError>
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="description">
+                                {t('description')}
+                            </FieldLabel>
+                            <Textarea
+                                id="description"
+                                value={description}
+                                placeholder={t('description-placeholder')}
+                                onChange={e => setDescription(e.target.value)}
                             />
-                            <InputGroupAddon>
-                                <User />
-                            </InputGroupAddon>
-                        </InputGroup>
-                        <FieldError>{nicknameError}</FieldError>
-                    </Field>
-                    <Field>
-                        <FieldLabel htmlFor="description">
-                            {t('description')}
-                        </FieldLabel>
-                        <Textarea
-                            id="description"
-                            value={description}
-                            placeholder={t('description-placeholder')}
-                            onChange={e => setDescription(e.target.value)}
-                        />
-                        <FieldError>{descriptionError}</FieldError>
-                    </Field>
-                    <Field>
-                        <FieldLabel htmlFor="socialLink">
-                            {t('social-link')}
-                        </FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput
-                                id="socialLink"
-                                type="text"
-                                value={socialLink}
-                                placeholder="https://example.org"
-                                onChange={e => setSocialLink(e.target.value)}
-                            />
-                            <InputGroupAddon>
-                                <Link />
-                            </InputGroupAddon>
-                        </InputGroup>
-                        <FieldError>{socialLinkError}</FieldError>
-                    </Field>
-                    <Field>
-                        <FieldLabel htmlFor="interests">
-                            {t('interests')}
-                        </FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput
-                                id="interests"
-                                type="text"
-                                value={interests}
-                                placeholder={t('interests-placeholder')}
-                                onChange={e => setInterests(e.target.value)}
-                            />
-                            <InputGroupAddon>
-                                <Heart />
-                            </InputGroupAddon>
-                        </InputGroup>
-                        <FieldError>{interestsError}</FieldError>
-                    </Field>
-                </FieldGroup>
-                <div className="ml-auto flex flex-col">
-                    <Button
-                        className="cursor-pointer"
-                        variant="secondary"
-                        onClick={() => void onSignUp()}
-                        disabled={loading || avatarLoading}
-                    >
-                        {!loading && t('sign-up')}
-                        {loading && <Spinner />}
-                    </Button>
-                    <div className="flex justify-center items-center gap-1">
-                        <p className="text-sm">{t('already-have-account')}</p>
+                            <FieldError>{descriptionError}</FieldError>
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="socialLink">
+                                {t('social-link')}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
+                                    id="socialLink"
+                                    type="text"
+                                    value={socialLink}
+                                    placeholder="https://example.org"
+                                    onChange={e =>
+                                        setSocialLink(e.target.value)
+                                    }
+                                />
+                                <InputGroupAddon>
+                                    <Link />
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <FieldError>{socialLinkError}</FieldError>
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="interests">
+                                {t('interests')}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
+                                    id="interests"
+                                    type="text"
+                                    value={interests}
+                                    placeholder={t('interests-placeholder')}
+                                    onChange={e => setInterests(e.target.value)}
+                                />
+                                <InputGroupAddon>
+                                    <Heart />
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <FieldError>{interestsError}</FieldError>
+                        </Field>
+                    </FieldGroup>
+                    <div className="ml-auto flex flex-col">
                         <Button
-                            className="cursor-pointer text-sm p-0"
-                            variant="link"
-                            onClick={() => void onSignIn()}
+                            className="cursor-pointer"
+                            variant="secondary"
+                            onClick={() => void onSignUp()}
+                            disabled={loading || avatarLoading}
                         >
-                            {t('sign-in')}
+                            {!loading && t('sign-up')}
+                            {loading && <Spinner />}
                         </Button>
+                        <div className="flex justify-center items-center gap-1">
+                            <p className="text-sm">
+                                {t('already-have-account')}
+                            </p>
+                            <Button
+                                className="cursor-pointer text-sm p-0"
+                                variant="link"
+                                onClick={() => void onSignIn()}
+                            >
+                                {t('sign-in')}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
