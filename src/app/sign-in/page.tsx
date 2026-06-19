@@ -1,3 +1,4 @@
+import {TopBar} from '@/app/top-bar';
 import {CodeDialog} from './code';
 import {useBackendLocale} from '@/network/backend-locale';
 import {
@@ -17,14 +18,17 @@ import {useNavigate} from 'react-router';
 
 export default function EmailPage(): ReactNode {
     return (
-        <div
-            className="
-            mx-auto p-8
-            md:mt-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
-            bg-white dark:bg-zinc-950
-            "
-        >
-            <EmailContent />
+        <div className="min-h-100dvh w-full flex flex-col pt-12">
+            <TopBar />
+            <div
+                className="
+                mx-auto p-8
+                md:mt-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
+                bg-white dark:bg-zinc-950
+                "
+            >
+                <EmailContent />
+            </div>
         </div>
     );
 }
@@ -54,17 +58,20 @@ function EmailContent(): ReactNode {
             return;
         }
         setLoading(true);
-        const result = await backend.authEmail(locale, {email});
-        if (!result.ok) {
-            if (result.error.type === 'unauthorized') {
-                setError(t('unknown-email'));
-            } else {
-                toast.error(t('error-connection'));
+        try {
+            const result = await backend.authEmail(locale, {email});
+            if (!result.ok) {
+                if (result.error.type === 'unauthorized') {
+                    setError(t('unknown-email'));
+                } else {
+                    toast.error(t('error-connection'));
+                }
+                return;
             }
-            return;
+            setOpenCode(true);
+        } finally {
+            setLoading(false);
         }
-        setOpenCode(true);
-        setLoading(false);
     }
 
     function onSignUp() {

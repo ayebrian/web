@@ -27,6 +27,7 @@
     },
     "profile": {
         "edit_profile": "Edit",
+        "go-back": "Go back",
         "log_out": "Log out",
         "interests": "Interests",
         "no_interests": "No interests yet",
