@@ -238,7 +238,7 @@ export default function UserPage() {
                     )}
                     onClick={() => history.back()}
                 >
-                    <span className="flex items-center">
+                    <span className="flex items-center cursor-pointer hover:underline">
                         <ChevronLeft className="inline" />
                         {t('go-back')}
                     </span>
