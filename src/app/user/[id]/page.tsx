@@ -1,5 +1,4 @@
 import {useBackend} from '@/backend.context';
-import {TopBar} from '@/app/top-bar';
 import {cn} from '@/lib/utils';
 import {createFileLink, normalizeLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
@@ -227,25 +226,22 @@ export default function UserPage() {
     }
 
     return (
-        <div className="min-h-dvh bg-zinc-50 dark:bg-black">
-            <TopBar />
-            <div className="mx-auto mt-16 md:p-8 md:pt-4 max-w-5xl">
-                <a
-                    className={cn(
-                        'block p-2 w-full bg-white dark:bg-zinc-950',
-                        'md:bg-transparent dark:md:bg-transparent',
-                        'text-zinc-500 dark:text-zinc-400',
-                    )}
-                    onClick={() => history.back()}
-                >
-                    <span className="flex items-center cursor-pointer hover:underline">
-                        <ChevronLeft className="inline" />
-                        {t('go-back')}
-                    </span>
-                </a>
-                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {content}
-                </div>
+        <div className="mx-auto md:p-8 md:pt-0 max-w-5xl">
+            <a
+                className={cn(
+                    'block p-2 w-full bg-white dark:bg-zinc-950',
+                    'md:bg-transparent dark:md:bg-transparent',
+                    'text-zinc-500 dark:text-zinc-400',
+                )}
+                onClick={() => history.back()}
+            >
+                <span className="flex items-center cursor-pointer hover:underline">
+                    <ChevronLeft className="inline" />
+                    {t('go-back')}
+                </span>
+            </a>
+            <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+                {content}
             </div>
         </div>
     );

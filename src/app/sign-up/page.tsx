@@ -1,5 +1,4 @@
 import {Spinner} from '@/components/ui/spinner';
-import {TopBar} from '@/app/top-bar';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
 import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
@@ -118,8 +117,7 @@ export default function SignUpPage() {
     }
 
     return (
-        <div className="min-h-dvh w-full flex flex-col pt-16">
-            <TopBar />
+        <div className="min-h-dvh w-full flex flex-col">
             <div
                 className={cn(
                     'mx-auto w-full',
