@@ -10,6 +10,7 @@ import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {SwipeDirection} from '@/app/feed/feed-review-deck';
 import {StyledAvatar} from '@/components/styled-avatar';
+import {FormattedDescription} from '@/components/formatted-description';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
@@ -117,10 +118,15 @@ export function FeedDialog({
                         {selectedCard.details.nickname}
                     </h3>
 
-                    <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                        {selectedCard.details.description ||
-                            t('no_description')}
-                    </p>
+                    <div className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                        {selectedCard.details.description ? (
+                            <FormattedDescription
+                                description={selectedCard.details.description}
+                            />
+                        ) : (
+                            <p>{t('no_description')}</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="p-6 pt-0 relative">
