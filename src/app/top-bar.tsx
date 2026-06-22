@@ -3,12 +3,7 @@ import {cn} from '@/lib/utils';
 
 export function TopBar(): ReactNode {
     return (
-        <div
-            className={cn(
-                'fixed top-0 z-1 w-full h-16',
-                'flex flex-col items-center',
-            )}
-        >
+        <div className={cn('w-full h-16', 'flex flex-col items-center')}>
             <div
                 className={cn(
                     'flex p-4',

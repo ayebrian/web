@@ -1,5 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {useEffect, useState, ReactNode} from 'react';
+import {
+    useEffect,
+    useState,
+    ReactNode,
+    createContext,
+    useContext,
+    useMemo,
+} from 'react';
 import {toast} from 'sonner';
 import {Link, HatGlasses} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -13,40 +20,6 @@ import {Field, FieldError, FieldLabel} from '@/components/ui/field';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
-
-export interface BlockingQRController {
-    shouldBlock: boolean;
-    setShouldBlock: (value: boolean) => void;
-}
-
-export function useBlockingQR(): BlockingQRController {
-    // Hi, Hacker Bro:
-    //
-    // 1) Yes, it's a client-side thing
-    // 2) Yes, you can just fork this repo, write a browser extension or modify localStorage
-    // 3) Yes, it's how it works on all platforms
-    //
-    // But the thing is that we don't care. To start gaining any benefit from
-    // the app you must be a part of master network. It's very hard to start a
-    // new network right away. You can do it, we encourage you to do that if
-    // you want, but it's not a task for an average user.
-    //
-    // Also, it's not reset when you log out from the app, so it's for first-time users only.
-    //
-    // Note for developers:
-    //
-    // * We will need to migrate to cookies instead of localStorage for SSR
-    const [shouldBlock, setShouldBlock] = useState(
-        () => localStorage.getItem('blocking-qr-completed') !== 'true',
-    );
-    useEffect(() => {
-        localStorage.setItem('blocking-qr-completed', `${!shouldBlock}`);
-    }, [shouldBlock]);
-    return {
-        shouldBlock,
-        setShouldBlock,
-    };
-}
 
 export interface BlockingQRProps {
     controller: BlockingQRController;
@@ -140,6 +113,61 @@ export function BlockingQR({
                 </div>
             </>
         </StyledDialogWrapper>
+    );
+}
+
+const BlockingQRContext = createContext<BlockingQRController | null>(null);
+
+export interface BlockingQRController {
+    shouldBlock: boolean;
+    setShouldBlock: (value: boolean) => void;
+}
+
+export function useBlockingQR(): BlockingQRController {
+    const context = useContext(BlockingQRContext);
+    if (!context) {
+        throw new Error('BlockingQRController only exists in BlockingQRHost');
+    }
+    return context;
+}
+
+export interface BlockingQRProviderProps {
+    children: ReactNode;
+}
+
+export function BlockingQRProvider({children}: BlockingQRProviderProps) {
+    // Hi, Hacker Bro:
+    //
+    // 1) Yes, it's a client-side thing
+    // 2) Yes, you can just fork this repo, write a browser extension or modify localStorage
+    // 3) Yes, it's how it works on all platforms
+    //
+    // But the thing is that we don't care. To start gaining any benefit from
+    // the app you must be a part of master network. It's very hard to start a
+    // new network right away. You can do it, we encourage you to do that if
+    // you want, but it's not a task for an average user.
+    //
+    // Also, it's not reset when you log out from the app, so it's for first-time users only.
+    //
+    // Note for developers:
+    //
+    // * We will need to migrate to cookies instead of localStorage for SSR
+    const [shouldBlock, setShouldBlock] = useState(
+        () => localStorage.getItem('blocking-qr-completed') !== 'true',
+    );
+
+    useEffect(() => {
+        localStorage.setItem('blocking-qr-completed', `${!shouldBlock}`);
+    }, [shouldBlock]);
+
+    const controller: BlockingQRController = useMemo(() => {
+        return {shouldBlock, setShouldBlock};
+    }, [shouldBlock, setShouldBlock]);
+
+    return (
+        <BlockingQRContext.Provider value={controller}>
+            {children}
+        </BlockingQRContext.Provider>
     );
 }
 

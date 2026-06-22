@@ -163,5 +163,22 @@
         "title": "Well, this is akward.",
         "subtitle": "Sorry, the page you've requested does not exist.",
         "goback": "Go home"
+    },
+    "community": {
+        "title": "Work in progress...",
+        "subtitle": "This feature is planned for Q3 of 2026. First versions are planned to come this summer. You can help us via contributions!",
+        "goback": "Go home",
+        "more": "Learn more"
+    },
+    "chat": {
+        "title": "Work in progress...",
+        "subtitle": "This feature is planned for Q4 of 2026. First versions are planned to come this winter. You can help us via contributions!",
+        "goback": "Go home",
+        "more": "Learn more"
+    },
+    "menu": {
+        "profile": "Profile",
+        "chat": "Chat",
+        "community": "Community"
     }
 }
