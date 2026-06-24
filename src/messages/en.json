@@ -3,7 +3,7 @@
         "loading": "Loading...",
         "title": "Create account",
         "nickname": "Nickname",
-        "nickname-placeholder": "How do you want to be called?",
+        "nickname-placeholder": "What do you want to be called?",
         "description": "Description",
         "description-placeholder": "Tell people something about yourself",
         "interests": "Interests (Separated by comma)",
@@ -17,23 +17,26 @@
     "sign-in": {
         "title": "Sign In",
         "description": "Enter email that is linked to your account and receive a confirmation code:",
-        "dont-have-account": "Don't have account?",
+        "dont-have-account": "Don't have an account?",
         "sign-up": "Sign Up",
         "send-code": "Send code",
         "email-placeholder": "email@example.org",
-        "email-invalid": "This does not look like email",
+        "email-invalid": "This does not look like an email",
         "unknown-email": "This email is not linked to any account",
         "error-connection": "Can't get to our servers :("
     },
     "profile": {
         "edit_profile": "Edit",
+        "go-back": "Go back",
         "log_out": "Log out",
         "interests": "Interests",
+        "no_interests": "No interests yet",
         "open_social": "Contact",
         "friends": {
             "title": "Friends",
             "see_all": "All friends",
-            "no_friends": "Ask someone for invite link to start connecting"
+            "no_friends": "Ask someone for an invite link to start connecting",
+            "no_description": "No profile note yet."
         },
         "qr": {
             "title": "QR code",
@@ -63,7 +66,7 @@
             "request_success": "Friend request accepted.",
             "skip_success": "Card removed from your queue.",
             "email_binding": {
-                "description": "Seems like you enjoy our app. If you want to access your account later, bind a email.",
+                "description": "Seems like you enjoy our app. If you want to access your account later, bind an email.",
                 "confirm": "Yes",
                 "decline": "No"
             }
@@ -77,7 +80,7 @@
         "title": "Edit Profile",
         "save": "Save",
         "nickname": "Nickname",
-        "nickname-placeholder": "How do you want to be called?",
+        "nickname-placeholder": "What do you want to be called?",
         "description": "Description",
         "description-placeholder": "Tell people something about yourself",
         "interests": "Interests",
@@ -87,13 +90,13 @@
         "remove-avatar": "Remove avatar",
         "select-avatar": "Select avatar...",
         "email": "Email",
-        "email-invalid": "This does not look like email",
+        "email-invalid": "This does not look like an email",
         "email-placeholder": "email@example.org",
         "email-verify": "Verify",
         "email-verification-required": "Verify email first",
         "email-used": "This email is already in use",
         "email-unlink-sure": "Are you sure?",
-        "email-unlink-sure-verbose": "To undo this action you will need to go through confirmation process again",
+        "email-unlink-sure-verbose": "To undo this action you will need to go through the confirmation process again",
         "cancel": "Cancel",
         "continue": "Continue"
     },
@@ -122,7 +125,7 @@
         "join": "Join",
         "link-placeholder": "https://getfriend.ly",
         "link-invalid": "Please provide a valid invite link",
-        "link-expired": "This link is expired, ask you friend for a new one",
+        "link-expired": "This link is expired, ask your friend for a new one",
         "error-connection": "Can't get to our servers :("
     },
     "email-dialog": {
@@ -153,7 +156,29 @@
     "redirect": {
         "friend-token-expired": {
             "title": "Invite link expired",
-            "description": "Ask for a new invite link from the person you get this link from."
+            "description": "Ask for a new invite link from the person you got this link from."
         }
+    },
+    "not-found": {
+        "title": "Well, this is akward.",
+        "subtitle": "Sorry, the page you've requested does not exist.",
+        "goback": "Go home"
+    },
+    "community": {
+        "title": "Work in progress...",
+        "subtitle": "This feature is planned for Q3 of 2026. First versions are planned to come this summer. You can help us via contributions!",
+        "goback": "Go home",
+        "more": "Learn more"
+    },
+    "chat": {
+        "title": "Work in progress...",
+        "subtitle": "This feature is planned for Q4 of 2026. First versions are planned to come this winter. You can help us via contributions!",
+        "goback": "Go home",
+        "more": "Learn more"
+    },
+    "menu": {
+        "profile": "Profile",
+        "chat": "Chat",
+        "community": "Community"
     }
 }

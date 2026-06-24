@@ -1,6 +1,5 @@
 import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
 import {useAppContext, useAppContextRef} from '@/app.context';
-import {TopBar} from './top-bar';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -101,31 +100,27 @@ function InterestsBlock({interests}: {interests: string[]}) {
                 {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
-                {interests.map(interest => (
-                    <Badge
-                        key={interest}
-                        variant="secondary"
-                        className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                        {interest}
-                    </Badge>
-                ))}
+                {interests.length === 0 ? (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        {t('no_interests')}
+                    </p>
+                ) : (
+                    interests.map(interest => (
+                        <Badge
+                            key={interest}
+                            variant="secondary"
+                            className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                        >
+                            {interest}
+                        </Badge>
+                    ))
+                )}
             </div>
         </div>
     );
 }
 
-export default function Content() {
-    return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            <TopBar />
-            <div className="h-16" />
-            <Home />
-        </div>
-    );
-}
-
-function Home() {
+export default function Home() {
     const t = useTranslations('profile');
 
     const app = useAppContext();
@@ -235,7 +230,7 @@ function Home() {
                 <ProfileHeader logOut={logOut} />
                 <Separator className="dark:bg-zinc-800" />
 
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
                         <InterestsBlock interests={user?.interests ?? []} />
                         <Separator className="my-4 dark:bg-zinc-800" />

@@ -1,4 +1,5 @@
 import {useBackend} from '@/backend.context';
+import {cn} from '@/lib/utils';
 import {Button} from '@/components/ui/button';
 import {useQueryClient} from '@tanstack/react-query';
 import {Copy, Loader2, QrCodeIcon, RotateCcw} from 'lucide-react';
@@ -19,7 +20,14 @@ export function QrCodeCard({url}: {url: string | null}) {
     }
 
     return (
-        <div className="md:w-1/4 md:h-fit md:mt-4 md:mr-8 flex flex-col items-center md:items-start p-4 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 md:bg-white dark:md:bg-zinc-900 text-sm">
+        <div
+            className={cn(
+                'flex flex-col items-center p-4 text-sm',
+                'lg:w-1/4 lg:h-fit lg:mt-4 lg:mr-8 lg:items-start lg:rounded-xl',
+                'lg:border lg:border-zinc-200 dark:lg:border-zinc-800',
+                'lg:bg-white dark:lg:bg-zinc-900',
+            )}
+        >
             <div className="flex flex-col gap-2 pl-2 pt-2 pr-2">
                 <div className="flex flex-row gap-2 items-center font-medium text-zinc-900 dark:text-zinc-100">
                     <QrCodeIcon className="w-4 h-4" /> {t('qr.title')}
@@ -28,7 +36,7 @@ export function QrCodeCard({url}: {url: string | null}) {
                     {t('qr.desc')}
                 </p>
             </div>
-            <div className="h-6 md:h-2" />
+            <div className="h-6 lg:h-2" />
             <div className="w-full flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl border border-zinc-200">
                     {url ? (

@@ -1,6 +1,7 @@
 import {cn} from '@/lib/utils';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
+import {FormattedDescription} from '@/components/formatted-description';
 
 export function ProfileDescription({description}: {description: string}) {
     const [expanded, setExpanded] = useState(false);
@@ -17,15 +18,15 @@ export function ProfileDescription({description}: {description: string}) {
 
     return (
         <>
-            <p
+            <div
                 className={cn(
                     'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
                     !expanded && 'line-clamp-4 sm:line-clamp-3',
                 )}
                 ref={descriptionRef}
             >
-                {description}
-            </p>
+                <FormattedDescription description={description} />
+            </div>
 
             {canExpand && (
                 <button

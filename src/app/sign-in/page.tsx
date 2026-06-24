@@ -15,16 +15,16 @@ import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {useNavigate} from 'react-router';
 
-export default function EmailPage(): ReactNode {
+export default function SignInPage(): ReactNode {
     return (
         <div
             className="
             mx-auto p-8
-            md:mt-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
+            md:mt-4 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
             bg-white dark:bg-zinc-950
             "
         >
-            <EmailContent />
+            <SignInContent />
         </div>
     );
 }
@@ -34,7 +34,7 @@ export default function EmailPage(): ReactNode {
 // You need to receive email tho.
 const emailRegex = /^.*@.*\..*$/;
 
-function EmailContent(): ReactNode {
+function SignInContent(): ReactNode {
     const t = useTranslations('sign-in');
 
     const [email, setEmail] = useState('');

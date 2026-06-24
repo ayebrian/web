@@ -8,13 +8,13 @@ import {Check, Heart, X} from 'lucide-react';
 import {Dialog} from 'radix-ui';
 import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
-import {SwipeDirection} from '@/app/feed-review-deck';
+import {SwipeDirection} from '@/app/feed/feed-review-deck';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
+import {FormattedDescription} from '@/components/formatted-description';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
-    isAnimating: boolean;
     isBusy: boolean;
     closeDialog: () => void;
     handleReview: (direction: SwipeDirection) => void;
@@ -22,7 +22,6 @@ interface FeedDialogProps {
 
 export function FeedDialog({
     selectedCard,
-    isAnimating,
     closeDialog,
     isBusy,
     handleReview,
@@ -46,9 +45,8 @@ export function FeedDialog({
             </Dialog.Title>
 
             <div
-                className={`flex flex-col h-full transition-opacity duration-150 ${
-                    isAnimating ? 'opacity-0' : 'opacity-100'
-                }`}
+                key={selectedCard.details.id}
+                className="flex flex-col h-full animate-fade-in"
             >
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
                     <div className="flex flex-column ms-4">
@@ -135,10 +133,15 @@ export function FeedDialog({
                         {selectedCard.details.nickname}
                     </h3>
 
-                    <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                        {selectedCard.details.description ||
-                            t('no_description')}
-                    </p>
+                    <div className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                        {selectedCard.details.description ? (
+                            <FormattedDescription
+                                description={selectedCard.details.description}
+                            />
+                        ) : (
+                            <p>{t('no_description')}</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="p-6 pt-0 relative">

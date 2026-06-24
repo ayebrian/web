@@ -76,9 +76,8 @@ async function compressGif({
         `gif: compress start ${file.name} (${file.size}B, ${srcWidth}x${srcHeight}, ${numFrames}f, target ${maxSizeBytes}B @ ${fps}fps)`,
     );
 
-    const scale = Math.min(maxWidth / srcWidth, maxHeight / srcHeight, 1);
-    let newWidth = Math.max(1, Math.round(srcWidth * scale));
-    let newHeight = Math.max(1, Math.round(srcHeight * scale));
+    let newWidth = maxWidth;
+    let newHeight = maxHeight;
 
     const frames = await extractFrames(
         reader,
@@ -114,8 +113,10 @@ async function compressGif({
             });
         }
         bestBytes = bytes;
-        newWidth = Math.max(1, Math.round(newWidth * 0.75));
-        newHeight = Math.max(1, Math.round(newHeight * 0.75));
+
+        const scale = 0.9;
+        newWidth = Math.max(1, Math.round(newWidth * scale));
+        newHeight = Math.max(1, Math.round(newHeight * scale));
         await letUIThreadBreathe();
     }
 
@@ -173,7 +174,9 @@ async function cropGif({
         imageData.data.set(frame.data);
         srcCtx.putImageData(imageData, 0, 0);
 
-        dstCtx.clearRect(0, 0, newWidth, newHeight);
+        dstCtx.fillStyle = 'rgb(24, 24, 24)';
+        dstCtx.fillRect(0, 0, newWidth, newHeight);
+
         dstCtx.drawImage(srcCanvas, offsetX, offsetY);
 
         const outData = dstCtx.getImageData(0, 0, newWidth, newHeight);

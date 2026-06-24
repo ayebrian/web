@@ -1,7 +1,8 @@
 import {useBackend} from '@/backend.context';
+import {cn} from '@/lib/utils';
 import {createFileLink, normalizeLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
-import {Activity, Loader2, UserXIcon} from 'lucide-react';
+import {Activity, Loader2, UserXIcon, ChevronLeft} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useMemo, useState} from 'react';
 import {UserDetails} from '@/types/user-details';
@@ -135,15 +136,21 @@ function InterestsBlock({interests}: {interests: string[]}) {
                 {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
-                {interests.map(interest => (
-                    <Badge
-                        key={interest}
-                        variant="secondary"
-                        className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                        {interest}
-                    </Badge>
-                ))}
+                {interests.length === 0 ? (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        {t('no_interests')}
+                    </p>
+                ) : (
+                    interests.map(interest => (
+                        <Badge
+                            key={interest}
+                            variant="secondary"
+                            className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                        >
+                            {interest}
+                        </Badge>
+                    ))
+                )}
             </div>
         </div>
     );
@@ -219,11 +226,22 @@ export default function UserPage() {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            <div className="mx-auto md:p-8 md:pt-8 max-w-5xl">
-                <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
-                    {content}
-                </div>
+        <div className="mx-auto md:p-8 md:pt-0 max-w-5xl">
+            <a
+                className={cn(
+                    'block p-2 w-full bg-white dark:bg-zinc-950',
+                    'md:bg-transparent dark:md:bg-transparent',
+                    'text-zinc-500 dark:text-zinc-400',
+                )}
+                onClick={() => history.back()}
+            >
+                <span className="flex items-center cursor-pointer hover:underline">
+                    <ChevronLeft className="inline" />
+                    {t('go-back')}
+                </span>
+            </a>
+            <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+                {content}
             </div>
         </div>
     );
