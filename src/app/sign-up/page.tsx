@@ -74,7 +74,7 @@ export default function SignUpPage() {
             const result = await backend.addFriend({userId, token});
             if (result.ok) {
                 if (result.data.type === 'Success') {
-                    blockingQR.setShouldBlock(false);
+                    blockingQR.dismissBlockingQR();
                 }
                 break;
             }

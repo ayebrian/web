@@ -94,7 +94,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             result.data.id.toString(),
         );
         session.setAuthed();
-        blockingQR.setShouldBlock(false);
+        blockingQR.dismissBlockingQR();
         await handleAddFriend();
         await Notifications.nudge();
         void navigate('/');

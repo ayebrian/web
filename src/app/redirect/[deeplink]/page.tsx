@@ -43,7 +43,7 @@ export default function DeeplinkPage(): ReactNode {
             }
             switch (result.data.type) {
                 case 'Success':
-                    blockingQR.setShouldBlock(false);
+                    blockingQR.dismissBlockingQR();
                     void navigate('/');
                     break;
                 case 'FriendTokenExpired':

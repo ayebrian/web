@@ -7,7 +7,7 @@ export default function Bypass(): ReactNode {
     const blockingQR = useBlockingQR();
 
     useEffect(() => {
-        blockingQR.setShouldBlock(false);
+        blockingQR.dismissBlockingQR();
         void navigate('/');
     }, []);
 

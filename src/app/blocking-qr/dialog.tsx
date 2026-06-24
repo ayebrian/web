@@ -20,13 +20,14 @@ import {Field, FieldError, FieldLabel} from '@/components/ui/field';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
+import {useSession} from '@/components/session-provider';
 
 export interface BlockingQRProps {
     controller: BlockingQRController;
 }
 
 export function BlockingQR({
-    controller: {setShouldBlock},
+    controller: {dismissBlockingQR},
 }: BlockingQRProps): ReactNode {
     const t = useTranslations('blocking-qr');
     const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ export function BlockingQR({
                 toast.error(t('link-expired'));
                 return;
             }
-            setShouldBlock(false);
+            dismissBlockingQR();
         } finally {
             setLoading(false);
         }
@@ -120,7 +121,7 @@ const BlockingQRContext = createContext<BlockingQRController | null>(null);
 
 export interface BlockingQRController {
     shouldBlock: boolean;
-    setShouldBlock: (value: boolean) => void;
+    dismissBlockingQR: () => void;
 }
 
 export function useBlockingQR(): BlockingQRController {
@@ -149,20 +150,26 @@ export function BlockingQRProvider({children}: BlockingQRProviderProps) {
     //
     // Also, it's not reset when you log out from the app, so it's for first-time users only.
     //
-    // Note for developers:
-    //
-    // * We will need to migrate to cookies instead of localStorage for SSR
     const [shouldBlock, setShouldBlock] = useState(
         () => localStorage.getItem('blocking-qr-completed') !== 'true',
     );
 
+    const session = useSession();
+
     useEffect(() => {
-        localStorage.setItem('blocking-qr-completed', `${!shouldBlock}`);
-    }, [shouldBlock]);
+        const isCompleted =
+            localStorage.getItem('blocking-qr-completed') === 'true';
+        setShouldBlock(!isCompleted);
+    }, [session]);
+
+    const dismissBlockingQR = () => {
+        localStorage.setItem('blocking-qr-completed', 'true');
+        setShouldBlock(false);
+    };
 
     const controller: BlockingQRController = useMemo(() => {
-        return {shouldBlock, setShouldBlock};
-    }, [shouldBlock, setShouldBlock]);
+        return {shouldBlock, dismissBlockingQR};
+    }, [shouldBlock, dismissBlockingQR]);
 
     return (
         <BlockingQRContext.Provider value={controller}>
