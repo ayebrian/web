@@ -20,6 +20,7 @@ import {Field, FieldError, FieldLabel} from '@/components/ui/field';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
+import {ENABLE_BLOCKING_QR} from '@/config';
 
 export interface BlockingQRProps {
     controller: BlockingQRController;
@@ -147,17 +148,15 @@ export function BlockingQRProvider({children}: BlockingQRProviderProps) {
     // new network right away. You can do it, we encourage you to do that if
     // you want, but it's not a task for an average user.
     //
-    // Also, it's not reset when you log out from the app, so it's for first-time users only.
-    //
-    // Note for developers:
-    //
-    // * We will need to migrate to cookies instead of localStorage for SSR
-    const [shouldBlock, setShouldBlock] = useState(
-        () => localStorage.getItem('blocking-qr-completed') !== 'true',
+    const [shouldBlock, setShouldBlock] = useState(() =>
+        ENABLE_BLOCKING_QR
+            ? localStorage.getItem('blocking-qr-completed') !== 'true'
+            : false,
     );
 
     useEffect(() => {
-        localStorage.setItem('blocking-qr-completed', `${!shouldBlock}`);
+        if (ENABLE_BLOCKING_QR)
+            localStorage.setItem('blocking-qr-completed', `${!shouldBlock}`);
     }, [shouldBlock]);
 
     const controller: BlockingQRController = useMemo(() => {
