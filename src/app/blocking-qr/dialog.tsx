@@ -148,8 +148,6 @@ export function BlockingQRProvider({children}: BlockingQRProviderProps) {
     // new network right away. You can do it, we encourage you to do that if
     // you want, but it's not a task for an average user.
     //
-    // Also, it's not reset when you log out from the app, so it's for first-time users only.
-    //
     const [shouldBlock, setShouldBlock] = useState(
         () => localStorage.getItem('blocking-qr-completed') !== 'true',
     );
