@@ -16,7 +16,6 @@ import {EditProfileDialog} from '@/app/edit/dialog';
 import {LogoutDialog} from '@/app/log-out-dialog';
 import {ProfileDescription} from '@/components/profile-description';
 import {FriendsBlock} from '@/app/friends/friends-block';
-import {DiscoveryFeedBlock} from '@/app/discovery-feed-block';
 import {QrCodeCard} from '@/app/qrcode-card';
 import {StyledAvatar} from '@/components/styled-avatar';
 
@@ -235,8 +234,6 @@ export default function Home() {
                         <InterestsBlock interests={user?.interests ?? []} />
                         <Separator className="my-4 dark:bg-zinc-800" />
                         <FriendsBlock friends={friends} />
-                        <Separator className="dark:bg-zinc-800" />
-                        <DiscoveryFeedBlock />
                     </div>
                     <QrCodeCard url={qrCodeUrl} />
                 </div>
