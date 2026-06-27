@@ -179,6 +179,7 @@
     "menu": {
         "profile": "Profile",
         "chat": "Chat",
-        "community": "Community"
+        "community": "Community",
+        "feed": "Feed"
     }
 }

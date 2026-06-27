@@ -12,6 +12,7 @@ import {NotFoundPage} from '@/app/not-found';
 import Home from '@/app/page';
 import RootLayout from '@/app/layout';
 import {createBrowserRouter, RouterProvider} from 'react-router';
+import FeedPage from '@/app/feed/page';
 
 void Notifications.nudge();
 
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
             {
                 path: 'chat',
                 Component: ChatPage,
+            },
+            {
+                path: 'feed',
+                Component: FeedPage,
             },
             {
                 path: '*',

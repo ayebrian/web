@@ -1,14 +1,12 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
-import {createFileLink} from '@/lib/utils';
+import {cn, createFileLink} from '@/lib/utils';
 import {FeedItem} from '@/network/friendly-client';
 import {UserDetails} from '@/types/user-details';
 import {Check, Heart, X} from 'lucide-react';
-import {Dialog} from 'radix-ui';
 import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
-import {SwipeDirection} from '@/app/feed/feed-review-deck';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
 import {FormattedDescription} from '@/components/formatted-description';
@@ -16,13 +14,13 @@ import {FormattedDescription} from '@/components/formatted-description';
 interface FeedDialogProps {
     selectedCard: FeedItem;
     isBusy: boolean;
-    closeDialog: () => void;
     handleReview: (direction: SwipeDirection) => void;
 }
 
+export type SwipeDirection = 'left' | 'right';
+
 export function FeedDialog({
     selectedCard,
-    closeDialog,
     isBusy,
     handleReview,
 }: FeedDialogProps) {
@@ -40,69 +38,65 @@ export function FeedDialog({
 
     return (
         <>
-            <Dialog.Title className="sr-only">
-                {selectedCard.details.nickname}
-            </Dialog.Title>
-
             <div
                 key={selectedCard.details.id}
                 className="flex flex-col h-full animate-fade-in"
             >
-                <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
-                    <div className="flex flex-column ms-4">
-                        {(selectedCard.isRequest ||
-                            selectedCard.isExtendedNetwork) && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-secondary/50 -ms-4 me-5 backdrop-blur-md border rounded-md text-sm px-3 py-1"
-                            >
-                                {selectedCard.isRequest
-                                    ? t('requests_badge')
-                                    : selectedCard.isExtendedNetwork
-                                      ? t('extended_network')
-                                      : null}
-                            </Badge>
-                        )}
-                        <AvatarGroup className="space-x-2">
-                            {selectedCard.commonFriends
-                                .slice(0, 5)
-                                .map(friend => {
-                                    return (
-                                        <StyledAvatar
-                                            avatarClassName="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer"
-                                            key={friend.id}
-                                            src={
-                                                friend.avatar
-                                                    ? createFileLink(
-                                                          friend.avatar,
-                                                      )
-                                                    : undefined
-                                            }
-                                            nickname={friend.nickname}
-                                            onClick={() =>
-                                                void routeToUser(friend)
-                                            }
-                                        />
-                                    );
-                                })}
-                            {selectedCard.commonFriends.length > 5 && (
-                                <AvatarGroupCount className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer">
-                                    +{selectedCard.commonFriends.length - 5}
-                                </AvatarGroupCount>
-                            )}
-                        </AvatarGroup>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white"
-                        onClick={() => closeDialog()}
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                </div>
-
                 <div className="relative w-full aspect-square shrink-0 overflow-hidden">
+                    <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
+                        <div className="flex flex-column ms-4">
+                            {(selectedCard.isRequest ||
+                                selectedCard.isExtendedNetwork) && (
+                                <Badge
+                                    variant="secondary"
+                                    className={cn(
+                                        'bg-secondary/50 -ms-4 me-5',
+                                        'backdrop-blur-md border rounded-md',
+                                        'text-sm px-3 py-1',
+                                    )}
+                                >
+                                    {selectedCard.isRequest
+                                        ? t('requests_badge')
+                                        : selectedCard.isExtendedNetwork
+                                          ? t('extended_network')
+                                          : null}
+                                </Badge>
+                            )}
+                            <AvatarGroup className="space-x-2">
+                                {selectedCard.commonFriends
+                                    .slice(0, 5)
+                                    .map(friend => {
+                                        return (
+                                            <StyledAvatar
+                                                avatarClassName={cn(
+                                                    'w-8 h-8 -ms-4',
+                                                    'border-0 border-white',
+                                                    'dark:border-zinc-800 cursor-pointer',
+                                                )}
+                                                key={friend.id}
+                                                src={
+                                                    friend.avatar
+                                                        ? createFileLink(
+                                                              friend.avatar,
+                                                          )
+                                                        : undefined
+                                                }
+                                                nickname={friend.nickname}
+                                                onClick={() =>
+                                                    void routeToUser(friend)
+                                                }
+                                            />
+                                        );
+                                    })}
+                                {selectedCard.commonFriends.length > 5 && (
+                                    <AvatarGroupCount className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer">
+                                        +{selectedCard.commonFriends.length - 5}
+                                    </AvatarGroupCount>
+                                )}
+                            </AvatarGroup>
+                        </div>
+                    </div>
+
                     <StyledAvatar
                         avatarClassName="w-full h-full rounded-none object-cover"
                         src={
@@ -111,8 +105,13 @@ export function FeedDialog({
                                 : undefined
                         }
                         nickname={selectedCard.details.nickname}
-                        avatarImageClassName="object-cover w-full h-full"
-                        fallbackClassName="text-6xl font-semibold w-full h-full flex items-center justify-center rounded-none bg-zinc-200 dark:bg-zinc-800"
+                        avatarImageClassName="object-cover w-full h-full sm:rounded-tl-xl sm:rounded-tr-xl"
+                        fallbackClassName={cn(
+                            'text-6xl font-semibold',
+                            'w-full h-full flex items-center justify-center',
+                            'rounded-none sm:rounded-tl-xl sm:rounded-tr-xl',
+                            'bg-zinc-200 dark:bg-zinc-800',
+                        )}
                     />
 
                     <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-wrap gap-2">

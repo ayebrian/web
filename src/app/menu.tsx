@@ -1,6 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/badge';
-import {User, Newspaper, MessageCircle} from 'lucide-react';
+import {User, Newspaper, MessageCircle, BookUser} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 
 export function MenuRail() {
@@ -14,6 +14,15 @@ export function MenuRail() {
                     className="cursor-pointer justify-start w-full"
                 >
                     <User /> <p className="hidden lg:inline">{t('profile')}</p>
+                </Button>
+            </a>
+            <a href="/feed">
+                <Button
+                    variant="ghost"
+                    className="cursor-pointer justify-start w-full"
+                >
+                    <BookUser />{' '}
+                    <p className="hidden lg:block">{t('feed')}</p>{' '}
                 </Button>
             </a>
             <a href="/community">
@@ -53,6 +62,15 @@ export function MenuBar() {
                     </div>
                 </Button>
             </a>
+            <a href="/chat">
+                <Button variant="ghost" className="cursor-pointer w-30">
+                    <div className="flex flex-col items-center">
+                        <Badge variant="secondary">Q4</Badge>
+                        {t('chat')}
+                    </div>
+                </Button>
+            </a>
+
             <a href="/chat">
                 <Button variant="ghost" className="cursor-pointer w-30">
                     <div className="flex flex-col items-center">
