@@ -6,7 +6,6 @@ import {EmailDialog} from './email-dialog';
 import * as Dialog from '@radix-ui/react-dialog';
 import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {UsersEditRequest} from '@/network/friendly-client';
-import {Textarea} from '@/components/ui/textarea';
 import {toast} from 'sonner';
 import {Save, X, User, Mail, Link, Heart} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -21,6 +20,7 @@ import {ReactNode, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
+import {MarkdownInput} from '@/components/ui/markdown-input';
 
 interface EditProfileProps {
     open: boolean;
@@ -185,11 +185,9 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                             <FieldLabel htmlFor="description">
                                 {t('description')}
                             </FieldLabel>
-                            <Textarea
-                                id="description"
-                                value={description}
-                                placeholder={t('description-placeholder')}
-                                onChange={e => setDescription(e.target.value)}
+                            <MarkdownInput
+                                text={description}
+                                setText={setDescription}
                             />
                             <FieldError>{descriptionError}</FieldError>
                         </Field>
