@@ -10,6 +10,8 @@ import {useTranslations} from 'use-intl';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
 import {FormattedDescription} from '@/components/formatted-description';
+import {AllFriendsList} from '@/app/friends/all-friends-list';
+import {useState} from 'react';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
@@ -27,6 +29,7 @@ export function FeedDialog({
     const t = useTranslations('profile.feed');
     const userAccessHashes = useUserAccessHashes();
     const navigate = useNavigate();
+    const [showAllFriends, setShowAllFriends] = useState(false);
 
     async function routeToUser(friend: UserDetails) {
         await userAccessHashes.service.save({
@@ -89,11 +92,19 @@ export function FeedDialog({
                                         );
                                     })}
                                 {selectedCard.commonFriends.length > 5 && (
-                                    <AvatarGroupCount className="w-10 h-10 -ms-4 border-2 border-white dark:border-zinc-800 cursor-pointer">
+                                    <AvatarGroupCount
+                                        className="w-8 h-8 -ms-4 border-0 border-white dark:border-zinc-800 cursor-pointer"
+                                        onClick={() => setShowAllFriends(true)}
+                                    >
                                         +{selectedCard.commonFriends.length - 5}
                                     </AvatarGroupCount>
                                 )}
                             </AvatarGroup>
+                            <AllFriendsList
+                                friends={selectedCard.commonFriends}
+                                open={showAllFriends}
+                                setOpen={setShowAllFriends}
+                            />
                         </div>
                     </div>
 
