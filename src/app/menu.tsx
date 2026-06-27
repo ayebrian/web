@@ -36,7 +36,9 @@ export function MenuRail() {
                     <p className="hidden lg:block">{t('feed')}</p>{' '}
                 </Button>
             </Link>
-            <Link to="/community">
+            <Link to="/community">tailwind
+
+
                 <Button
                     variant="ghost"
                     className={cn(
@@ -73,64 +75,72 @@ export function MenuBar() {
     const {pathname} = useLocation();
 
     return (
-        <div className="flex items-center justify-center gap-3 p-4">
-            <Link to="/community">
+        <div className="grid grid-cols-4 gap-2 p-4 w-full max-w-md mx-auto">
+            <Link to="/community" className="min-w-0 w-full">
                 <Button
                     variant="ghost"
                     className={cn(
-                        'cursor-pointer w-30',
+                        'cursor-pointer w-full h-12 py-1 px-1 text-xs sm:text-sm',
                         pathname === '/community' &&
                             'bg-accent text-accent-foreground dark:bg-accent/50',
                     )}
                 >
-                    <div className="flex flex-col items-center">
-                        <Badge variant="secondary">Q3</Badge>
-                        {t('community')}
+                    <div className="flex flex-col items-center justify-between h-full w-full min-w-0">
+                        <div className="flex items-center justify-center h-5">
+                            <Badge variant="secondary" className="scale-90 origin-center">Q3</Badge>
+                        </div>
+                        <span className="truncate w-full text-center leading-none mt-auto">{t('community')}</span>
                     </div>
                 </Button>
             </Link>
-            <Link to="/chat">
+            <Link to="/chat" className="min-w-0 w-full">
                 <Button
                     variant="ghost"
                     className={cn(
-                        'cursor-pointer w-30',
+                        'cursor-pointer w-full h-12 py-1 px-1 text-xs sm:text-sm',
                         pathname === '/chat' &&
                             'bg-accent text-accent-foreground dark:bg-accent/50',
                     )}
                 >
-                    <div className="flex flex-col items-center">
-                        <Badge variant="secondary">Q4</Badge>
-                        {t('chat')}
+                    <div className="flex flex-col items-center justify-between h-full w-full min-w-0">
+                        <div className="flex items-center justify-center h-5">
+                            <Badge variant="secondary" className="scale-90 origin-center">Q4</Badge>
+                        </div>
+                        <span className="truncate w-full text-center leading-none mt-auto">{t('chat')}</span>
                     </div>
                 </Button>
             </Link>
-            <Link to="/feed">
+            <Link to="/feed" className="min-w-0 w-full">
                 <Button
                     variant="ghost"
                     className={cn(
-                        'cursor-pointer w-30',
+                        'cursor-pointer w-full h-12 py-1 px-1 text-xs sm:text-sm',
                         pathname === '/feed' &&
                             'bg-accent text-accent-foreground dark:bg-accent/50',
                     )}
                 >
-                    <div className="flex flex-col items-center">
-                        <BookUser />
-                        {t('feed')}
+                    <div className="flex flex-col items-center justify-between h-full w-full min-w-0">
+                        <div className="flex items-center justify-center h-5">
+                            <BookUser className="w-4 h-4" />
+                        </div>
+                        <span className="truncate w-full text-center leading-none mt-auto">{t('feed')}</span>
                     </div>
                 </Button>
             </Link>
-            <Link to="/">
+            <Link to="/" className="min-w-0 w-full">
                 <Button
                     variant="ghost"
                     className={cn(
-                        'cursor-pointer w-30',
+                        'cursor-pointer w-full h-12 py-1 px-1 text-xs sm:text-sm',
                         pathname === '/' &&
                             'bg-accent text-accent-foreground dark:bg-accent/50',
                     )}
                 >
-                    <div className="flex flex-col items-center">
-                        <User />
-                        {t('profile')}
+                    <div className="flex flex-col items-center justify-between h-full w-full min-w-0">
+                        <div className="flex items-center justify-center h-5">
+                            <User className="w-4 h-4" />
+                        </div>
+                        <span className="truncate w-full text-center leading-none mt-auto">{t('profile')}</span>
                     </div>
                 </Button>
             </Link>
