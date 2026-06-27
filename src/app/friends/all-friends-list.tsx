@@ -8,6 +8,7 @@ import {Dialog} from 'radix-ui';
 import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {StyledAvatar} from '@/components/styled-avatar';
+import {useNavigate} from 'react-router';
 
 interface AllFriendsListProps {
     friends: UserDetails[];
@@ -53,13 +54,14 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
 export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     const t = useTranslations('profile');
     const userAccessHashes = useUserAccessHashes();
+    const navigate = useNavigate();
 
     const openFriendPage = async (friend: UserDetails) => {
         await userAccessHashes.service.save({
             id: friend.id,
             accessHash: friend.accessHash,
         });
-        document.location.href = `/user/${friend.id}`;
+        await navigate(`/user/${friend.id}`);
     };
 
     return (
@@ -97,6 +99,7 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
                             {friends.map(friend => (
                                 <FriendListItem
                                     id={friend.id.toString()}
+                                    key={friend.id}
                                     friend={friend}
                                     onClick={() => void openFriendPage(friend)}
                                 />
