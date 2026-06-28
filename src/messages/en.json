@@ -181,5 +181,14 @@
         "chat": "Chat",
         "community": "Community",
         "feed": "Feed"
+    },
+    "markdown-input": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "blockquote": "Blockquote",
+        "code": "Code",
+        "link": "Link",
+        "raw": "Raw",
+        "preview": "Preview"
     }
 }

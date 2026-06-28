@@ -181,5 +181,14 @@
         "feed": "Лента",
         "chat": "Чат",
         "community": "Сообщество"
+    },
+    "markdown-input": {
+        "bold": "Жирный",
+        "italic": "Курсив",
+        "blockquote": "Цитата",
+        "code": "Код",
+        "link": "Ссылка",
+        "raw": "Исход.",
+        "preview": "Показ."
     }
 }

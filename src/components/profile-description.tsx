@@ -1,7 +1,7 @@
 import {cn} from '@/lib/utils';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {useEffect, useRef, useState} from 'react';
-import {FormattedDescription} from '@/components/formatted-description';
+import {MarkdownArea} from '@/components/ui/markdown-area';
 
 export function ProfileDescription({description}: {description: string}) {
     const [expanded, setExpanded] = useState(false);
@@ -25,7 +25,7 @@ export function ProfileDescription({description}: {description: string}) {
                 )}
                 ref={descriptionRef}
             >
-                <FormattedDescription description={description} />
+                <MarkdownArea text={description} />
             </div>
 
             {canExpand && (
