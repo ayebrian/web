@@ -72,7 +72,7 @@ export default function DeeplinkPage(): ReactNode {
     switch (state) {
         case 'loading':
             return (
-                <div className="w-dvw h-dvh flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
                     <Spinner className="h-12 w-12" />
                 </div>
             );
