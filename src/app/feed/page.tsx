@@ -132,7 +132,7 @@ export default function FeedPage() {
 
     if (feedQuery.isLoading) {
         return (
-            <div className="flex min-h-80 items-center justify-center rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex h-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
             </div>
         );
@@ -140,7 +140,7 @@ export default function FeedPage() {
 
     if (feedQuery.isError) {
         return (
-            <div className="flex min-h-80 flex-col items-center justify-center rounded-xl border border-red-200 bg-white px-6 text-center dark:border-red-900/60 dark:bg-zinc-950">
+            <div className="flex h-full flex-col items-center justify-center rounded-xl border border-red-200 bg-white px-6 text-center dark:border-red-900/60 dark:bg-zinc-950">
                 <Activity className="h-8 w-8 text-red-500" />
                 <p className="mt-4 text-sm text-zinc-700 dark:text-zinc-300">
                     {feedErrorMessage ?? t('queue_error')}
@@ -157,11 +157,11 @@ export default function FeedPage() {
     }
 
     return (
-        <div className="w-full h-full sm:p-8 flex flex-col justify-center items-center">
+        <div className="w-full min-h-full sm:p-4 flex flex-col justify-center items-center">
             <div
                 className={cn(
-                    'h-full w-full sm:w-90 md:w-110',
-                    'lg:rounded-2xl bg-white dark:bg-zinc-950',
+                    'min-h-full w-full shrink-0 sm:w-90 md:w-110',
+                    'sm:rounded-2xl bg-white dark:bg-zinc-950',
                     'transition-[width] duration-300 ease-in-out',
                 )}
             >
