@@ -24,7 +24,7 @@ export function LogoutDialog({
         <StyledDialogWrapper
             open={open}
             onOpenChange={onOpenChange}
-            contentClassName="-translate-y-1/2 w-fit max-w-sm max-h-none rounded-2xl bg-white dark:bg-zinc-950 shadow-lg"
+            contentClassName="-translate-y-1/2 w-10/11 sm:max-w-sm max-h-none rounded-2xl bg-white dark:bg-zinc-950 shadow-lg"
         >
             <div>
                 <div className="flex justify-end pt-2 pr-2">
@@ -38,7 +38,7 @@ export function LogoutDialog({
                         </Button>
                     </Dialog.Close>
                 </div>
-                <div className="px-6 pb-6">
+                <div className="px-4 pb-4">
                     <h2 className="text-center">
                         {hasEmail ? t('title') : t('title_no_email')}
                     </h2>
