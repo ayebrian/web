@@ -20,7 +20,7 @@ import {ReactNode, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
-import {MarkdownInput} from '@/components/ui/markdown-input';
+import {Textarea} from '@/components/ui/textarea';
 
 interface EditProfileProps {
     open: boolean;
@@ -185,9 +185,11 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                             <FieldLabel htmlFor="description">
                                 {t('description')}
                             </FieldLabel>
-                            <MarkdownInput
-                                text={description}
-                                setText={setDescription}
+                            <Textarea
+                                id="description"
+                                value={description}
+                                placeholder={t('description-placeholder')}
+                                onChange={e => setDescription(e.target.value)}
                             />
                             <FieldError>{descriptionError}</FieldError>
                         </Field>
