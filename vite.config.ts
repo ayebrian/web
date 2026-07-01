@@ -66,6 +66,7 @@ export default defineConfig({
         appVersionPlugin(),
         VitePWA({
             registerType: 'autoUpdate',
+            includeAssets: ['banner-light.svg', 'banner-dark.svg'],
             manifest: {
                 name: 'Friendly: Private Social Network',
                 // TODO: Wait until VitePWA allows localization
