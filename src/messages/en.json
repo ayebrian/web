@@ -123,6 +123,7 @@
         "title": "Welcome to a private network!",
         "description": "Before you can start, we need to make sure you were invited. Ask one of your friends for the invite link and paste it down below.",
         "join": "Join",
+        "log_out": "Log out",
         "link-placeholder": "https://getfriend.ly",
         "link-invalid": "Please provide a valid invite link",
         "link-expired": "This link is expired, ask your friend for a new one",

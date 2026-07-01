@@ -21,6 +21,9 @@ import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {useSession} from '@/components/session-provider';
+import {LogoutDialog} from '../log-out-dialog';
+import {useAppContext} from '@/app.context';
+import {EditProfileDialog} from '../edit/dialog';
 
 export interface BlockingQRProps {
     controller: BlockingQRController;
@@ -33,7 +36,12 @@ export function BlockingQR({
     const [loading, setLoading] = useState(false);
     const [link, setLink] = useState('');
     const [linkError, setLinkError] = useState<string | null>();
+    const [openLogout, setOpenLogout] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
     const backend = useBackend();
+    const session = useSession();
+    const app = useAppContext();
+    const userDetails = app.userDetails;
 
     async function onJoin() {
         setLinkError(null);
@@ -60,60 +68,87 @@ export function BlockingQR({
         }
     }
     return (
-        <StyledDialogWrapper
-            open={true}
-            preventDefault={true}
-            contentClassName="-translate-y-1/2 p-4"
-        >
-            <>
-                <div className="w-full flex justify-center mb-4">
-                    <HatGlasses className="size-20 rounded-full bg-white dark:bg-zinc-900 p-4" />
-                </div>
-                <div
-                    className="
+        <>
+            <StyledDialogWrapper
+                open={true}
+                preventDefault={true}
+                contentClassName="-translate-y-1/2 p-4"
+            >
+                <>
+                    <div className="w-full flex justify-center mb-4">
+                        <HatGlasses className="size-20 rounded-full bg-white dark:bg-zinc-900 p-4" />
+                    </div>
+                    <div
+                        className="
                         rounded-xl bg-white dark:bg-zinc-900
                         shadow-xl
                         py-4 px-6 space-y-4
                         w-full flex flex-col items-center
                         mb-20
                         "
-                >
-                    <Dialog.Title className="w-full text-md font-semibold text-center">
-                        {t('title')}
-                    </Dialog.Title>
-                    <Field>
-                        <FieldLabel
-                            htmlFor="link"
-                            className="font-normal text-center"
-                        >
-                            {t('description')}
-                        </FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput
-                                id="link"
-                                placeholder={t('link-placeholder')}
-                                type="text"
-                                value={link}
-                                onChange={e => setLink(e.target.value)}
-                            />
-                            <InputGroupAddon>
-                                <Link />
-                            </InputGroupAddon>
-                        </InputGroup>
-                        <FieldError>{linkError}</FieldError>
-                    </Field>
-                    <Button
-                        className="cursor-pointer min-w-38"
-                        variant="secondary"
-                        onClick={() => void onJoin()}
-                        disabled={loading}
                     >
-                        {!loading && t('join')}
-                        {loading && <Spinner />}
-                    </Button>
-                </div>
-            </>
-        </StyledDialogWrapper>
+                        <Dialog.Title className="w-full text-md font-semibold text-center">
+                            {t('title')}
+                        </Dialog.Title>
+                        <Field>
+                            <FieldLabel
+                                htmlFor="link"
+                                className="font-normal text-center"
+                            >
+                                {t('description')}
+                            </FieldLabel>
+                            <InputGroup>
+                                <InputGroupInput
+                                    id="link"
+                                    placeholder={t('link-placeholder')}
+                                    type="text"
+                                    value={link}
+                                    onChange={e => setLink(e.target.value)}
+                                />
+                                <InputGroupAddon>
+                                    <Link />
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <FieldError>{linkError}</FieldError>
+                        </Field>
+                        <div className="flex flex-row gap-2">
+                            <Button
+                                className="cursor-pointer min-w-38"
+                                variant="outline"
+                                onClick={() => void setOpenLogout(true)}
+                                disabled={loading}
+                            >
+                                {t('log_out')}
+                            </Button>
+                            <Button
+                                className="cursor-pointer min-w-38"
+                                variant="secondary"
+                                onClick={() => void onJoin()}
+                                disabled={loading}
+                            >
+                                {!loading && t('join')}
+                                {loading && <Spinner />}
+                            </Button>
+                        </div>
+                    </div>
+                </>
+            </StyledDialogWrapper>
+
+            <LogoutDialog
+                open={openLogout}
+                onOpenChange={setOpenLogout}
+                hasEmail={!!userDetails?.email}
+                onLogout={() => void session.logOut()}
+                onBindEmail={() => {
+                    setOpenLogout(false);
+                    setOpenEdit(true);
+                }}
+            />
+
+            {userDetails && (
+                <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
+            )}
+        </>
     );
 }
 
