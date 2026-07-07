@@ -5,6 +5,7 @@ import {createFileLink} from '@/lib/utils';
 import {useNavigate} from 'react-router';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {useTranslations} from 'use-intl';
+import {MarkdownArea} from '@/components/ui/markdown-area';
 
 export function FriendCard({friend}: {friend: UserDetails}) {
     const t = useTranslations('profile.friends');
@@ -41,9 +42,9 @@ export function FriendCard({friend}: {friend: UserDetails}) {
                         {friend.nickname}
                     </h3>
                     <p className="text-center mt-2 w-full text-xs text-zinc-600 dark:text-zinc-400 wrap-anywhere line-clamp-3">
-                        {friend.description
-                            ? friend.description
-                            : t('no_description')}
+                        <MarkdownArea
+                            text={friend.description ?? t('no_description')}
+                        />
                     </p>
                 </div>
             </div>
