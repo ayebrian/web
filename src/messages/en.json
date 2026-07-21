@@ -166,10 +166,24 @@
         "goback": "Go home"
     },
     "community": {
-        "title": "Work in progress...",
-        "subtitle": "This feature is planned for Q3 of 2026. First versions are planned to come this summer. You can help us via contributions!",
-        "goback": "Go home",
-        "more": "Learn more"
+        "title": "Community",
+        "placeholder": "What's on your mind?",
+        "create_post": "Post",
+        "post_created": "Post created!",
+        "post_create_error": "Failed to create post",
+        "like": "Like",
+        "comment": "Comment",
+        "share": "Share",
+        "retry": "Retry",
+        "unknown_error": "Something went wrong",
+        "empty_title": "No posts yet",
+        "empty_desc": "Be the first to share something with the community!",
+        "just_now": "Just now",
+        "minutes_ago": "{count} min ago",
+        "hours_ago": "{count} hour ago",
+        "hours_ago_plural": "{count} hours ago",
+        "days_ago": "{count} day ago",
+        "days_ago_plural": "{count} days ago"
     },
     "chat": {
         "title": "Work in progress...",
