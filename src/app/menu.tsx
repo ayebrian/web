@@ -20,7 +20,6 @@ const MENURAIL_ITEMS: MenuItem[] = [
         path: '/community',
         title: 'community',
         icon: <Newspaper />,
-        releaseTag: 'Q3',
     },
     {path: '/chat', title: 'chat', icon: <MessageCircle />, releaseTag: 'Q4'},
 ];

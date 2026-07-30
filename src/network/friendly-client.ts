@@ -57,6 +57,12 @@ export interface FriendlyClient {
     authFirebase(
         request: AuthFirebaseRequest,
     ): Promise<Result<void, NetworkError>>;
+    createPost(
+        request: CreateCommunityPostRequest,
+    ): Promise<Result<void, NetworkError>>;
+    listPosts(
+        cursor: string | null,
+    ): Promise<Result<ListCommunityPostsResponse, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -306,6 +312,24 @@ export class FriendlyClientImpl implements FriendlyClient {
     ): Promise<Result<void, NetworkError>> {
         return this.safeRequest(this.client.post('/auth/firebase', request));
     }
+
+    createPost(
+        request: CreateCommunityPostRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(this.client.post('/community', request));
+    }
+
+    listPosts(
+        cursor: string | null,
+    ): Promise<Result<ListCommunityPostsResponse, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .get<ListCommunityPostsResponse>(
+                    cursor ? `/community/list/${cursor}` : '/community/list',
+                )
+                .then(r => r.data),
+        );
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -401,4 +425,20 @@ export interface AuthLoginResponse {
 
 export interface AuthFirebaseRequest {
     firebaseToken: string;
+}
+
+export interface CreateCommunityPostRequest {
+    text: string;
+}
+
+export interface ListCommunityPostsResponse {
+    data: CommunityPost[];
+    nextId: string | null;
+}
+
+export interface CommunityPost {
+    id: number;
+    text: string;
+    owner: UserDetails;
+    instant: string;
 }
