@@ -3,12 +3,12 @@ import {useAppContext, useAppContextRef} from '@/app.context';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
-import {Activity, Loader2, LogOut, Pencil} from 'lucide-react';
+import {Activity, Loader2, LogOut, Pencil, QrCodeIcon} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {formatNetworkError} from '@/services/backend-service';
-import {createFileLink, createFriendInviteLink} from '@/lib/utils';
+import {createFileLink} from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
@@ -16,7 +16,7 @@ import {EditProfileDialog} from '@/app/edit/dialog';
 import {LogoutDialog} from '@/app/log-out-dialog';
 import {ProfileDescription} from '@/components/profile-description';
 import {FriendsBlock} from '@/app/friends/friends-block';
-import {QrCodeCard} from '@/app/qrcode-card';
+import {QrCodeDialog} from '@/app/qr-code-dialog';
 import {StyledAvatar} from '@/components/styled-avatar';
 
 function ProfileHeader({logOut}: {logOut: () => void}) {
@@ -32,12 +32,14 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const [openEdit, setOpenEdit] = useState(false);
     const onEditClick = useCallback(() => setOpenEdit(true), []);
     const [openLogout, setOpenLogout] = useState(false);
+    const [openQR, setOpenQR] = useState(false);
 
     return (
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             {userDetails && (
                 <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}
+            <QrCodeDialog open={openQR} setOpen={setOpenQR} />
             <LogoutDialog
                 open={openLogout}
                 onOpenChange={setOpenLogout}
@@ -68,6 +70,15 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
+                <Button
+                    className="cursor-pointer flex-1 sm:flex-none"
+                    variant="secondary"
+                    onClick={() => setOpenQR(true)}
+                >
+                    <QrCodeIcon className="w-4 h-4" />
+                    <p className="hidden sm:block">{t('qr.title')}</p>
+                </Button>
+
                 <Button
                     className="cursor-pointer flex-1 sm:flex-none"
                     variant="secondary"
@@ -146,12 +157,6 @@ export default function Home() {
         enabled: session.status === 'authed',
     });
 
-    const inviteQuery = useQuery({
-        queryKey: ['inviteToken'],
-        queryFn: () => backend.generateFriendInvitationToken(),
-        enabled: session.status === 'authed',
-    });
-
     const networkQuery = useQuery({
         queryKey: ['networkDetails', blockingQR],
         queryFn: () => backend.getNetworkDetails(),
@@ -159,7 +164,6 @@ export default function Home() {
     });
 
     const userResult = userQuery.data ?? null;
-    const inviteResult = inviteQuery.data ?? null;
     const networkResult = networkQuery.data ?? null;
 
     useEffect(() => {
@@ -169,36 +173,20 @@ export default function Home() {
     }, [appRef, userResult]);
 
     const hasResultError =
-        (userResult && !userResult.ok) ||
-        (inviteResult && !inviteResult.ok) ||
-        (networkResult && !networkResult.ok);
+        (userResult && !userResult.ok) || (networkResult && !networkResult.ok);
 
     const errorMessage =
         userResult && !userResult.ok
             ? formatNetworkError(userResult.error)
-            : inviteResult && !inviteResult.ok
-              ? formatNetworkError(inviteResult.error)
-              : networkResult && !networkResult.ok
-                ? formatNetworkError(networkResult.error)
-                : null;
+            : networkResult && !networkResult.ok
+              ? formatNetworkError(networkResult.error)
+              : null;
 
-    const isLoading =
-        session.status === 'loading' ||
-        userQuery.isLoading ||
-        inviteQuery.isLoading;
-    const isError = userQuery.isError || inviteQuery.isError || hasResultError;
+    const isLoading = session.status === 'loading' || userQuery.isLoading;
+    const isError = userQuery.isError || hasResultError;
 
     const user = app.userDetails;
-    const inviteToken = inviteResult?.ok ? inviteResult.data : null;
     const friends = networkResult?.ok ? networkResult.data.friends : [];
-
-    const qrCodeUrl = useMemo(
-        () =>
-            user?.id && inviteToken
-                ? createFriendInviteLink(user.id, inviteToken)
-                : null,
-        [inviteToken, user],
-    );
 
     let content;
 
@@ -229,13 +217,10 @@ export default function Home() {
                 <ProfileHeader logOut={logOut} />
                 <Separator className="dark:bg-zinc-800" />
 
-                <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
-                        <InterestsBlock interests={user?.interests ?? []} />
-                        <Separator className="my-4 dark:bg-zinc-800" />
-                        <FriendsBlock friends={friends} />
-                    </div>
-                    <QrCodeCard url={qrCodeUrl} />
+                <div className="flex flex-1 flex-col gap-8 p-8 min-w-0">
+                    <InterestsBlock interests={user?.interests ?? []} />
+                    <Separator className="my-4 dark:bg-zinc-800" />
+                    <FriendsBlock friends={friends} />
                 </div>
             </div>
         );

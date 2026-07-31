@@ -43,6 +43,7 @@
             "desc": "Share your profile to make connections.",
             "copy": "Copy",
             "save": "Save",
+            "regenerate": "Regenerate code",
             "copied": "Link Copied!"
         },
         "feed": {
