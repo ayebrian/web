@@ -13,6 +13,7 @@ import Home from '@/app/page';
 import RootLayout from '@/app/layout';
 import {createBrowserRouter, RouterProvider} from 'react-router';
 import FeedPage from '@/app/feed/page';
+import RouteErrorScreen from '@/route-errorscreen';
 
 void Notifications.nudge();
 
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <RootLayout />,
+        errorElement: <RouteErrorScreen />,
         children: [
             {
                 path: '/',

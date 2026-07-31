@@ -206,5 +206,17 @@
         "link": "Link",
         "raw": "Raw",
         "preview": "Preview"
+    },
+    "route-error": {
+        "title": "Unhandled error",
+        "subtitle": "Friendly Web is crashed.",
+        "field_message": "Message",
+        "field_time": "Time",
+        "field_url": "URL",
+        "field_user_agent": "User agent",
+        "stack_trace": "Stack trace",
+        "go_home": "Go home",
+        "reload_page": "Reload page",
+        "copy_report": "Copy error report"
     }
 }
