@@ -205,5 +205,17 @@
         "link": "Ссылка",
         "raw": "Исход.",
         "preview": "Показ."
+    },
+    "route-error": {
+        "title": "Необработанная ошибка",
+        "subtitle": "Friendly Web упал.",
+        "field_message": "Сообщение",
+        "field_time": "Время",
+        "field_url": "URL",
+        "field_user_agent": "User agent",
+        "stack_trace": "Стек вызовов",
+        "go_home": "На главную",
+        "reload_page": "Обновить страницу",
+        "copy_report": "Копировать отчёт об ошибке"
     }
 }
