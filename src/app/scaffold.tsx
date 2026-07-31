@@ -15,7 +15,7 @@ export function Scaffold({children}: ScaffoldProps): ReactNode {
     const showMenu = session.isAuthed && !blockingQR.shouldBlock;
 
     return (
-        <div className="flex flex-col h-dvh w-dvw bg-zinc-50 dark:bg-black">
+        <div className="flex flex-col h-dvh w-dvw bg-background">
             <TopBar />
             <div className="flex-1 h-full flex min-h-0">
                 {showMenu && (
@@ -23,7 +23,7 @@ export function Scaffold({children}: ScaffoldProps): ReactNode {
                         <div
                             className={cn(
                                 'h-full',
-                                'bg-white dark:bg-zinc-950',
+                                'bg-card',
                                 'hidden md:block',
                             )}
                         >
@@ -32,7 +32,7 @@ export function Scaffold({children}: ScaffoldProps): ReactNode {
                         <div
                             className={cn(
                                 'h-full w-px hidden md:block',
-                                'bg-zinc-200 dark:bg-zinc-800',
+                                'bg-border',
                             )}
                         />
                     </>
@@ -44,15 +44,11 @@ export function Scaffold({children}: ScaffoldProps): ReactNode {
                             <div
                                 className={cn(
                                     'w-full h-px md:hidden',
-                                    'bg-zinc-200 dark:bg-zinc-800',
+                                    'bg-border',
                                 )}
                             />
                             <div
-                                className={cn(
-                                    'w-full',
-                                    'bg-white dark:bg-zinc-950',
-                                    'md:hidden',
-                                )}
+                                className={cn('w-full', 'bg-card', 'md:hidden')}
                             >
                                 <MenuBar />
                             </div>

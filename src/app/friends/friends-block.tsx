@@ -13,12 +13,12 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
         <>
             <div className="flex flex-col gap-2">
                 <h3 className="flex flex-row gap-2 mb-2">
-                    <p className="flex-1 text-sm font-semibold uppercase text-zinc-900 dark:text-zinc-100">
+                    <p className="flex-1 text-sm font-semibold uppercase text-foreground">
                         {t('friends.title')}
                     </p>
                     <Link
                         to="#"
-                        className="text-sm text-neutral-700 dark:text-zinc-400 font-normal hover:underline"
+                        className="text-sm text-muted-foreground font-normal hover:underline"
                         hidden={friends.length < 1}
                         onClick={() => setShowAll(true)}
                     >

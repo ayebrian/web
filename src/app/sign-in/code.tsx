@@ -104,7 +104,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
     return (
         <div
             className="
-        rounded-xl bg-white dark:bg-zinc-900
+        rounded-xl bg-popover
         shadow-xl
         "
         >

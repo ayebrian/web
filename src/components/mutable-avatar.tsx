@@ -107,7 +107,7 @@ export function MutableAvatarContent({
             >
                 <div className="relative cursor-pointer">
                     <StyledAvatar
-                        avatarClassName="w-22 h-22 border-2 border-white dark:border-zinc-800 shadow-sm"
+                        avatarClassName="w-22 h-22 ring-2 ring-background shadow-sm"
                         avatarImageClassName={
                             loading ? 'blur-xs brightness-80' : undefined
                         }
@@ -115,11 +115,11 @@ export function MutableAvatarContent({
                         nickname={nickname}
                         fallbackContent={<Upload />}
                     />
-                    <div className="size-6 absolute bottom-1 right-1 rounded-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-600">
+                    <div className="size-6 absolute bottom-1 right-1 rounded-full bg-card border border-border">
                         <Pencil className="size-full p-1" />
                     </div>
                     {loading && (
-                        <Spinner className="text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+                        <Spinner className="text-foreground absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
                     )}
                 </div>
             </AvatarDropdown>

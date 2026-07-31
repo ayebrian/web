@@ -72,8 +72,7 @@ export function FeedDialog({
                                         <StyledAvatar
                                             avatarClassName={cn(
                                                 'w-8 h-8 -ms-4',
-                                                'border-0 border-white',
-                                                'dark:border-zinc-800 cursor-pointer',
+                                                'cursor-pointer',
                                             )}
                                             key={friend.id}
                                             src={
@@ -92,7 +91,7 @@ export function FeedDialog({
                                 })}
                             {selectedCard.commonFriends.length > 5 && (
                                 <AvatarGroupCount
-                                    className="w-8 h-8 -ms-4 border-0 border-white dark:border-zinc-800 cursor-pointer"
+                                    className="w-8 h-8 -ms-4 cursor-pointer"
                                     onClick={() => setShowAllFriends(true)}
                                 >
                                     +{selectedCard.commonFriends.length - 5}
@@ -120,7 +119,7 @@ export function FeedDialog({
                         'text-6xl font-semibold',
                         'w-full h-full flex items-center justify-center',
                         'rounded-none sm:rounded-tl-xl sm:rounded-tr-xl',
-                        'bg-zinc-200 dark:bg-zinc-800',
+                        'bg-muted',
                     )}
                 />
 
@@ -129,7 +128,7 @@ export function FeedDialog({
                         <Badge
                             key={interest}
                             variant="secondary"
-                            className="px-2 py-1 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                            className="px-2 py-1"
                         >
                             {interest}
                         </Badge>
@@ -138,11 +137,11 @@ export function FeedDialog({
             </div>
 
             <div className="flex flex-col flex-1 shrink p-6 pb-12 relative">
-                <h3 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50 mb-2">
+                <h3 className="text-2xl font-semibold text-foreground mb-2">
                     {selectedCard.details.nickname}
                 </h3>
 
-                <div className="break-words text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                <div className="break-words text-sm leading-6 text-foreground">
                     {selectedCard.details.description ? (
                         <FormattedDescription
                             description={selectedCard.details.description}

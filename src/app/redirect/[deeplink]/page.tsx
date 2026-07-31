@@ -91,13 +91,13 @@ function FriendTokenExpired() {
         >
             <>
                 <div className="w-full flex justify-center mb-4">
-                    <div className="rounded-full bg-white dark:bg-zinc-900 p-3">
+                    <div className="rounded-full bg-popover p-3">
                         <Link2Off className="size-5" />
                     </div>
                 </div>
                 <div
                     className="
-                    rounded-xl bg-white dark:bg-zinc-900
+                    rounded-xl bg-popover
                     shadow-xl
                     py-4 px-6 space-y-4
                     w-full flex flex-col items-center

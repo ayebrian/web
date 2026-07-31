@@ -46,12 +46,12 @@ export function QrCodeDialog({open, setOpen}: QrCodeDialogProps) {
             subtitle={t('qr.desc')}
         >
             <div className="flex flex-col items-center gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 w-full max-w-72">
+                <div className="bg-white p-5 rounded-2xl border border-border w-full max-w-72">
                     {url ? (
                         <QRCode value={url} className="w-full aspect-square" />
                     ) : (
                         <div className="w-full aspect-square flex items-center justify-center">
-                            <Loader2 className="size-10 animate-spin text-zinc-400" />
+                            <Loader2 className="size-10 animate-spin text-muted-foreground" />
                         </div>
                     )}
                 </div>

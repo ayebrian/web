@@ -20,8 +20,8 @@ export default function SignInPage(): ReactNode {
         <div
             className="
             mx-auto p-8
-            md:mt-4 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800
-            bg-white dark:bg-zinc-950
+            md:mt-4 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-border
+            bg-card
             "
         >
             <SignInContent />

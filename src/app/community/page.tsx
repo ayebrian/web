@@ -75,7 +75,7 @@ export function CommunityPage() {
     if (postsQuery.isLoading) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     } else if (postsQuery.isError) {
@@ -115,11 +115,11 @@ export function CommunityPage() {
         } else if (posts.length === 0) {
             content = (
                 <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
-                    <MessageCircle className="w-12 h-12 text-zinc-400" />
-                    <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+                    <MessageCircle className="w-12 h-12 text-muted-foreground" />
+                    <h3 className="text-base font-semibold text-foreground">
                         {t('empty_title')}
                     </h3>
-                    <p className="max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="max-w-xs text-sm text-muted-foreground">
                         {t('empty_desc')}
                     </p>
                 </div>
@@ -195,7 +195,7 @@ function CreatePostCard({
     );
 
     return (
-        <div className="w-full bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+        <div className="w-full bg-card rounded-xl border border-border p-4">
             <div className="w-full flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
@@ -245,7 +245,7 @@ function CommunityPostCard({post, formatTimeAgo}: CommunityPostCardProps) {
     const postTime = new Date(post.instant);
 
     return (
-        <div className="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+        <div className="bg-card rounded-xl border border-border p-4">
             <div className="flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
@@ -254,23 +254,23 @@ function CommunityPostCard({post, formatTimeAgo}: CommunityPostCardProps) {
                 />
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                        <p className="font-semibold text-zinc-950 dark:text-zinc-50 truncate">
+                        <p className="font-semibold text-foreground truncate">
                             {post.owner.nickname}
                         </p>
-                        <span className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(postTime)}
                         </span>
                     </div>
-                    <p className="mt-1 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
+                    <p className="mt-1 text-foreground whitespace-pre-wrap break-words">
                         <MarkdownArea text={post.text} />
                     </p>
 
-                    {/*<div className="flex items-center gap-1 mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                    {/*<div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             onClick={() => void onLike(post.id)}
                         >
                             <Heart className="h-4 w-4" />
@@ -279,7 +279,7 @@ function CommunityPostCard({post, formatTimeAgo}: CommunityPostCardProps) {
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent"
                         >
                             <MessageCircle className="h-4 w-4" />
                             {t('comment')}
@@ -287,7 +287,7 @@ function CommunityPostCard({post, formatTimeAgo}: CommunityPostCardProps) {
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 ml-auto"
+                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
                         >
                             <Share2 className="h-4 w-4" />
                             {t('share')}

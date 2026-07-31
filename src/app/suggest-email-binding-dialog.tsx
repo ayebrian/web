@@ -19,7 +19,7 @@ export function SuggestEmailBindingDialog({
         <StyledDialogWrapper
             open={status === 'suggested'}
             onOpenChange={() => setStatus('pending')}
-            contentClassName="-translate-y-1/2 w-fit max-w-sm max-h-none rounded-2xl bg-white dark:bg-zinc-950 shadow-lg"
+            contentClassName="-translate-y-1/2 w-fit max-w-sm max-h-none rounded-2xl bg-popover shadow-lg"
         >
             <div>
                 <div className="flex justify-end pt-2 pr-2">

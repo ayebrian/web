@@ -44,7 +44,7 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
                 src={avatarUrl}
                 nickname={friend.nickname}
             />
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            <p className="text-sm font-semibold text-foreground">
                 {friend?.nickname}
             </p>
         </button>
@@ -72,7 +72,7 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
         >
             <div
                 className="
-                            rounded-xl bg-white dark:bg-zinc-900
+                            rounded-xl bg-popover
                             shadow-xl
                             "
             >

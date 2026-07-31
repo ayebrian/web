@@ -131,7 +131,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
             />
             <div
                 className="
-            rounded-xl bg-white dark:bg-zinc-900
+            rounded-xl bg-popover
             shadow-xl
             "
             >
@@ -377,7 +377,7 @@ function EmailInput({
             >
                 <div
                     className="
-                        rounded-xl bg-white dark:bg-zinc-900
+                        rounded-xl bg-popover
                         shadow-xl
                         "
                 >
