@@ -26,10 +26,10 @@ function FeedEmptyState() {
     return (
         <div className="h-full flex flex-col items-center justify-center gap-2 px-6 text-center">
             <BookUser className="w-12 h-12" />
-            <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+            <h3 className="text-base font-semibold text-foreground">
                 {t('empty_title')}
             </h3>
-            <p className="max-w-xs text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="max-w-xs text-sm text-muted-foreground">
                 {t('empty_desc')}
             </p>
         </div>
@@ -133,16 +133,16 @@ export default function FeedPage() {
     if (feedQuery.isLoading) {
         return (
             <div className="flex h-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     if (feedQuery.isError) {
         return (
-            <div className="flex h-full flex-col items-center justify-center rounded-xl border border-red-200 bg-white px-6 text-center dark:border-red-900/60 dark:bg-zinc-950">
-                <Activity className="h-8 w-8 text-red-500" />
-                <p className="mt-4 text-sm text-zinc-700 dark:text-zinc-300">
+            <div className="flex h-full flex-col items-center justify-center rounded-xl border border-destructive/30 bg-card px-6 text-center">
+                <Activity className="h-8 w-8 text-destructive" />
+                <p className="mt-4 text-sm text-foreground">
                     {feedErrorMessage ?? t('queue_error')}
                 </p>
                 <Button className="mt-5 cursor-pointer" onClick={onRetry}>
@@ -161,7 +161,7 @@ export default function FeedPage() {
             <div
                 className={cn(
                     'min-h-full w-full shrink-0 sm:w-90 md:w-110',
-                    'sm:rounded-2xl bg-white dark:bg-zinc-950',
+                    'sm:rounded-2xl bg-card',
                     'transition-[width] duration-300 ease-in-out',
                 )}
             >

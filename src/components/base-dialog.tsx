@@ -30,7 +30,7 @@ export function BaseDialog({
     return (
         <Dialog open={isShow} onOpenChange={onOpenChange}>
             <DialogContent
-                className={cn('bg-zinc-950 sm:max-w-sm', className)}
+                className={cn('bg-popover sm:max-w-sm', className)}
                 showCloseButton={showCloseButton}
             >
                 <DialogHeader>

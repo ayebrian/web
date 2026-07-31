@@ -53,14 +53,14 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
 
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
-                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
+                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 ring-2 ring-background shadow-sm"
                     src={avatarUrl}
                     nickname={userDetails?.nickname}
                 />
             </div>
 
             <div className="flex flex-1 flex-col gap-2 min-w-0 items-center sm:items-start">
-                <p className="font-bold text-xl sm:text-2xl dark:text-zinc-100 truncate">
+                <p className="font-bold text-xl sm:text-2xl text-foreground truncate">
                     {userDetails?.nickname}
                 </p>
 
@@ -106,21 +106,17 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold uppercase mb-2 text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-sm font-semibold uppercase mb-2 text-foreground">
                 {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
                 {interests.length === 0 ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                         {t('no_interests')}
                     </p>
                 ) : (
                     interests.map(interest => (
-                        <Badge
-                            key={interest}
-                            variant="secondary"
-                            className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                        >
+                        <Badge key={interest} variant="secondary">
                             {interest}
                         </Badge>
                     ))
@@ -201,7 +197,7 @@ export default function Home() {
     } else if (isLoading) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     } else if (isError) {
@@ -215,11 +211,11 @@ export default function Home() {
         content = (
             <div className="flex flex-col gap-2 pb-12">
                 <ProfileHeader logOut={logOut} />
-                <Separator className="dark:bg-zinc-800" />
+                <Separator />
 
                 <div className="flex flex-1 flex-col gap-8 p-8 min-w-0">
                     <InterestsBlock interests={user?.interests ?? []} />
-                    <Separator className="my-4 dark:bg-zinc-800" />
+                    <Separator className="my-4" />
                     <FriendsBlock friends={friends} />
                 </div>
             </div>
@@ -228,7 +224,7 @@ export default function Home() {
 
     return (
         <div className="mx-auto md:p-8 md:pt-4 max-w-5xl">
-            <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+            <div className="md:bg-card md:rounded-xl md:border md:border-border min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
                 {content}
             </div>
         </div>

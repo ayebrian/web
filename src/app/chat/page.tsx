@@ -8,10 +8,10 @@ export function ChatPage() {
     return (
         <div className="h-full w-full gap-2 flex flex-col items-center justify-center text-center">
             <Construction className="h-16 w-16" />
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 className="text-xl font-semibold text-foreground">
                 {t('title')}
             </h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-8">
+            <p className="text-sm text-muted-foreground max-w-md mx-8">
                 {t('subtitle')}
             </p>
             <Button variant="outline" asChild>

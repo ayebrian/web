@@ -20,7 +20,7 @@ export function ProfileDescription({description}: {description: string}) {
         <>
             <div
                 className={cn(
-                    'text-neutral-700 dark:text-zinc-400 wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
+                    'text-muted-foreground wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
                     !expanded && 'line-clamp-4 sm:line-clamp-3',
                 )}
                 ref={descriptionRef}
@@ -31,7 +31,7 @@ export function ProfileDescription({description}: {description: string}) {
             {canExpand && (
                 <button
                     onClick={() => setExpanded(v => !v)}
-                    className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline cursor-pointer"
+                    className="mt-1 flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer"
                 >
                     {expanded ? (
                         <>

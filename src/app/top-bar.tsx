@@ -7,7 +7,7 @@ export function TopBar(): ReactNode {
             <div
                 className={cn(
                     'flex p-4',
-                    'bg-white dark:bg-zinc-950',
+                    'bg-card',
                     'w-full flex-1 min-h-0',
                     'items-center',
                 )}
@@ -23,7 +23,7 @@ export function TopBar(): ReactNode {
                     />
                 </a>
             </div>
-            <div className="w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+            <div className="w-full h-px bg-border" />
         </div>
     );
 }

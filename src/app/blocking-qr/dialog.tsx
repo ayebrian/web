@@ -76,11 +76,11 @@ export function BlockingQR({
             >
                 <>
                     <div className="w-full flex justify-center mb-4">
-                        <HatGlasses className="size-20 rounded-full bg-white dark:bg-zinc-900 p-4" />
+                        <HatGlasses className="size-20 rounded-full bg-popover p-4" />
                     </div>
                     <div
                         className="
-                        rounded-xl bg-white dark:bg-zinc-900
+                        rounded-xl bg-popover
                         shadow-xl
                         py-4 px-6 space-y-4
                         w-full flex flex-col items-center

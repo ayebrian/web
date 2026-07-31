@@ -48,7 +48,7 @@ export default function RouteErrorScreen() {
     return (
         <div className="fixed inset-0 z-3 overflow-y-auto md:p-4 sm:p-8">
             <div className="mx-auto max-w-3xl">
-                <Card className="bg-white dark:bg-zinc-950 border-0 md:border md:border-destructive/30">
+                <Card className="bg-card border-0 md:border md:border-destructive/30">
                     <CardHeader className="border-b">
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-3">

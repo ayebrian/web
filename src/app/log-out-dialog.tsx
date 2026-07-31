@@ -24,7 +24,7 @@ export function LogoutDialog({
         <StyledDialogWrapper
             open={open}
             onOpenChange={onOpenChange}
-            contentClassName="-translate-y-1/2 w-10/11 sm:max-w-sm max-h-none rounded-2xl bg-white dark:bg-zinc-950 shadow-lg"
+            contentClassName="-translate-y-1/2 w-10/11 sm:max-w-sm max-h-none rounded-2xl bg-popover shadow-lg"
         >
             <div>
                 <div className="flex justify-end pt-2 pr-2">

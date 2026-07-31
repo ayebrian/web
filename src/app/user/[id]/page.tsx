@@ -88,14 +88,14 @@ function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
-                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 border-2 border-white dark:border-zinc-800 shadow-sm"
+                    avatarClassName="w-20 h-20 sm:w-24 sm:h-24 ring-2 ring-background shadow-sm"
                     src={avatarUrl}
                     nickname={userDetails?.nickname}
                 />
             </div>
 
             <div className="flex flex-1 flex-col gap-2 min-w-0 items-center sm:items-start">
-                <p className="font-bold text-xl sm:text-2xl dark:text-zinc-100 truncate">
+                <p className="font-bold text-xl sm:text-2xl text-foreground truncate">
                     {userDetails?.nickname}
                 </p>
 
@@ -132,21 +132,17 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold uppercase mb-2 text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-sm font-semibold uppercase mb-2 text-foreground">
                 {t('interests')}
             </h3>
             <div className="flex flex-row gap-2 flex-wrap">
                 {interests.length === 0 ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className="text-sm text-muted-foreground">
                         {t('no_interests')}
                     </p>
                 ) : (
                     interests.map(interest => (
-                        <Badge
-                            key={interest}
-                            variant="secondary"
-                            className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                        >
+                        <Badge key={interest} variant="secondary">
                             {interest}
                         </Badge>
                     ))
@@ -195,7 +191,7 @@ export default function UserPage() {
     if (userQuery.isLoading || isDeclinePending) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-zinc-400" />
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     } else if (userQuery.isError || !userQuery.data?.ok) {
@@ -212,7 +208,7 @@ export default function UserPage() {
                     userDetails={userQuery.data.data}
                     onRemoveFriend={declineFriend}
                 />
-                <Separator className="dark:bg-zinc-800" />
+                <Separator />
 
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
@@ -229,9 +225,9 @@ export default function UserPage() {
         <div className="mx-auto md:p-8 md:pt-0 max-w-5xl">
             <a
                 className={cn(
-                    'block p-2 w-full bg-white dark:bg-zinc-950',
-                    'md:bg-transparent dark:md:bg-transparent',
-                    'text-zinc-500 dark:text-zinc-400',
+                    'block p-2 w-full md:bg-card',
+                    'md:bg-transparent',
+                    'text-muted-foreground',
                 )}
                 onClick={() => history.back()}
             >
@@ -240,7 +236,7 @@ export default function UserPage() {
                     {t('go-back')}
                 </span>
             </a>
-            <div className="bg-white dark:bg-zinc-950 md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800 min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+            <div className="md:bg-card md:rounded-xl md:border md:border-border min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
                 {content}
             </div>
         </div>

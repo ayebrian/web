@@ -121,8 +121,8 @@ export default function SignUpPage() {
             <div
                 className={cn(
                     'mx-auto w-full',
-                    'md:mt-4 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-zinc-200 dark:md:border-zinc-800',
-                    'bg-white dark:bg-zinc-950',
+                    'md:mt-4 md:p-8 md:pt-8 md:max-w-2xl md:rounded-xl md:border md:border-border',
+                    'bg-card',
                 )}
             >
                 <div className="relative flex items-center mt-1 mx-1">
