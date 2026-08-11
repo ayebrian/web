@@ -8,8 +8,8 @@ import {useMemo, useState} from 'react';
 import {UserDetails} from '@/types/user-details';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
-import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
 import {useNavigate, useParams} from 'react-router';
+import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {ProfileDescription} from '@/components/profile-description';
 import {Button} from '@/components/ui/button';
 import {
@@ -156,7 +156,7 @@ export default function UserPage() {
     const t = useTranslations('profile');
     const navigate = useNavigate();
     const backend = useBackend();
-    const userAccessHashes = useUserAccessHashes();
+    const storage = useFriendlyStorage();
 
     const {id} = useParams();
 
@@ -165,7 +165,7 @@ export default function UserPage() {
             const userId = parseInt(id ?? '0');
             await backend.declineFriendRequest({
                 userId: userId,
-                userAccessHash: (await userAccessHashes.service.get(userId))
+                userAccessHash: (await storage.userAccessHashes.get(userId))
                     .accessHash,
             });
         },
@@ -180,7 +180,7 @@ export default function UserPage() {
             if (!id)
                 return Promise.reject(new Error('Id is null or undefined'));
             const idNum = parseInt(id);
-            const userPair = await userAccessHashes.service.get(idNum);
+            const userPair = await storage.userAccessHashes.get(idNum);
             const accessHash = userPair.accessHash;
             return backend.getUserDetailsById(parseInt(id), accessHash);
         },
@@ -236,7 +236,7 @@ export default function UserPage() {
                     {t('go-back')}
                 </span>
             </a>
-            <div className="md:bg-card md:rounded-xl md:border md:border-border min-h-[calc(100vh-64px)] md:min-h-0 overflow-hidden transition-colors">
+            <div className="md:bg-card md:rounded-xl md:border md:border-border overflow-hidden transition-colors">
                 {content}
             </div>
         </div>

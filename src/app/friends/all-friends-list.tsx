@@ -5,7 +5,7 @@ import {cn, createFileLink} from '@/lib/utils';
 import {Button} from '@/components/ui/button';
 import {X} from 'lucide-react';
 import {Dialog} from 'radix-ui';
-import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {useNavigate} from 'react-router';
@@ -53,11 +53,11 @@ function FriendListItem({id, friend, onClick}: FriendListItemProps) {
 
 export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     const t = useTranslations('profile');
-    const userAccessHashes = useUserAccessHashes();
+    const storage = useFriendlyStorage();
     const navigate = useNavigate();
 
     const openFriendPage = async (friend: UserDetails) => {
-        await userAccessHashes.service.save({
+        await storage.userAccessHashes.save({
             id: friend.id,
             accessHash: friend.accessHash,
         });

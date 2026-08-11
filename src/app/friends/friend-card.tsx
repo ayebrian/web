@@ -1,5 +1,5 @@
 import {UserDetails} from '@/types/user-details';
-import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {useMemo} from 'react';
 import {createFileLink} from '@/lib/utils';
 import {useNavigate} from 'react-router';
@@ -9,7 +9,7 @@ import {MarkdownArea} from '@/components/ui/markdown-area';
 
 export function FriendCard({friend}: {friend: UserDetails}) {
     const t = useTranslations('profile.friends');
-    const userAccessHashes = useUserAccessHashes();
+    const storage = useFriendlyStorage();
     const navigate = useNavigate();
 
     const avatarUrl = useMemo(
@@ -18,7 +18,7 @@ export function FriendCard({friend}: {friend: UserDetails}) {
     );
 
     const openFriendPage = async () => {
-        await userAccessHashes.service.save({
+        await storage.userAccessHashes.save({
             id: friend.id,
             accessHash: friend.accessHash,
         });

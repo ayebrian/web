@@ -1,6 +1,6 @@
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {useUserAccessHashes} from '@/components/useraccesshashes-provider';
+import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {cn, createFileLink} from '@/lib/utils';
 import {FeedItem} from '@/network/friendly-client';
 import {UserDetails} from '@/types/user-details';
@@ -27,12 +27,12 @@ export function FeedDialog({
     handleReview,
 }: FeedDialogProps) {
     const t = useTranslations('profile.feed');
-    const userAccessHashes = useUserAccessHashes();
+    const storage = useFriendlyStorage();
     const navigate = useNavigate();
     const [showAllFriends, setShowAllFriends] = useState(false);
 
     async function routeToUser(friend: UserDetails) {
-        await userAccessHashes.service.save({
+        await storage.userAccessHashes.save({
             id: friend.id,
             accessHash: friend.accessHash,
         });

@@ -57,12 +57,15 @@ export interface FriendlyClient {
     authFirebase(
         request: AuthFirebaseRequest,
     ): Promise<Result<void, NetworkError>>;
-    createPost(
-        request: CreateCommunityPostRequest,
+    communityPost(
+        request: CommunityPostRequest,
     ): Promise<Result<void, NetworkError>>;
-    listPosts(
-        cursor: string | null,
-    ): Promise<Result<ListCommunityPostsResponse, NetworkError>>;
+    communityList(
+        request: CommunityListRequest,
+    ): Promise<Result<CommunityListResponse, NetworkError>>;
+    communityReplies(
+        request: CommunityRepliesRequest,
+    ): Promise<Result<CommunityRepliesResponse, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -313,19 +316,41 @@ export class FriendlyClientImpl implements FriendlyClient {
         return this.safeRequest(this.client.post('/auth/firebase', request));
     }
 
-    createPost(
-        request: CreateCommunityPostRequest,
+    communityPost(
+        request: CommunityPostRequest,
     ): Promise<Result<void, NetworkError>> {
         return this.safeRequest(this.client.post('/community', request));
     }
 
-    listPosts(
-        cursor: string | null,
-    ): Promise<Result<ListCommunityPostsResponse, NetworkError>> {
+    communityList({
+        cursorId,
+    }: CommunityListRequest): Promise<
+        Result<CommunityListResponse, NetworkError>
+    > {
         return this.safeRequest(
             this.client
-                .get<ListCommunityPostsResponse>(
-                    cursor ? `/community/list/${cursor}` : '/community/list',
+                .get<CommunityListResponse>(
+                    cursorId
+                        ? `/community/list/${cursorId}`
+                        : '/community/list',
+                )
+                .then(r => r.data),
+        );
+    }
+
+    communityReplies({
+        id,
+        accessHash,
+        cursorId,
+    }: CommunityRepliesRequest): Promise<
+        Result<CommunityRepliesResponse, NetworkError>
+    > {
+        return this.safeRequest(
+            this.client
+                .get<CommunityRepliesResponse>(
+                    cursorId
+                        ? `/community/${id}/${accessHash}/replies/${cursorId}`
+                        : `/community/${id}/${accessHash}/replies/`,
                 )
                 .then(r => r.data),
         );
@@ -427,17 +452,39 @@ export interface AuthFirebaseRequest {
     firebaseToken: string;
 }
 
-export interface CreateCommunityPostRequest {
+export interface CommunityPostRequest {
+    replyTo?: CommunityPostDescriptor;
     text: string;
 }
 
-export interface ListCommunityPostsResponse {
+export interface CommunityListRequest {
+    cursorId: string | null;
+}
+
+export interface CommunityListResponse {
     data: CommunityPost[];
     nextId: string | null;
 }
 
+export interface CommunityRepliesRequest {
+    id: number;
+    accessHash: string;
+    cursorId: string | null;
+}
+
+export interface CommunityRepliesResponse {
+    data: CommunityPost[];
+    nextId: string | null;
+}
+
+export interface CommunityPostDescriptor {
+    id: number;
+    accessHash: string;
+}
+
 export interface CommunityPost {
     id: number;
+    accessHash: string;
     text: string;
     owner: UserDetails;
     instant: string;
