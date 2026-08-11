@@ -9,7 +9,15 @@ export type EmailBindingSuggestionStatus =
     | 'declined'
     | 'accepted';
 
-export function useEmailBindingSuggestion(userEmail: string | null) {
+export interface EmailBindingSuggestion {
+    status: EmailBindingSuggestionStatus;
+    setStatus: (value: EmailBindingSuggestionStatus) => void;
+    trackSwipe: () => void;
+}
+
+export function useEmailBindingSuggestion(
+    userEmail: string | null,
+): EmailBindingSuggestion {
     const [status, setStatus] =
         useState<EmailBindingSuggestionStatus>('pending');
 

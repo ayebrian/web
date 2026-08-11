@@ -1,23 +1,9 @@
-interface UserPair {
-    id: number;
-    accessHash: string;
-}
+import {CommunityPost} from '@/network/friendly-client';
 
-function isUserPair(value: unknown): value is UserPair {
-    return (
-        typeof value === 'object' &&
-        value !== null &&
-        'id' in value &&
-        typeof value.id === 'number' &&
-        'accessHash' in value &&
-        typeof value.accessHash === 'string'
-    );
-}
+const DB_NAME = 'CommunityPostsDB';
+const STORE_NAME = 'CommunityPost';
 
-const DB_NAME = 'UserAccessHashesDB';
-const STORE_NAME = 'UserAccessHashes';
-
-export class UserAccessHashesService {
+export class CommunityPostsService {
     private db: IDBDatabase | null = null;
     private initPromise: Promise<IDBDatabase>;
 
@@ -49,7 +35,7 @@ export class UserAccessHashesService {
         });
     }
 
-    async save(pair: UserPair): Promise<void> {
+    async save(pair: CommunityPost): Promise<void> {
         if (typeof window === 'undefined') {
             return Promise.reject(
                 new Error('IndexedDB is only available in the browser.'),
@@ -65,12 +51,12 @@ export class UserAccessHashesService {
             request.onsuccess = () => resolve();
             request.onerror = () =>
                 reject(
-                    request.error ?? new Error('Failed to save a user pair.'),
+                    request.error ?? new Error('Failed to save a post pair.'),
                 );
         });
     }
 
-    async get(id: number): Promise<UserPair> {
+    async get(id: number): Promise<CommunityPost> {
         if (typeof window === 'undefined') {
             return Promise.reject(
                 new Error('IndexedDB is only available in the browser.'),
@@ -87,12 +73,8 @@ export class UserAccessHashesService {
                 reject(new Error(`Can't get an user pair for id=${id}.`));
             };
             request.onsuccess = () => {
-                const pair = request.result as unknown;
+                const pair = request.result as CommunityPost;
                 if (!pair)
-                    return reject(
-                        new Error(`Can't get an user pair for id=${id}.`),
-                    );
-                if (!isUserPair(pair))
                     return reject(
                         new Error(`Can't get an user pair for id=${id}.`),
                     );

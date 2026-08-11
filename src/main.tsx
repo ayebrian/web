@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import SignInPage from '@/app/sign-in/page';
 import SignUpPage from '@/app/sign-up/page';
 import {CommunityPage} from '@/app/community/page';
+import {RepliesPage} from '@/app/community/replies/page';
 import {ChatPage} from '@/app/chat/page';
 import Bypass from '@/app/blocking-qr/bypass/page';
 import UserPage from '@/app/user/[id]/page';
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
             {
                 path: 'community',
                 Component: CommunityPage,
+            },
+            {
+                path: 'community/:id/replies',
+                Component: RepliesPage,
             },
             {
                 path: 'chat',

@@ -5,7 +5,11 @@ import {
     FeedQueueResponse,
     FriendlyClient,
     GenerateAccountResponse,
-    ListCommunityPostsResponse,
+    CommunityPostRequest,
+    CommunityListRequest,
+    CommunityListResponse,
+    CommunityRepliesRequest,
+    CommunityRepliesResponse,
     NetworkDetailsResponse,
     SendFriendRequest,
 } from '@/network/friendly-client';
@@ -169,13 +173,21 @@ export class BackendService {
         return await this.client.uploadFile(file);
     }
 
-    async createPost(text: string): Promise<Result<void, NetworkError>> {
-        return this.client.createPost({text});
+    async communityPost(
+        request: CommunityPostRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.client.communityPost(request);
     }
 
-    async listPosts(
-        cursor: string | null,
-    ): Promise<Result<ListCommunityPostsResponse, NetworkError>> {
-        return this.client.listPosts(cursor);
+    async communityList(
+        request: CommunityListRequest,
+    ): Promise<Result<CommunityListResponse, NetworkError>> {
+        return this.client.communityList(request);
+    }
+
+    async communityReplies(
+        request: CommunityRepliesRequest,
+    ): Promise<Result<CommunityRepliesResponse, NetworkError>> {
+        return this.client.communityReplies(request);
     }
 }

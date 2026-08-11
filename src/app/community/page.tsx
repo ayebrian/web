@@ -1,20 +1,19 @@
 import {useBackend} from '@/backend.context';
 import {Button} from '@/components/ui/button';
+import {cn} from '@/lib/utils';
 import {
     useInfiniteQuery,
     useMutation,
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {Loader2, MessageCircle, AlertCircle, Clock} from 'lucide-react';
+import {Loader2, MessageCircle, AlertCircle} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useState, useCallback, useMemo} from 'react';
-import {CommunityPost} from '@/network/friendly-client';
+import {useState, useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
-import {MarkdownArea} from '@/components/ui/markdown-area';
-import {Textarea} from '@/components/ui/textarea';
+import {CommunityPostCard} from './post';
 
 export function CommunityPage() {
     const t = useTranslations('community');
@@ -24,7 +23,7 @@ export function CommunityPage() {
 
     const postsQuery = useInfiniteQuery({
         queryKey: ['communityPosts'],
-        queryFn: ({pageParam}) => backend.listPosts(pageParam),
+        queryFn: ({pageParam}) => backend.communityList({cursorId: pageParam}),
         initialPageParam: null as string | null,
         getNextPageParam: lastPage =>
             lastPage.ok && lastPage.data.nextId !== null
@@ -39,31 +38,15 @@ export function CommunityPage() {
     };
 
     const createPostMutation = useMutation({
-        mutationFn: (text: string) => backend.createPost(text),
+        mutationFn: (text: string) => backend.communityPost({text}),
         onSuccess: () => {
             setNewPostText('');
             void queryClient.invalidateQueries({queryKey: ['communityPosts']});
-            toast.success(t('post_created'));
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
         },
     });
-
-    const formatTimeAgo = (date: Date) => {
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffSecs = Math.floor(diffMs / 1000);
-        const diffMins = Math.floor(diffSecs / 60);
-        const diffHours = Math.floor(diffMins / 60);
-        const diffDays = Math.floor(diffHours / 24);
-
-        if (diffSecs < 60) return t('just_now');
-        if (diffMins < 60) return t('minutes_ago', {count: diffMins});
-        if (diffHours < 24) return t('hours_ago', {count: diffHours});
-        if (diffDays < 7) return t('days_ago', {count: diffDays});
-        return date.toLocaleDateString();
-    };
 
     const handleCreatePost = useCallback(async () => {
         if (!newPostText.trim()) return;
@@ -128,11 +111,7 @@ export function CommunityPage() {
             content = (
                 <div className="w-full flex flex-col gap-4">
                     {posts.map(post => (
-                        <CommunityPostCard
-                            key={post.id}
-                            post={post}
-                            formatTimeAgo={formatTimeAgo}
-                        />
+                        <CommunityPostCard key={post.id} post={post} />
                     ))}
                 </div>
             );
@@ -180,6 +159,7 @@ function CreatePostCard({
     isSubmitting,
 }: CreatePostCardProps) {
     const t = useTranslations('community');
+    const postRef = useRef<HTMLTextAreaElement>(null);
     const backend = useBackend();
     const userQuery = useQuery({
         queryKey: ['userDetails'],
@@ -194,6 +174,14 @@ function CreatePostCard({
         [userQuery],
     );
 
+    useEffect(() => {
+        const post = postRef.current;
+        if (post) {
+            post.style.height = 'auto';
+            post.style.height = `${post.scrollHeight}px`;
+        }
+    }, [text]);
+
     return (
         <div className="w-full bg-card rounded-xl border border-border p-4">
             <div className="w-full flex gap-3">
@@ -206,14 +194,19 @@ function CreatePostCard({
                             : ''
                     }
                 />
-                <div className="w-full flex-1 flex flex-col gap-2 min-w-0">
-                    <Textarea
+                <div className="w-full flex-1 flex flex-col min-w-0">
+                    <textarea
+                        ref={postRef}
+                        className={cn(
+                            'w-full mt-2',
+                            'outline-none resize-none',
+                        )}
+                        id="reply"
                         value={text}
                         onChange={e => onTextChange(e.target.value)}
                         placeholder={t('placeholder')}
-                        className="min-h-15 max-h-48"
                     />
-                    <div className="w-full flex items-center justify-end pt-2">
+                    <div className="w-full flex items-center justify-end">
                         <Button
                             onClick={() => void onSubmit()}
                             disabled={!text.trim() || isSubmitting}
@@ -225,74 +218,6 @@ function CreatePostCard({
                             )}
                         </Button>
                     </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-interface CommunityPostCardProps {
-    post: CommunityPost;
-    formatTimeAgo: (date: Date) => string;
-}
-
-function CommunityPostCard({post, formatTimeAgo}: CommunityPostCardProps) {
-    // const t = useTranslations('community');
-
-    const avatarUrl = post.owner.avatar
-        ? createFileLink(post.owner.avatar)
-        : undefined;
-    const postTime = new Date(post.instant);
-
-    return (
-        <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex gap-3">
-                <StyledAvatar
-                    avatarClassName="w-10 h-10"
-                    src={avatarUrl}
-                    nickname={post.owner.nickname}
-                />
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                        <p className="font-semibold text-foreground truncate">
-                            {post.owner.nickname}
-                        </p>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                            <Clock className="h-3 w-3" />
-                            {formatTimeAgo(postTime)}
-                        </span>
-                    </div>
-                    <p className="mt-1 text-foreground whitespace-pre-wrap break-words">
-                        <MarkdownArea text={post.text} />
-                    </p>
-
-                    {/*<div className="flex items-center gap-1 mt-4 pt-3 border-t border-border">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => void onLike(post.id)}
-                        >
-                            <Heart className="h-4 w-4" />
-                            {t('like')}
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent"
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            {t('comment')}
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
-                        >
-                            <Share2 className="h-4 w-4" />
-                            {t('share')}
-                        </Button>
-                    </div>*/}
                 </div>
             </div>
         </div>
