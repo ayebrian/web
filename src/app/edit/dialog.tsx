@@ -235,7 +235,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                     <div className="ml-auto flex flex-col gap-2">
                         <Button
                             className="cursor-pointer"
-                            variant="secondary"
+                            variant="default"
                             onClick={() => void onSave()}
                             disabled={loading || avatarLoading}
                         >

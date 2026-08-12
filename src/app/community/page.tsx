@@ -7,7 +7,7 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {Loader2, MessageCircle, AlertCircle} from 'lucide-react';
+import {Loader2, MessageCircle, AlertCircle, SquarePen} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useState, useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
@@ -201,7 +201,6 @@ function CreatePostCard({
                             'w-full mt-2',
                             'outline-none resize-none',
                         )}
-                        id="reply"
                         value={text}
                         onChange={e => onTextChange(e.target.value)}
                         placeholder={t('placeholder')}
@@ -214,7 +213,10 @@ function CreatePostCard({
                             {isSubmitting ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                                t('create_post')
+                                <div className="flex items-center gap-1.5">
+                                    <SquarePen />
+                                    {t('create_post')}
+                                </div>
                             )}
                         </Button>
                     </div>

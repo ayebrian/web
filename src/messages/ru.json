@@ -169,19 +169,16 @@
     "community": {
         "title": "Сообщество",
         "placeholder": "Чем хочешь поделиться?",
-        "reply-placeholder": "Ваш ответ...",
         "create_post": "Опубликовать",
-        "post_created": "Пост опубликован!",
         "post_create_error": "Не удалось создать пост",
-        "like": "Нравится",
-        "reply": "Ответить",
         "share": "Поделиться",
         "retry": "Повторить",
         "unknown_error": "Что-то пошло не так",
         "empty_title": "Пока постов нет",
         "empty_desc": "Стань первым, кто поделится мыслями с сообществом!",
-        "no-replies": "Ответов пока нет",
-        "no-replies-desc": "Оставь свой ответ первым!",
+        "load-more": "Загрузить ещё"
+    },
+    "post": {
         "just_now": "Только что",
         "minutes_ago": "{count} мин назад",
         "hours_ago": "{count} час назад",
@@ -190,6 +187,17 @@
         "days_ago_plural": "{count} дней назад",
         "load-more": "Загрузить ещё",
         "reply": "Ответить",
+        "replies": "Ответы",
+        "go-back": "Назад"
+    },
+    "replies": {
+        "reply-placeholder": "Ваш ответ...",
+        "post_create_error": "Не удалось создать пост",
+        "retry": "Повторить",
+        "unknown_error": "Что-то пошло не так",
+        "no-replies": "Ответов пока нет",
+        "no-replies-desc": "Оставь свой ответ первым!",
+        "load-more": "Загрузить ещё",
         "replies": "Ответы",
         "go-back": "Назад"
     },

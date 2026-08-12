@@ -1,3 +1,4 @@
+import React from 'react';
 import {Button} from '@/components/ui/button';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -13,7 +14,7 @@ export interface CommunityPostCardProps {
 }
 
 export function CommunityPostCard({post}: CommunityPostCardProps) {
-    const t = useTranslations('community');
+    const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
 
@@ -27,7 +28,8 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
         await navigate(`/community/${post.id}/replies`);
     }
 
-    async function navigateProfile() {
+    async function navigateProfile(event: React.MouseEvent) {
+        event.stopPropagation();
         await storage.userAccessHashes.save({
             id: post.owner.id,
             accessHash: post.owner.accessHash,
@@ -43,7 +45,7 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
             <div className="flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10 cursor-pointer"
-                    onClick={() => void navigateProfile()}
+                    onClick={event => void navigateProfile(event)}
                     src={avatarUrl}
                     nickname={post.owner.nickname}
                 />
@@ -51,7 +53,7 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
                     <div className="flex items-center gap-2">
                         <p
                             className="font-semibold text-foreground truncate cursor-pointer"
-                            onClick={() => void navigateProfile()}
+                            onClick={event => void navigateProfile(event)}
                         >
                             {post.owner.nickname}
                         </p>
@@ -69,7 +71,6 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
                             variant="ghost"
                             size="sm"
                             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
-                            onClick={() => void navigateReplies()}
                         >
                             <MessageCircle className="h-4 w-4" />
                             {t('reply')}
@@ -82,7 +83,7 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
 }
 
 function formatTimeAgo(
-    t: ReturnType<typeof useTranslations<'community'>>,
+    t: ReturnType<typeof useTranslations<'post'>>,
     date: Date,
 ) {
     const now = new Date();

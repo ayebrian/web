@@ -27,7 +27,7 @@ import {CommunityPostCard} from '../post';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 
 export function RepliesPage() {
-    const t = useTranslations('community');
+    const t = useTranslations('replies');
     const backend = useBackend();
     const queryClient = useQueryClient();
     const storage = useFriendlyStorage();
@@ -183,7 +183,7 @@ export function RepliesPage() {
                     {t('go-back')}
                 </span>
             </a>
-            <div className="h-1" />
+            <div className="h-4" />
             {replyTo.data && (
                 <MainPostCard
                     text={newPostText}
@@ -245,8 +245,10 @@ function MainPostCard({
         }
     }, [text]);
 
-    const t = useTranslations('community');
+    const t = useTranslations('replies');
     const backend = useBackend();
+    const storage = useFriendlyStorage();
+    const navigate = useNavigate();
 
     const avatarUrl = post.owner.avatar
         ? createFileLink(post.owner.avatar)
@@ -267,18 +269,30 @@ function MainPostCard({
         [selfQuery],
     );
 
+    async function navigateProfile() {
+        await storage.userAccessHashes.save({
+            id: post.owner.id,
+            accessHash: post.owner.accessHash,
+        });
+        await navigate(`/user/${post.owner.id}`);
+    }
+
     return (
         <div className="flex flex-col">
             <div className="bg-card rounded-xl border border-border p-4">
                 <div className="flex gap-3">
                     <StyledAvatar
-                        avatarClassName="w-10 h-10"
+                        avatarClassName="cursor-pointer w-10 h-10"
+                        onClick={() => void navigateProfile()}
                         src={avatarUrl}
                         nickname={post.owner.nickname}
                     />
                     <div className="flex-1 flex flex-col min-w-0">
                         <div className="flex items-center gap-2">
-                            <p className="font-semibold text-foreground truncate">
+                            <p
+                                onClick={() => void navigateProfile()}
+                                className="cursor-pointer font-semibold text-foreground truncate"
+                            >
                                 {post.owner.nickname}
                             </p>
                             <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
@@ -329,7 +343,7 @@ function MainPostCard({
 }
 
 function formatTimeAgo(
-    t: ReturnType<typeof useTranslations<'community'>>,
+    t: ReturnType<typeof useTranslations<'post'>>,
     date: Date,
 ) {
     const now = new Date();
