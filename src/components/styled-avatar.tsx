@@ -1,11 +1,12 @@
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {getAvatarFallbackForNickname} from '@/lib/utils';
+import React from 'react';
 
 interface StyledAvatarProps {
     avatarClassName: string;
     src: string | undefined;
     nickname: string | undefined;
-    onClick?: () => void;
+    onClick?: (event: React.MouseEvent) => void;
     avatarImageClassName?: string | undefined;
     fallbackClassName?: string;
     fallbackContent?: React.ReactNode;
