@@ -63,6 +63,9 @@ export interface FriendlyClient {
     communityList(
         request: CommunityListRequest,
     ): Promise<Result<CommunityListResponse, NetworkError>>;
+    communityDetails(
+        request: CommunityDetailsRequest,
+    ): Promise<Result<CommunityDetailsResponse, NetworkError>>;
     communityReplies(
         request: CommunityRepliesRequest,
     ): Promise<Result<CommunityRepliesResponse, NetworkError>>;
@@ -338,6 +341,19 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
+    communityDetails({
+        id,
+        accessHash,
+    }: CommunityDetailsRequest): Promise<
+        Result<CommunityDetailsResponse, NetworkError>
+    > {
+        return this.safeRequest(
+            this.client
+                .get<CommunityDetailsResponse>(`/community/${id}/${accessHash}`)
+                .then(r => r.data),
+        );
+    }
+
     communityReplies({
         id,
         accessHash,
@@ -464,6 +480,20 @@ export interface CommunityListRequest {
 export interface CommunityListResponse {
     data: CommunityPost[];
     nextId: string | null;
+}
+
+export interface CommunityDetailsRequest {
+    id: number;
+    accessHash: string;
+}
+
+export interface CommunityDetailsResponse {
+    post: CommunityPost;
+    replies: {
+        data: CommunityPost[];
+        nextId: string | null;
+    };
+    upstream: CommunityPost[];
 }
 
 export interface CommunityRepliesRequest {

@@ -1,4 +1,3 @@
-import React from 'react';
 import {Button} from '@/components/ui/button';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -11,9 +10,15 @@ import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 
 export interface CommunityPostCardProps {
     post: CommunityPost;
+    minimize: boolean;
+    replyReplace: boolean;
 }
 
-export function CommunityPostCard({post}: CommunityPostCardProps) {
+export function CommunityPostCard({
+    post,
+    minimize,
+    replyReplace,
+}: CommunityPostCardProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -24,8 +29,13 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
     const postTime = new Date(post.instant);
 
     async function navigateReplies() {
-        await storage.communityPosts.save(post);
-        await navigate(`/community/${post.id}/replies`);
+        await storage.communityPosts.save({
+            id: post.id,
+            accessHash: post.accessHash,
+        });
+        await navigate(`/community/${post.id}/replies`, {
+            replace: replyReplace,
+        });
     }
 
     async function navigateProfile(event: React.MouseEvent) {
@@ -66,16 +76,18 @@ export function CommunityPostCard({post}: CommunityPostCardProps) {
                         <MarkdownArea text={post.text} />
                     </div>
 
-                    <div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                            {t('reply')}
-                        </Button>
-                    </div>
+                    {!minimize && (
+                        <div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
+                            >
+                                <MessageCircle className="h-4 w-4" />
+                                {t('reply')}
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

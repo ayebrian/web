@@ -1,5 +1,7 @@
 import {useBackend} from '@/backend.context';
+import {CommunityDetailsResponse} from '@/network/friendly-client';
 import {Button} from '@/components/ui/button';
+import {forceUnwrap} from '@/network/result';
 import {cn} from '@/lib/utils';
 import {
     useInfiniteQuery,
@@ -7,14 +9,7 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {
-    Loader2,
-    MessageCircle,
-    AlertCircle,
-    Clock,
-    Send,
-    ChevronLeft,
-} from 'lucide-react';
+import {Loader2, MessageCircle, AlertCircle, Clock, Send} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
 import {CommunityPost} from '@/network/friendly-client';
@@ -29,7 +24,6 @@ import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 export function RepliesPage() {
     const t = useTranslations('replies');
     const backend = useBackend();
-    const queryClient = useQueryClient();
     const storage = useFriendlyStorage();
     const navigate = useNavigate();
 
@@ -44,27 +38,93 @@ export function RepliesPage() {
 
     const replyTo = useQuery({
         queryKey: ['replyTo', idInt],
-        queryFn: () => storage.communityPosts.get(idInt),
+        queryFn: async () => {
+            const {id, accessHash} = await storage.communityPosts.get(idInt);
+            const result = await backend.communityDetails({id, accessHash});
+            return forceUnwrap(result);
+        },
     });
+
+    let content;
+
+    if (replyTo.isLoading) {
+        content = (
+            <div className="flex h-[50vh] w-full items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+            </div>
+        );
+    } else if (replyTo.isError) {
+        content = (
+            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+                <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
+                <h3 className="text-center">
+                    {replyTo.error?.message ?? t('unknown_error')}
+                </h3>
+                <Button
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => void replyTo.refetch()}
+                >
+                    {t('retry')}
+                </Button>
+            </div>
+        );
+    } else {
+        content = <ReplyContent id={idInt} replyTo={replyTo.data!} />;
+    }
+
+    return (
+        <div className="flex flex-col w-full max-w-2xl mx-auto px-4 py-4">
+            {content}
+        </div>
+    );
+}
+
+interface ReplyContentProps {
+    id: number;
+    replyTo: CommunityDetailsResponse;
+}
+
+function ReplyContent({id, replyTo}: ReplyContentProps) {
+    const backend = useBackend();
+    const queryClient = useQueryClient();
+    const t = useTranslations('replies');
+
+    const upstreamRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const upstream = upstreamRef.current;
+        if (upstream) {
+            upstream.scrollIntoView({
+                behavior: 'instant',
+                block: 'start',
+                inline: 'nearest',
+            });
+        }
+    }, [id]);
 
     const [newPostText, setNewPostText] = useState('');
 
     const postsQuery = useInfiniteQuery({
-        queryKey: ['communityReplies', idInt],
-        queryFn: async ({pageParam}) => {
-            return await backend.communityReplies({
-                id: idInt,
-                accessHash: replyTo.data!.accessHash,
+        queryKey: ['communityReplies', id],
+        queryFn: async ({pageParam}: {pageParam: string | null}) => {
+            const result = await backend.communityReplies({
+                id: id,
+                accessHash: replyTo.post.accessHash,
                 cursorId: pageParam,
             });
+            return forceUnwrap(result);
         },
-        enabled: !!replyTo.data,
-        initialPageParam: null as string | null,
-        getNextPageParam: lastPage =>
-            lastPage.ok && lastPage.data.nextId !== null
-                ? lastPage.data.nextId
-                : undefined,
+        initialData: {
+            pages: [replyTo.replies],
+            pageParams: [null],
+        },
+        initialPageParam: null,
+        getNextPageParam: lastPage => lastPage.nextId,
     });
+
+    const pages = postsQuery.data?.pages ?? [];
+    const posts = pages.flatMap(p => p.data);
 
     const loadMore = () => {
         if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
@@ -74,25 +134,23 @@ export function RepliesPage() {
 
     const createPostMutation = useMutation({
         mutationFn: async (text: string) => {
-            if (replyTo.isPending) {
-                await queryClient.ensureQueryData({
-                    queryKey: ['replyTo', idInt],
-                    queryFn: () => storage.communityPosts.get(idInt),
-                });
-            }
-            return await backend.communityPost({
+            const result = await backend.communityPost({
                 replyTo: {
-                    id: idInt,
-                    accessHash: replyTo.data!.accessHash,
+                    id: id,
+                    accessHash: replyTo.post.accessHash,
                 },
                 text,
             });
+            return forceUnwrap(result);
         },
         onSuccess: () => {
-            setNewPostText('');
-            void queryClient.invalidateQueries({
-                queryKey: ['communityReplies', idInt],
-            });
+            void queryClient
+                .invalidateQueries({
+                    queryKey: ['communityReplies', id],
+                })
+                .then(() => {
+                    setNewPostText('');
+                });
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -104,96 +162,77 @@ export function RepliesPage() {
         await createPostMutation.mutateAsync(newPostText);
     }, [newPostText, createPostMutation]);
 
-    let content;
+    let upstream;
 
-    if (postsQuery.isLoading) {
-        content = (
-            <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-            </div>
+    if (replyTo.upstream.length > 0) {
+        upstream = (
+            <>
+                <div className="flex flex-col gap-2">
+                    {replyTo.upstream.map(post => (
+                        <CommunityPostCard
+                            key={post.id}
+                            post={post}
+                            minimize={true}
+                            replyReplace={true}
+                        />
+                    ))}
+                    <div
+                        ref={upstreamRef}
+                        className="text-sm font-semibold uppercase text-foreground scroll-m-20"
+                    />
+                </div>
+            </>
         );
-    } else if (postsQuery.isError) {
-        content = (
-            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
-                <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">
-                    {postsQuery.error?.message ?? t('unknown_error')}
+    } else {
+        upstream = null;
+    }
+
+    let replies;
+
+    if (posts.length === 0) {
+        replies = (
+            <div className="flex flex-col gap-2 mt-6 w-full items-center justify-center px-6 text-center">
+                <MessageCircle className="w-12 h-12 text-muted-foreground" />
+                <h3 className="text-base font-semibold text-foreground">
+                    {t('no-replies')}
                 </h3>
-                <Button
-                    variant="outline"
-                    className="mt-2"
-                    onClick={() => void postsQuery.refetch()}
-                >
-                    {t('retry')}
-                </Button>
+                <p className="max-w-xs text-sm text-muted-foreground">
+                    {t('no-replies-desc')}
+                </p>
+                <div className="h-[50dvh] w-full" />
             </div>
         );
     } else {
-        const pages = postsQuery.data?.pages ?? [];
-        const posts = pages.flatMap(p => (p.ok ? p.data.data : []));
-
-        if (posts.length === 0 && pages.length > 0 && !pages[0].ok) {
-            content = (
-                <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
-                    <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                    <h3 className="text-center">{t('unknown_error')}</h3>
-                    <Button
-                        variant="outline"
-                        className="mt-2"
-                        onClick={() => void postsQuery.refetch()}
-                    >
-                        {t('retry')}
-                    </Button>
-                </div>
-            );
-        } else if (posts.length === 0) {
-            content = (
-                <div className="flex flex-col h-[50vh] gap-2 w-full items-center justify-center px-6 text-center">
-                    <MessageCircle className="w-12 h-12 text-muted-foreground" />
-                    <h3 className="text-base font-semibold text-foreground">
-                        {t('no-replies')}
-                    </h3>
-                    <p className="max-w-xs text-sm text-muted-foreground">
-                        {t('no-replies-desc')}
-                    </p>
-                </div>
-            );
-        } else {
-            content = (
-                <div className="w-full flex flex-col gap-4">
-                    <p className="text-sm font-semibold uppercase text-foreground">
-                        {t('replies')}
-                    </p>
-                    {posts.map(post => (
-                        <CommunityPostCard key={post.id} post={post} />
-                    ))}
-                </div>
-            );
-        }
+        replies = (
+            <div className="w-full min-h-[70dvh] flex flex-col gap-4">
+                <p className="text-sm font-semibold uppercase text-foreground">
+                    {t('replies')}
+                </p>
+                {posts.map(post => (
+                    <CommunityPostCard
+                        key={post.id}
+                        post={post}
+                        minimize={false}
+                        replyReplace={true}
+                    />
+                ))}
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-col w-full max-w-2xl mx-auto px-4 py-4">
-            <a
-                className="w-full text-muted-foreground text-sm"
-                onClick={() => history.back()}
-            >
-                <span className="flex items-center cursor-pointer hover:underline">
-                    <ChevronLeft className="inline h-4 w-4" />
-                    {t('go-back')}
-                </span>
-            </a>
-            <div className="h-4" />
-            {replyTo.data && (
-                <MainPostCard
-                    text={newPostText}
-                    onTextChange={setNewPostText}
-                    onSubmit={handleCreatePost}
-                    isSubmitting={createPostMutation.isPending}
-                    post={replyTo.data}
-                />
-            )}
-            {content}
+        <div>
+            {upstream}
+            <MainPostCard
+                text={newPostText}
+                onTextChange={setNewPostText}
+                onSubmit={handleCreatePost}
+                isSubmitting={
+                    createPostMutation.isPending || postsQuery.isFetching
+                }
+                post={replyTo.post}
+            />
+            {replies}
             <div hidden={!postsQuery.hasNextPage}>
                 <Button
                     variant="ghost"
@@ -246,6 +285,7 @@ function MainPostCard({
     }, [text]);
 
     const t = useTranslations('replies');
+    const postT = useTranslations('post');
     const backend = useBackend();
     const storage = useFriendlyStorage();
     const navigate = useNavigate();
@@ -297,7 +337,7 @@ function MainPostCard({
                             </p>
                             <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                                 <Clock className="h-3 w-3" />
-                                {formatTimeAgo(t, postTime)}
+                                {formatTimeAgo(postT, postTime)}
                             </span>
                         </div>
                         <div className="text-foreground whitespace-pre-wrap break-words">

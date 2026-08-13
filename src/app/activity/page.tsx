@@ -13,9 +13,9 @@ import {useState, useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
-import {CommunityPostCard} from './post';
+import {CommunityPostCard} from '../community/post';
 
-export function CommunityPage() {
+export function ActivityPage() {
     const t = useTranslations('community');
     const backend = useBackend();
     const queryClient = useQueryClient();

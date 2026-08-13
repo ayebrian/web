@@ -1,6 +1,6 @@
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/badge';
-import {User, Newspaper, MessageCircle, BookUser} from 'lucide-react';
+import {User, Newspaper, MessageCircle, BookUser, Inbox} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {cn} from '@/lib/utils';
 import {Link, useLocation} from 'react-router';
@@ -14,16 +14,62 @@ interface MenuItem {
 }
 
 const MENURAIL_ITEMS: MenuItem[] = [
-    {path: '/', title: 'profile', icon: <User />},
-    {path: '/feed', title: 'feed', icon: <BookUser />},
     {
         path: '/community',
         title: 'community',
         icon: <Newspaper />,
     },
-    {path: '/chat', title: 'chat', icon: <MessageCircle />, releaseTag: 'Q4'},
+    {
+        path: '/feed',
+        title: 'feed',
+        icon: <BookUser />,
+    },
+    {
+        path: '/activity',
+        title: 'activity',
+        icon: <Inbox />,
+    },
+    {
+        path: '/chat',
+        title: 'chat',
+        icon: <MessageCircle />,
+        releaseTag: 'Q4',
+    },
+    {
+        path: '/profile',
+        title: 'profile',
+        icon: <User />,
+    },
 ];
-const MENUBAR_ITEMS: MenuItem[] = MENURAIL_ITEMS.toReversed();
+
+const MENUBAR_ITEMS: MenuItem[] = [
+    {
+        path: '/community',
+        title: 'community',
+        icon: <Newspaper className="size-icon m-2" />,
+    },
+    {
+        path: '/feed',
+        title: 'feed',
+        icon: <BookUser className="size-icon m-2" />,
+    },
+    {
+        path: '/activity',
+        title: 'activity',
+        icon: <Inbox className="size-icon m-2" />,
+    },
+    {
+        path: '/chat',
+        title: 'chat',
+        icon: <MessageCircle className="size-icon m-2" />,
+        releaseTag: 'Q4',
+    },
+    {
+        path: '/profile',
+        title: 'profile',
+        icon: <User className="size-icon m-2" />,
+    },
+];
 
 export function MenuRail() {
     const t = useTranslations('menu');
@@ -56,41 +102,21 @@ export function MenuRail() {
 }
 
 export function MenuBar() {
-    const t = useTranslations('menu');
     const {pathname} = useLocation();
 
     return (
-        <div className="grid grid-cols-4 gap-2 p-4 w-full max-w-md mx-auto">
+        <div className="grid grid-cols-5 gap-2 p-2 w-full max-w-md mx-auto">
             {MENUBAR_ITEMS.map(item => (
                 <Link key={item.path} to={item.path} className="min-w-0 w-full">
                     <Button
                         variant="ghost"
                         className={cn(
-                            'cursor-pointer w-full h-12 py-1 px-1 text-xs sm:text-sm',
+                            'cursor-pointer w-full h-full py-1 px-1 text-xs sm:text-sm',
                             pathname === item.path &&
                                 'bg-accent text-accent-foreground dark:bg-accent/50',
                         )}
                     >
-                        <div className="flex flex-col items-center justify-between h-full w-full min-w-0">
-                            <div className="flex items-center justify-center h-5">
-                                <Badge
-                                    hidden={!item.releaseTag}
-                                    variant="secondary"
-                                    className="scale-90 origin-center"
-                                >
-                                    {item.releaseTag}
-                                </Badge>
-                                <div
-                                    hidden={!!item.releaseTag}
-                                    className="w-4 h-4"
-                                >
-                                    {item.icon}
-                                </div>
-                            </div>
-                            <span className="truncate w-full text-center leading-none mt-auto">
-                                {t(item.title as Parameters<typeof t>[0])}
-                            </span>
-                        </div>
+                        {item.icon}
                     </Button>
                 </Link>
             ))}

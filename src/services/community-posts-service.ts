@@ -1,7 +1,10 @@
-import {CommunityPost} from '@/network/friendly-client';
-
 const DB_NAME = 'CommunityPostsDB';
 const STORE_NAME = 'CommunityPost';
+
+export interface CommunityPostsEntry {
+    id: number;
+    accessHash: string;
+}
 
 export class CommunityPostsService {
     private db: IDBDatabase | null = null;
@@ -35,7 +38,7 @@ export class CommunityPostsService {
         });
     }
 
-    async save(pair: CommunityPost): Promise<void> {
+    async save(pair: CommunityPostsEntry): Promise<void> {
         if (typeof window === 'undefined') {
             return Promise.reject(
                 new Error('IndexedDB is only available in the browser.'),
@@ -56,7 +59,7 @@ export class CommunityPostsService {
         });
     }
 
-    async get(id: number): Promise<CommunityPost> {
+    async get(id: number): Promise<CommunityPostsEntry> {
         if (typeof window === 'undefined') {
             return Promise.reject(
                 new Error('IndexedDB is only available in the browser.'),
@@ -73,7 +76,7 @@ export class CommunityPostsService {
                 reject(new Error(`Can't get an user pair for id=${id}.`));
             };
             request.onsuccess = () => {
-                const pair = request.result as CommunityPost;
+                const pair = request.result as CommunityPostsEntry;
                 if (!pair)
                     return reject(
                         new Error(`Can't get an user pair for id=${id}.`),

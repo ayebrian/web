@@ -199,7 +199,8 @@
         "no-replies-desc": "Оставь свой ответ первым!",
         "load-more": "Загрузить ещё",
         "replies": "Ответы",
-        "go-back": "Назад"
+        "go-back": "Назад",
+        "upstream": "Ветка"
     },
     "chat": {
         "title": "В работе...",
@@ -211,7 +212,8 @@
         "profile": "Профиль",
         "feed": "Лента",
         "chat": "Чат",
-        "community": "Сообщество"
+        "community": "Сообщество",
+        "activity": "Активность"
     },
     "markdown-input": {
         "bold": "Жирный",
