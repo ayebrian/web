@@ -77,7 +77,10 @@ function ScrollRestoration({scrollRef}: ScrollRestorationProps) {
     useEffect(() => {
         const scroll = scrollRef.current;
         if (!scroll) return;
-        if (navigationType === NavigationType.Push) {
+        if (
+            navigationType === NavigationType.Push ||
+            navigationType === NavigationType.Replace
+        ) {
             scroll.scrollTo(0, 0);
         } else {
             const saved = sessionStorage.getItem(`scroll:${location.key}`);

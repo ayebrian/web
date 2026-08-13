@@ -1,5 +1,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
+import {AppPage} from '@/app/page';
+import {ActivityPage} from '@/app/activity/page';
 import SignInPage from '@/app/sign-in/page';
 import SignUpPage from '@/app/sign-up/page';
 import {CommunityPage} from '@/app/community/page';
@@ -10,7 +12,7 @@ import UserPage from '@/app/user/[id]/page';
 import DeeplinkPage from '@/app/redirect/[deeplink]/page';
 import * as Notifications from '@/notifications';
 import {NotFoundPage} from '@/app/not-found';
-import Home from '@/app/page';
+import {ProfilePage} from '@/app/profile/page';
 import RootLayout from '@/app/layout';
 import {createBrowserRouter, RouterProvider} from 'react-router';
 import FeedPage from '@/app/feed/page';
@@ -26,7 +28,15 @@ const router = createBrowserRouter([
         children: [
             {
                 path: '/',
-                Component: Home,
+                Component: AppPage,
+            },
+            {
+                path: 'activity',
+                Component: ActivityPage,
+            },
+            {
+                path: 'profile',
+                Component: ProfilePage,
             },
             {
                 path: 'sign-in',
@@ -74,6 +84,6 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <RouterProvider router={router} useTransitions />
     </StrictMode>,
 );

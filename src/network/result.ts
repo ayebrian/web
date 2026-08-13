@@ -12,3 +12,12 @@ export function match<T, E, U>(
 ): U {
     return r.ok ? branches.ok(r.data) : branches.err(r.error);
 }
+
+export function forceUnwrap<T, E>(r: Result<T, E>): T {
+    if (r.ok) {
+        return r.data;
+    } else {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
+        throw r.error;
+    }
+}

@@ -10,6 +10,8 @@ import {
     CommunityListResponse,
     CommunityRepliesRequest,
     CommunityRepliesResponse,
+    CommunityDetailsRequest,
+    CommunityDetailsResponse,
     NetworkDetailsResponse,
     SendFriendRequest,
 } from '@/network/friendly-client';
@@ -183,6 +185,12 @@ export class BackendService {
         request: CommunityListRequest,
     ): Promise<Result<CommunityListResponse, NetworkError>> {
         return this.client.communityList(request);
+    }
+
+    async communityDetails(
+        request: CommunityDetailsRequest,
+    ): Promise<Result<CommunityDetailsResponse, NetworkError>> {
+        return this.client.communityDetails(request);
     }
 
     async communityReplies(

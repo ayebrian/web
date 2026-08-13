@@ -195,7 +195,8 @@
         "no-replies-desc": "Be the first to discuss this!",
         "load-more": "Load more",
         "replies": "Replies",
-        "go-back": "Go back"
+        "go-back": "Go back",
+        "upstream": "Upstream"
     },
     "chat": {
         "title": "Work in progress...",
@@ -207,7 +208,8 @@
         "profile": "Profile",
         "chat": "Chat",
         "community": "Community",
-        "feed": "Feed"
+        "feed": "Feed",
+        "activity": "Activity"
     },
     "markdown-input": {
         "bold": "Bold",
