@@ -38,6 +38,10 @@
             "no_friends": "Ask someone for an invite link to start connecting",
             "no_description": "No profile note yet."
         },
+        "common-friends": {
+            "title": "Common Friends",
+            "see-all": "See all"
+        },
         "qr": {
             "title": "QR code",
             "desc": "Share your profile to make connections.",

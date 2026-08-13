@@ -17,6 +17,7 @@ import RootLayout from '@/app/layout';
 import {createBrowserRouter, RouterProvider} from 'react-router';
 import FeedPage from '@/app/feed/page';
 import RouteErrorScreen from '@/route-errorscreen';
+import IntlProvider from '@/components/intl-provider';
 
 void Notifications.nudge();
 
@@ -24,7 +25,11 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <RootLayout />,
-        errorElement: <RouteErrorScreen />,
+        errorElement: (
+            <IntlProvider>
+                <RouteErrorScreen />
+            </IntlProvider>
+        ),
         children: [
             {
                 path: '/',
