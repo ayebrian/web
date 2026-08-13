@@ -168,13 +168,13 @@ function CreatePostCard({
     const backend = useBackend();
     const userQuery = useQuery({
         queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails(),
+        queryFn: () => backend.getUserDetails2(),
     });
 
     const avatarUrl = useMemo(
         () =>
-            userQuery.data?.ok && userQuery.data?.data?.avatar
-                ? createFileLink(userQuery.data.data.avatar)
+            userQuery.data?.ok && userQuery.data?.data?.details?.avatar
+                ? createFileLink(userQuery.data.data.details.avatar)
                 : '',
         [userQuery],
     );
@@ -195,7 +195,7 @@ function CreatePostCard({
                     src={avatarUrl}
                     nickname={
                         userQuery?.data?.ok
-                            ? userQuery?.data?.data?.nickname
+                            ? userQuery?.data?.data?.details?.nickname
                             : ''
                     }
                 />

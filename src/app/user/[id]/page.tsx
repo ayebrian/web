@@ -1,10 +1,12 @@
 import {useBackend} from '@/backend.context';
+import {FriendsBlock} from './friends-block';
+import {forceUnwrap} from '@/network/result';
 import {cn} from '@/lib/utils';
 import {createFileLink, normalizeLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {Activity, Loader2, UserXIcon, ChevronLeft} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useMemo, useState} from 'react';
+import {useMemo, useState, useEffect} from 'react';
 import {UserDetails} from '@/types/user-details';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
@@ -159,10 +161,21 @@ export default function UserPage() {
     const storage = useFriendlyStorage();
 
     const {id} = useParams();
+    const userId = Number(id);
+    const selfId = useMemo(() => Number(localStorage.getItem('userId')), []);
+
+    useEffect(() => {
+        if (userId === selfId) {
+            void navigate('/profile');
+        }
+    }, [userId, selfId]);
+
+    if (userId === selfId) {
+        return;
+    }
 
     const {mutate: declineFriend, isPending: isDeclinePending} = useMutation({
         mutationFn: async () => {
-            const userId = parseInt(id ?? '0');
             await backend.declineFriendRequest({
                 userId: userId,
                 userAccessHash: (await storage.userAccessHashes.get(userId))
@@ -177,12 +190,17 @@ export default function UserPage() {
     const userQuery = useQuery({
         queryKey: ['user', id],
         queryFn: async () => {
-            if (!id)
-                return Promise.reject(new Error('Id is null or undefined'));
+            if (!id) {
+                throw new Error('Id is null or undefined');
+            }
             const idNum = parseInt(id);
             const userPair = await storage.userAccessHashes.get(idNum);
             const accessHash = userPair.accessHash;
-            return backend.getUserDetailsById(parseInt(id), accessHash);
+            const result = await backend.getUserDetailsById2(
+                parseInt(id),
+                accessHash,
+            );
+            return forceUnwrap(result);
         },
     });
 
@@ -194,7 +212,7 @@ export default function UserPage() {
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
-    } else if (userQuery.isError || !userQuery.data?.ok) {
+    } else if (userQuery.isError) {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
@@ -205,7 +223,7 @@ export default function UserPage() {
         content = (
             <div className="flex flex-col gap-2 pb-12">
                 <ProfileHeader
-                    userDetails={userQuery.data.data}
+                    userDetails={userQuery.data!.details}
                     onRemoveFriend={declineFriend}
                 />
                 <Separator />
@@ -213,8 +231,13 @@ export default function UserPage() {
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
                         <InterestsBlock
-                            interests={userQuery.data.data?.interests ?? []}
+                            interests={userQuery.data!.details.interests}
                         />
+                        {userQuery.data!.commonFriends!.length > 0 && (
+                            <FriendsBlock
+                                friends={userQuery.data!.commonFriends!}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

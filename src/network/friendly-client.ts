@@ -11,11 +11,11 @@ export interface FriendlyClient {
     generateAccount(
         request: GenerateAccountRequest,
     ): Promise<Result<GenerateAccountResponse, NetworkError>>;
-    getUserDetails(): Promise<Result<UserDetails, NetworkError>>;
-    getUserDetailsById(
+    getUserDetails2(): Promise<Result<UserDetailsResponse, NetworkError>>;
+    getUserDetailsById2(
         id: number,
         accessHash: string,
-    ): Promise<Result<UserDetails, NetworkError>>;
+    ): Promise<Result<UserDetailsResponse, NetworkError>>;
     usersEdit(request: UsersEditRequest): Promise<Result<void, NetworkError>>;
     uploadFile(file: File): Promise<Result<FileDescriptor, NetworkError>>;
     downloadFile(
@@ -142,19 +142,23 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
-    async getUserDetails(): Promise<Result<UserDetails, NetworkError>> {
+    async getUserDetails2(): Promise<
+        Result<UserDetailsResponse, NetworkError>
+    > {
         return this.safeRequest(
-            this.client.get<UserDetails>('/users/details').then(r => r.data),
+            this.client
+                .get<UserDetailsResponse>('/users/details2')
+                .then(r => r.data),
         );
     }
 
-    async getUserDetailsById(
+    async getUserDetailsById2(
         id: number,
         accessHash: string,
-    ): Promise<Result<UserDetails, NetworkError>> {
+    ): Promise<Result<UserDetailsResponse, NetworkError>> {
         return this.safeRequest(
             this.client
-                .get<UserDetails>(`/users/details/${id}/${accessHash}`)
+                .get<UserDetailsResponse>(`/users/details2/${id}/${accessHash}`)
                 .then(r => r.data),
         );
     }
@@ -385,6 +389,11 @@ export interface GenerateAccountResponse {
     token: string;
     id: number;
     accessHash: string;
+}
+
+export interface UserDetailsResponse {
+    details: UserDetails;
+    commonFriends?: UserDetails[];
 }
 
 export interface UsersEditRequest {

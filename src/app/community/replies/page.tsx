@@ -298,13 +298,13 @@ function MainPostCard({
 
     const selfQuery = useQuery({
         queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails(),
+        queryFn: () => backend.getUserDetails2(),
     });
 
     const selfAvatarUrl = useMemo(
         () =>
-            selfQuery.data?.ok && selfQuery.data?.data?.avatar
-                ? createFileLink(selfQuery.data.data.avatar)
+            selfQuery.data?.ok && selfQuery.data?.data?.details?.avatar
+                ? createFileLink(selfQuery.data.data.details.avatar)
                 : '',
         [selfQuery],
     );

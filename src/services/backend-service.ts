@@ -1,10 +1,10 @@
-import {UserDetails} from '@/types/user-details';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {
     DeclineFriendRequest,
     FeedQueueResponse,
     FriendlyClient,
     GenerateAccountResponse,
+    UserDetailsResponse,
     CommunityPostRequest,
     CommunityListRequest,
     CommunityListResponse,
@@ -75,15 +75,17 @@ export class BackendService {
         localStorage.removeItem('token');
     }
 
-    async getUserDetails(): Promise<Result<UserDetails, NetworkError>> {
-        return await this.client.getUserDetails();
+    async getUserDetails2(): Promise<
+        Result<UserDetailsResponse, NetworkError>
+    > {
+        return await this.client.getUserDetails2();
     }
 
-    async getUserDetailsById(
+    async getUserDetailsById2(
         id: number,
         accessHash: string,
-    ): Promise<Result<UserDetails, NetworkError>> {
-        return this.client.getUserDetailsById(id, accessHash);
+    ): Promise<Result<UserDetailsResponse, NetworkError>> {
+        return this.client.getUserDetailsById2(id, accessHash);
     }
 
     usersEdit: typeof this.client.usersEdit = (...args) => {

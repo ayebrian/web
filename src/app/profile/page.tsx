@@ -149,7 +149,7 @@ export function ProfilePage() {
 
     const userQuery = useQuery({
         queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails(),
+        queryFn: () => backend.getUserDetails2(),
         enabled: session.status === 'authed',
     });
 
@@ -164,7 +164,7 @@ export function ProfilePage() {
 
     useEffect(() => {
         if (userResult?.ok) {
-            appRef.current.setUserDetails(userResult.data);
+            appRef.current.setUserDetails(userResult.data.details);
         }
     }, [appRef, userResult]);
 
