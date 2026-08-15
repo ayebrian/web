@@ -1,5 +1,5 @@
 import {useUserValidator, ValidateUserResult} from './user-validation';
-import {useAppContext} from '@/app.context';
+import {useAppContext, requireUser} from '@/app.context';
 import {useEffect} from 'react';
 import {useBackendLocale} from '@/network/backend-locale';
 import {EmailDialog} from './email-dialog';
@@ -46,7 +46,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
     const app = useAppContext();
 
-    const userDetails = app.requireUser();
+    const userDetails = requireUser(app);
 
     const [loading, setLoading] = useState(false);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -287,7 +287,7 @@ function EmailInput({
 
     const [openUnlink, setOpenUnlink] = useState(false);
 
-    const appContext = useAppContext();
+    const app = useAppContext();
 
     async function onOpen() {
         setLoading(true);
@@ -321,8 +321,8 @@ function EmailInput({
                 setEmailError(t('error-connection'));
                 return;
             }
-            appContext.setUserDetails({
-                ...appContext.requireUser(),
+            app.setUserDetails({
+                ...requireUser(app),
                 email: null,
             });
         } finally {

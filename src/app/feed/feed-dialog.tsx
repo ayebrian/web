@@ -1,4 +1,5 @@
 import {Badge} from '@/components/ui/badge';
+import {MarkdownArea} from '@/components/ui/markdown-area';
 import {Button} from '@/components/ui/button';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {cn, createFileLink} from '@/lib/utils';
@@ -9,7 +10,6 @@ import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
-import {FormattedDescription} from '@/components/formatted-description';
 import {AllFriendsList} from '@/app/friends/all-friends-list';
 import {useState} from 'react';
 
@@ -143,9 +143,7 @@ export function FeedDialog({
 
                 <div className="break-words text-sm leading-6 text-foreground">
                     {selectedCard.details.description ? (
-                        <FormattedDescription
-                            description={selectedCard.details.description}
-                        />
+                        <MarkdownArea text={selectedCard.details.description} />
                     ) : (
                         <p>{t('no_description')}</p>
                     )}

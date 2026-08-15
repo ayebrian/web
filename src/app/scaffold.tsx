@@ -4,7 +4,7 @@ import {cn} from '@/lib/utils';
 import {TopBar} from '@/app/top-bar';
 import {MenuRail, MenuBar} from '@/app/menu';
 import {useSession} from '@/components/session-provider';
-import {useBlockingQR} from '@/app/blocking-qr/dialog';
+import {useBlockingQR} from '@/app/blocking-qr/page';
 
 export interface ScaffoldProps {
     children: ReactNode;

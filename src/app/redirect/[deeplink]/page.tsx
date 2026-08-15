@@ -7,7 +7,7 @@ import {useParams} from 'react-router';
 import {Spinner} from '@/components/ui/spinner';
 import {useEffect, useState, ReactNode} from 'react';
 import {useSession} from '@/components/session-provider';
-import {useBlockingQR} from '@/app/blocking-qr/dialog';
+import {useBlockingQR} from '@/app/blocking-qr/page';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {useDeferredLink} from './deferred-link';
 

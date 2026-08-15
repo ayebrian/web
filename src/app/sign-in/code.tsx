@@ -1,7 +1,7 @@
 import {REGEXP_ONLY_DIGITS} from 'input-otp';
 import {useSession} from '@/components/session-provider';
 import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
-import {useBlockingQR} from '@/app/blocking-qr/dialog';
+import {useBlockingQR} from '@/app/blocking-qr/page';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
 import {X} from 'lucide-react';

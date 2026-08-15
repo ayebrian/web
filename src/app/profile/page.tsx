@@ -1,4 +1,4 @@
-import {useBlockingQR, BlockingQR} from '@/app/blocking-qr/dialog';
+import {useBlockingQR} from '@/app/blocking-qr/page';
 import {useAppContext, useAppContextRef} from '@/app.context';
 import {useEffect, useMemo, useState, useCallback} from 'react';
 import {Badge} from '@/components/ui/badge';
@@ -133,13 +133,9 @@ export function ProfilePage() {
     const appRef = useAppContextRef();
     const navigate = useNavigate();
     const backend = useBackend();
-    const queryClient = useQueryClient();
     const session = useSession();
+    const queryClient = useQueryClient();
     const blockingQR = useBlockingQR();
-
-    useEffect(() => {
-        if (session.status === 'guest') void navigate('/sign-up');
-    }, [session.status]);
 
     const logOut = () => {
         queryClient.clear();
@@ -150,13 +146,11 @@ export function ProfilePage() {
     const userQuery = useQuery({
         queryKey: ['userDetails'],
         queryFn: () => backend.getUserDetails2(),
-        enabled: session.status === 'authed',
     });
 
     const networkQuery = useQuery({
         queryKey: ['networkDetails', blockingQR],
         queryFn: () => backend.getNetworkDetails(),
-        enabled: session.status === 'authed',
     });
 
     const userResult = userQuery.data ?? null;
@@ -178,7 +172,6 @@ export function ProfilePage() {
               ? formatNetworkError(networkResult.error)
               : null;
 
-    const isLoading = session.status === 'loading' || userQuery.isLoading;
     const isError = userQuery.isError || hasResultError;
 
     const user = app.userDetails;
@@ -186,15 +179,7 @@ export function ProfilePage() {
 
     let content;
 
-    if (session.status === 'guest') {
-        content = null;
-    } else if (blockingQR.shouldBlock) {
-        content = (
-            <>
-                <BlockingQR controller={blockingQR} />
-            </>
-        );
-    } else if (isLoading) {
+    if (userQuery.isLoading) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />

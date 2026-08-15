@@ -181,6 +181,20 @@
         "empty_desc": "Be the first to share something with the community!",
         "load-more": "Load more"
     },
+    "activity": {
+        "retry": "Retry",
+        "unknown-error": "Something went wrong",
+        "empty-title": "Nothing here yet",
+        "empty-desc": "Recent activity will appear here",
+        "load-more": "Load more",
+        "reply": "Reply from <b>{nickname}</b>:",
+        "just_now": "Just now",
+        "minutes_ago": "{count} min ago",
+        "hours_ago": "{count} hour ago",
+        "hours_ago_plural": "{count} hours ago",
+        "days_ago": "{count} day ago",
+        "days_ago_plural": "{count} days ago"
+    },
     "post": {
         "just_now": "Just now",
         "minutes_ago": "{count} min ago",
