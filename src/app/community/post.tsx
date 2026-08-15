@@ -72,7 +72,7 @@ export function CommunityPostCard({
                             {formatTimeAgo(t, postTime)}
                         </span>
                     </div>
-                    <div className="mt-1 text-foreground whitespace-pre-wrap break-all">
+                    <div className="mt-1 text-foreground whitespace-pre-wrap break-words">
                         <MarkdownArea text={post.text} />
                     </div>
 

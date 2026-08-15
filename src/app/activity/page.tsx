@@ -156,7 +156,7 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
                 nickname={details.post.owner.nickname}
                 src={avatar}
             />
-            <span className="[&_p]:inline line-clamp-2 text-foreground break-all">
+            <span className="[&_p]:inline line-clamp-2 text-foreground break-words">
                 {text} "
                 <MarkdownArea text={details.post.text} />"
             </span>

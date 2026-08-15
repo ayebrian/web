@@ -1,7 +1,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {BlockingQR} from '@/app/blocking-qr/page';
-import {AppPage} from '@/app/page';
+import {AppPage, AuthorizedGuard, UnauthorizedGuard} from '@/app/page';
 import {ActivityPage} from '@/app/activity/page';
 import SignInPage from '@/app/sign-in/page';
 import SignUpPage from '@/app/sign-up/page';
@@ -37,52 +37,62 @@ const router = createBrowserRouter([
                 Component: AppPage,
             },
             {
-                path: '/blocking-qr',
-                Component: BlockingQR,
+                element: <UnauthorizedGuard />,
+                children: [
+                    {
+                        path: 'sign-in',
+                        Component: SignInPage,
+                    },
+                    {
+                        path: 'sign-up',
+                        Component: SignUpPage,
+                    },
+                ],
             },
             {
-                path: 'activity',
-                Component: ActivityPage,
-            },
-            {
-                path: 'profile',
-                Component: ProfilePage,
-            },
-            {
-                path: 'sign-in',
-                Component: SignInPage,
-            },
-            {
-                path: 'sign-up',
-                Component: SignUpPage,
-            },
-            {
-                path: 'blocking-qr/bypass',
-                Component: Bypass,
-            },
-            {
-                path: 'user/:id',
-                Component: UserPage,
-            },
-            {
-                path: 'redirect/:deeplink',
-                Component: DeeplinkPage,
-            },
-            {
-                path: 'community',
-                Component: CommunityPage,
-            },
-            {
-                path: 'community/:id/replies',
-                Component: RepliesPage,
-            },
-            {
-                path: 'chat',
-                Component: ChatPage,
-            },
-            {
-                path: 'feed',
-                Component: FeedPage,
+                element: <AuthorizedGuard />,
+                children: [
+                    {
+                        path: 'blocking-qr',
+                        Component: BlockingQR,
+                    },
+                    {
+                        path: 'activity',
+                        Component: ActivityPage,
+                    },
+                    {
+                        path: 'profile',
+                        Component: ProfilePage,
+                    },
+                    {
+                        path: 'blocking-qr/bypass',
+                        Component: Bypass,
+                    },
+                    {
+                        path: 'user/:id',
+                        Component: UserPage,
+                    },
+                    {
+                        path: 'redirect/:deeplink',
+                        Component: DeeplinkPage,
+                    },
+                    {
+                        path: 'community',
+                        Component: CommunityPage,
+                    },
+                    {
+                        path: 'community/:id/replies',
+                        Component: RepliesPage,
+                    },
+                    {
+                        path: 'chat',
+                        Component: ChatPage,
+                    },
+                    {
+                        path: 'feed',
+                        Component: FeedPage,
+                    },
+                ],
             },
             {
                 path: '*',

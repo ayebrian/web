@@ -7,15 +7,15 @@ import {useTranslations} from 'use-intl';
 interface LogoutDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    hasEmail: boolean;
+    suggestBindEmail: boolean;
     onLogout: () => void;
-    onBindEmail: () => void;
+    onBindEmail?: () => void;
 }
 
 export function LogoutDialog({
     open,
     onOpenChange,
-    hasEmail,
+    suggestBindEmail,
     onLogout,
     onBindEmail,
 }: LogoutDialogProps) {
@@ -40,14 +40,16 @@ export function LogoutDialog({
                 </div>
                 <div className="px-4 pb-4">
                     <h2 className="text-center">
-                        {hasEmail ? t('title') : t('title_no_email')}
+                        {suggestBindEmail ? t('title_no_email') : t('title')}
                     </h2>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
-                        {!hasEmail && (
+                        {suggestBindEmail && (
                             <Button
                                 className="grow-1 cursor-pointer"
                                 onClick={() => {
-                                    onBindEmail();
+                                    if (onBindEmail !== undefined) {
+                                        onBindEmail();
+                                    }
                                 }}
                             >
                                 {t('bind_email')}

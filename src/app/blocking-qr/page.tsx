@@ -1,12 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-    useEffect,
-    useState,
-    ReactNode,
-    createContext,
-    useContext,
-    useMemo,
-} from 'react';
+import {useNavigate} from 'react-router';
+import {useState, ReactNode, createContext, useContext, useMemo} from 'react';
 import {toast} from 'sonner';
 import {Link, HatGlasses} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -22,8 +16,6 @@ import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from '@/components/styled-dialog-wrapper';
 import {useSession} from '@/components/session-provider';
 import {LogoutDialog} from '../log-out-dialog';
-import {useAppContext} from '@/app.context';
-import {EditProfileDialog} from '../edit/dialog';
 
 export function BlockingQR(): ReactNode {
     const controller = useBlockingQR();
@@ -33,11 +25,9 @@ export function BlockingQR(): ReactNode {
     const [link, setLink] = useState('');
     const [linkError, setLinkError] = useState<string | null>();
     const [openLogout, setOpenLogout] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
     const backend = useBackend();
     const session = useSession();
-    const app = useAppContext();
-    const userDetails = app.userDetails;
+    const navigate = useNavigate();
 
     async function onJoin() {
         setLinkError(null);
@@ -59,6 +49,7 @@ export function BlockingQR(): ReactNode {
                 return;
             }
             controller.dismissBlockingQR();
+            await navigate('/');
         } finally {
             setLoading(false);
         }
@@ -133,17 +124,9 @@ export function BlockingQR(): ReactNode {
             <LogoutDialog
                 open={openLogout}
                 onOpenChange={setOpenLogout}
-                hasEmail={!!userDetails?.email}
+                suggestBindEmail={false}
                 onLogout={() => void session.logOut()}
-                onBindEmail={() => {
-                    setOpenLogout(false);
-                    setOpenEdit(true);
-                }}
             />
-
-            {userDetails && (
-                <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
-            )}
         </>
     );
 }
@@ -182,14 +165,6 @@ export function BlockingQRProvider({children}: BlockingQRProviderProps) {
     const [shouldBlock, setShouldBlock] = useState(
         () => localStorage.getItem('blocking-qr-completed') !== 'true',
     );
-
-    const session = useSession();
-
-    useEffect(() => {
-        const isCompleted =
-            localStorage.getItem('blocking-qr-completed') === 'true';
-        setShouldBlock(!isCompleted);
-    }, [session]);
 
     const dismissBlockingQR = () => {
         localStorage.setItem('blocking-qr-completed', 'true');
