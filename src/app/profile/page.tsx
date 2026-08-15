@@ -43,7 +43,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
             <LogoutDialog
                 open={openLogout}
                 onOpenChange={setOpenLogout}
-                hasEmail={!!userDetails?.email}
+                suggestBindEmail={!userDetails?.email}
                 onLogout={logOut}
                 onBindEmail={() => {
                     setOpenLogout(false);

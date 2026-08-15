@@ -12,7 +12,12 @@ export function AppPage() {
     const navigate = useNavigate();
     const session = useSession();
     const location = useLocation();
-    const blockingQR = useBlockingQR();
+
+    useEffect(() => {
+        if (location.pathname === '/') {
+            void navigate('/community');
+        }
+    }, []);
 
     useEffect(() => {
         const timeout = setTimeout(() => setLoadingLong(true), 500);
@@ -22,19 +27,7 @@ export function AppPage() {
     useEffect(() => {
         if (session.status === 'loading') return;
         setLoading(false);
-
-        if (session.status === 'guest') {
-            void navigate('/sign-up');
-        } else if (session.status === 'authed') {
-            if (blockingQR.shouldBlock) {
-                void navigate('/blocking-qr');
-            } else {
-                if (location.pathname === '/') {
-                    void navigate('/community');
-                }
-            }
-        }
-    }, [session.status, blockingQR.shouldBlock, navigate]);
+    }, [session.status]);
 
     if (loading && loadingLong) {
         return (
@@ -44,5 +37,32 @@ export function AppPage() {
         );
     }
 
+    return <Outlet />;
+}
+
+export function AuthorizedGuard() {
+    const navigate = useNavigate();
+    const session = useSession();
+    const blockingQR = useBlockingQR();
+    useEffect(() => {
+        if (session.status === 'loading') return;
+        if (session.status === 'guest') {
+            void navigate('/sign-up');
+        } else if (blockingQR.shouldBlock) {
+            void navigate('/blocking-qr');
+        }
+    }, [session.status, navigate]);
+    return <Outlet />;
+}
+
+export function UnauthorizedGuard() {
+    const navigate = useNavigate();
+    const session = useSession();
+    useEffect(() => {
+        if (session.status === 'loading') return;
+        if (session.status === 'authed') {
+            return void navigate('/');
+        }
+    }, [session.status, navigate]);
     return <Outlet />;
 }
