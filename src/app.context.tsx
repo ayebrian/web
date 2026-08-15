@@ -1,7 +1,6 @@
 import {UserDetails} from '@/types/user-details';
 import {
     ReactElement,
-    useCallback,
     useEffect,
     useState,
     createContext,
@@ -27,8 +26,7 @@ export interface AppContextProviderProps {
  */
 export interface AppContext {
     userDetails: UserDetails | undefined;
-    setUserDetails(value: UserDetails): void;
-    requireUser(): UserDetails;
+    setUserDetails: (value: UserDetails) => void;
 }
 
 export function useAppContextRef(): RefObject<AppContext> {
@@ -55,17 +53,9 @@ export function AppContextProvider({
 }: AppContextProviderProps): ReactElement {
     const [userDetails, setUserDetails] = useState<UserDetails | undefined>();
 
-    const requireUser = useCallback(() => {
-        if (!userDetails) {
-            throw new Error('User is not initialized yet');
-        }
-        return userDetails;
-    }, [userDetails]);
-
     const value: AppContext = {
         userDetails,
         setUserDetails,
-        requireUser,
     };
 
     return (
@@ -73,4 +63,11 @@ export function AppContextProvider({
             {children}
         </AppContextDescriptor.Provider>
     );
+}
+
+export function requireUser(context: AppContext): UserDetails {
+    if (!context.userDetails) {
+        throw new Error('User is not initialized yet');
+    }
+    return context.userDetails;
 }

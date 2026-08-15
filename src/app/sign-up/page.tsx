@@ -19,7 +19,7 @@ import {useSession} from '@/components/session-provider';
 import {useTranslations} from 'use-intl';
 import {useNavigate} from 'react-router';
 import * as Notifications from '@/notifications';
-import {useBlockingQR} from '@/app/blocking-qr/dialog';
+import {useBlockingQR} from '@/app/blocking-qr/page';
 import {cn} from '@/lib/utils';
 
 export default function SignUpPage() {

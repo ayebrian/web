@@ -1,7 +1,7 @@
 import {Button} from '@/components/ui/button';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {CommunityPost} from '@/network/friendly-client';
+import {CommunityPostDetails} from '@/network/friendly-client';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {MarkdownArea} from '@/components/ui/markdown-area';
@@ -9,7 +9,7 @@ import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 
 export interface CommunityPostCardProps {
-    post: CommunityPost;
+    post: CommunityPostDetails;
     minimize: boolean;
     replyReplace: boolean;
 }
@@ -72,7 +72,7 @@ export function CommunityPostCard({
                             {formatTimeAgo(t, postTime)}
                         </span>
                     </div>
-                    <div className="mt-1 text-foreground whitespace-pre-wrap break-words">
+                    <div className="mt-1 text-foreground whitespace-pre-wrap break-all">
                         <MarkdownArea text={post.text} />
                     </div>
 

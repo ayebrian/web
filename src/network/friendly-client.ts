@@ -69,6 +69,9 @@ export interface FriendlyClient {
     communityReplies(
         request: CommunityRepliesRequest,
     ): Promise<Result<CommunityRepliesResponse, NetworkError>>;
+    activityList(
+        request: ActivityListRequest,
+    ): Promise<Result<ActivityListResponse, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -375,6 +378,20 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .then(r => r.data),
         );
     }
+
+    activityList({
+        cursorId,
+    }: ActivityListRequest): Promise<
+        Result<ActivityListResponse, NetworkError>
+    > {
+        return this.safeRequest(
+            this.client
+                .get<ActivityListResponse>(
+                    cursorId ? `/activity/list/${cursorId}` : '/activity/list',
+                )
+                .then(r => r.data),
+        );
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -487,7 +504,7 @@ export interface CommunityListRequest {
 }
 
 export interface CommunityListResponse {
-    data: CommunityPost[];
+    data: CommunityPostDetails[];
     nextId: string | null;
 }
 
@@ -497,12 +514,12 @@ export interface CommunityDetailsRequest {
 }
 
 export interface CommunityDetailsResponse {
-    post: CommunityPost;
+    post: CommunityPostDetails;
     replies: {
-        data: CommunityPost[];
+        data: CommunityPostDetails[];
         nextId: string | null;
     };
-    upstream: CommunityPost[];
+    upstream: CommunityPostDetails[];
 }
 
 export interface CommunityRepliesRequest {
@@ -512,7 +529,16 @@ export interface CommunityRepliesRequest {
 }
 
 export interface CommunityRepliesResponse {
-    data: CommunityPost[];
+    data: CommunityPostDetails[];
+    nextId: string | null;
+}
+
+export interface ActivityListRequest {
+    cursorId: string | null;
+}
+
+export interface ActivityListResponse {
+    data: ActivityDetails[];
     nextId: string | null;
 }
 
@@ -521,10 +547,25 @@ export interface CommunityPostDescriptor {
     accessHash: string;
 }
 
-export interface CommunityPost {
+export interface CommunityPostDetails {
     id: number;
     accessHash: string;
     text: string;
     owner: UserDetails;
     instant: string;
+}
+
+type ActivityId = number & {readonly __brand: unique symbol};
+
+export type ActivityDetails = ActivityDetailsReply | ActivityDetailsUnknown;
+
+export interface ActivityDetailsReply {
+    type: 'reply';
+    id: ActivityId;
+    post: CommunityPostDetails;
+}
+
+export interface ActivityDetailsUnknown {
+    type: never;
+    id: ActivityId;
 }

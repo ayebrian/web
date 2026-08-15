@@ -25,13 +25,9 @@ import {LogoutDialog} from '../log-out-dialog';
 import {useAppContext} from '@/app.context';
 import {EditProfileDialog} from '../edit/dialog';
 
-export interface BlockingQRProps {
-    controller: BlockingQRController;
-}
+export function BlockingQR(): ReactNode {
+    const controller = useBlockingQR();
 
-export function BlockingQR({
-    controller: {dismissBlockingQR},
-}: BlockingQRProps): ReactNode {
     const t = useTranslations('blocking-qr');
     const [loading, setLoading] = useState(false);
     const [link, setLink] = useState('');
@@ -62,7 +58,7 @@ export function BlockingQR({
                 toast.error(t('link-expired'));
                 return;
             }
-            dismissBlockingQR();
+            controller.dismissBlockingQR();
         } finally {
             setLoading(false);
         }

@@ -1,4 +1,5 @@
 import {useBackend} from '@/backend.context';
+import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
 import {
@@ -7,7 +8,7 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {Loader2, MessageCircle, AlertCircle, SquarePen} from 'lucide-react';
+import {Loader2, AlertCircle, SquarePen, Newspaper} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useState, useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
@@ -23,12 +24,12 @@ export function CommunityPage() {
 
     const postsQuery = useInfiniteQuery({
         queryKey: ['communityPosts'],
-        queryFn: ({pageParam}) => backend.communityList({cursorId: pageParam}),
+        queryFn: async ({pageParam}) => {
+            const result = await backend.communityList({cursorId: pageParam});
+            return forceUnwrap(result);
+        },
         initialPageParam: null as string | null,
-        getNextPageParam: lastPage =>
-            lastPage.ok && lastPage.data.nextId !== null
-                ? lastPage.data.nextId
-                : undefined,
+        getNextPageParam: lastPage => lastPage.nextId,
     });
 
     const loadMore = () => {
@@ -79,26 +80,12 @@ export function CommunityPage() {
         );
     } else {
         const pages = postsQuery.data?.pages ?? [];
-        const posts = pages.flatMap(p => (p.ok ? p.data.data : []));
+        const posts = pages.flatMap(p => p.data);
 
-        if (posts.length === 0 && pages.length > 0 && !pages[0].ok) {
-            content = (
-                <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
-                    <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                    <h3 className="text-center">{t('unknown_error')}</h3>
-                    <Button
-                        variant="outline"
-                        className="mt-2"
-                        onClick={() => void postsQuery.refetch()}
-                    >
-                        {t('retry')}
-                    </Button>
-                </div>
-            );
-        } else if (posts.length === 0) {
+        if (posts.length === 0) {
             content = (
                 <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
-                    <MessageCircle className="w-12 h-12 text-muted-foreground" />
+                    <Newspaper className="w-12 h-12 text-muted-foreground" />
                     <h3 className="text-base font-semibold text-foreground">
                         {t('empty_title')}
                     </h3>

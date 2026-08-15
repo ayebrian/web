@@ -12,7 +12,7 @@ import {
 import {Loader2, MessageCircle, AlertCircle, Clock, Send} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
-import {CommunityPost} from '@/network/friendly-client';
+import {CommunityPostDetails} from '@/network/friendly-client';
 import {toast} from 'sonner';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -252,7 +252,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 }
 
 interface MainPostCardProps {
-    post: CommunityPost;
+    post: CommunityPostDetails;
     text: string;
     onTextChange: (text: string) => void;
     onSubmit: () => Promise<void>;

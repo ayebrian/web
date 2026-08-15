@@ -182,6 +182,20 @@
         "empty_desc": "Стань первым, кто поделится мыслями с сообществом!",
         "load-more": "Загрузить ещё"
     },
+    "activity": {
+        "retry": "Повторить",
+        "unknown-error": "Что-то пошло не так",
+        "empty-title": "Здесь пока пусто",
+        "empty-desc": "Скоро тут будет недавняя активность",
+        "load-more": "Загрузить",
+        "reply": "Ответ от '<b>'{nickname}'</b>': \"{text}\"",
+        "just_now": "Только что",
+        "minutes_ago": "{count} мин назад",
+        "hours_ago": "{count} час назад",
+        "hours_ago_plural": "{count} часа назад",
+        "days_ago": "{count} день назад",
+        "days_ago_plural": "{count} дней назад"
+    },
     "post": {
         "just_now": "Только что",
         "minutes_ago": "{count} мин назад",

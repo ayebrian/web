@@ -1,5 +1,6 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
+import {BlockingQR} from '@/app/blocking-qr/page';
 import {AppPage} from '@/app/page';
 import {ActivityPage} from '@/app/activity/page';
 import SignInPage from '@/app/sign-in/page';
@@ -13,7 +14,7 @@ import DeeplinkPage from '@/app/redirect/[deeplink]/page';
 import * as Notifications from '@/notifications';
 import {NotFoundPage} from '@/app/not-found';
 import {ProfilePage} from '@/app/profile/page';
-import RootLayout from '@/app/layout';
+import {RootLayout} from '@/app/layout';
 import {createBrowserRouter, RouterProvider} from 'react-router';
 import FeedPage from '@/app/feed/page';
 import RouteErrorScreen from '@/route-errorscreen';
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
             {
                 path: '/',
                 Component: AppPage,
+            },
+            {
+                path: '/blocking-qr',
+                Component: BlockingQR,
             },
             {
                 path: 'activity',

@@ -12,6 +12,8 @@ import {
     CommunityRepliesResponse,
     CommunityDetailsRequest,
     CommunityDetailsResponse,
+    ActivityListRequest,
+    ActivityListResponse,
     NetworkDetailsResponse,
     SendFriendRequest,
 } from '@/network/friendly-client';
@@ -199,5 +201,11 @@ export class BackendService {
         request: CommunityRepliesRequest,
     ): Promise<Result<CommunityRepliesResponse, NetworkError>> {
         return this.client.communityReplies(request);
+    }
+
+    async activityList(
+        request: ActivityListRequest,
+    ): Promise<Result<ActivityListResponse, NetworkError>> {
+        return this.client.activityList(request);
     }
 }

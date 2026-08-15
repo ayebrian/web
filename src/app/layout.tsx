@@ -1,5 +1,5 @@
 import './globals.css';
-import {BlockingQRProvider} from '@/app/blocking-qr/dialog';
+import {BlockingQRProvider} from '@/app/blocking-qr/page';
 import {AppContextProvider} from '@/app.context';
 import {Suspense} from 'react';
 import {Scaffold} from '@/app/scaffold';
@@ -11,9 +11,9 @@ import {SessionProvider} from '@/components/session-provider';
 import IntlProvider from '@/components/intl-provider';
 import {FriendlyStorageProvider} from '@/components/friendly-storage-provider';
 import {DeferredLinkProvider} from '@/app/redirect/[deeplink]/deferred-link';
-import {Outlet} from 'react-router';
+import {AppPage} from '@/app/page';
 
-export default function RootLayout() {
+export function RootLayout() {
     return (
         <>
             <Suspense>
@@ -27,7 +27,7 @@ export default function RootLayout() {
                                             <RootContainer>
                                                 <BlockingQRProvider>
                                                     <Scaffold>
-                                                        <Outlet />
+                                                        <AppPage />
                                                     </Scaffold>
                                                     <Toaster richColors />
                                                 </BlockingQRProvider>
