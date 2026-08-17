@@ -1,4 +1,5 @@
-import {useAppContext, requireUser} from '@/app.context';
+import {useAppContext} from '@/app.context';
+import {users} from '@/services/users-service';
 import {REGEXP_ONLY_DIGITS} from 'input-otp';
 import * as Dialog from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
@@ -63,9 +64,13 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
                 }
                 return;
             }
-            app.setUserDetails({
-                ...requireUser(app),
-                email,
+            const self = users.self(app).data!;
+            users.setSelf(app, {
+                ...self,
+                details: {
+                    ...self.details,
+                    email,
+                },
             });
             setOpen(false);
         } finally {

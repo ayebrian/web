@@ -16,6 +16,7 @@ import {
     ActivityListResponse,
     NetworkDetailsResponse,
     SendFriendRequest,
+    CommunityPostDescriptor,
 } from '@/network/friendly-client';
 import {NetworkError} from '@/network/errors';
 import {err, ok, Result} from '@/network/result';
@@ -181,7 +182,7 @@ export class BackendService {
 
     async communityPost(
         request: CommunityPostRequest,
-    ): Promise<Result<void, NetworkError>> {
+    ): Promise<Result<CommunityPostDescriptor, NetworkError>> {
         return this.client.communityPost(request);
     }
 

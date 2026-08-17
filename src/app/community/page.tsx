@@ -1,4 +1,8 @@
 import {useBackend} from '@/backend.context';
+import {users} from '@/services/users-service';
+import {useAppContext} from '@/app.context';
+import {communityPosts} from '@/services/community-posts-service';
+import {useNavigate} from 'react-router';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
@@ -20,6 +24,9 @@ export function CommunityPage() {
     const t = useTranslations('community');
     const backend = useBackend();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const app = useAppContext();
+
     const [newPostText, setNewPostText] = useState('');
 
     const postsQuery = useInfiniteQuery({
@@ -39,10 +46,33 @@ export function CommunityPage() {
     };
 
     const createPostMutation = useMutation({
-        mutationFn: (text: string) => backend.communityPost({text}),
-        onSuccess: () => {
-            setNewPostText('');
-            void queryClient.invalidateQueries({queryKey: ['communityPosts']});
+        mutationFn: async (text: string) => {
+            const result = await backend.communityPost({text});
+            return {
+                ...forceUnwrap(result),
+                text,
+                owner: (await users.ensureSelf(app)).details,
+                instant: new Date().toISOString(),
+            };
+        },
+        onSuccess: details => {
+            void (async () => {
+                await communityPosts.saveDescriptor(app, details);
+                communityPosts.setDetails(app, {
+                    post: details,
+                    replies: {
+                        data: [],
+                        nextId: null,
+                    },
+                    upstream: [],
+                });
+                await navigate(`/community/${details.id}/replies`);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                setNewPostText('');
+                void queryClient.invalidateQueries({
+                    queryKey: ['communityPosts'],
+                });
+            })();
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -58,7 +88,7 @@ export function CommunityPage() {
 
     if (postsQuery.isLoading) {
         content = (
-            <div className="flex h-[50vh] w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
@@ -116,7 +146,9 @@ export function CommunityPage() {
                 text={newPostText}
                 onTextChange={setNewPostText}
                 onSubmit={handleCreatePost}
-                isSubmitting={createPostMutation.isPending}
+                isSubmitting={
+                    createPostMutation.isPending || postsQuery.isFetching
+                }
             />
             {content}
             <div hidden={!postsQuery.hasNextPage}>

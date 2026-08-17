@@ -1,5 +1,12 @@
 import {useBackend} from '@/backend.context';
-import {CommunityDetailsResponse} from '@/network/friendly-client';
+import {communityPosts} from '@/services/community-posts-service';
+import {CommunityPostId} from '@/network/friendly-client';
+import {users} from '@/services/users-service';
+import {
+    CommunityDetailsResponse,
+    CommunityPostDescriptor,
+    CommunityPostDetails,
+} from '@/network/friendly-client';
 import {Button} from '@/components/ui/button';
 import {forceUnwrap} from '@/network/result';
 import {cn} from '@/lib/utils';
@@ -12,7 +19,6 @@ import {
 import {Loader2, MessageCircle, AlertCircle, Clock, Send} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
-import {CommunityPostDetails} from '@/network/friendly-client';
 import {toast} from 'sonner';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -20,15 +26,15 @@ import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate, useParams} from 'react-router';
 import {CommunityPostCard} from '../post';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
+import {useAppContext} from '@/app.context';
 
 export function RepliesPage() {
     const t = useTranslations('replies');
-    const backend = useBackend();
-    const storage = useFriendlyStorage();
     const navigate = useNavigate();
+    const app = useAppContext();
 
     const {id} = useParams();
-    const idInt = id ? Number(id) : null;
+    const idInt = id ? (Number(id) as CommunityPostId) : null;
     useEffect(() => {
         if (idInt === null || Number.isNaN(idInt)) {
             void navigate('/not-found');
@@ -36,34 +42,25 @@ export function RepliesPage() {
     }, [idInt]);
     if (!idInt) return;
 
-    const replyTo = useQuery({
-        queryKey: ['replyTo', idInt],
-        queryFn: async () => {
-            const {id, accessHash} = await storage.communityPosts.get(idInt);
-            const result = await backend.communityDetails({id, accessHash});
-            return forceUnwrap(result);
-        },
-    });
+    const replyTo = communityPosts.useDetails(app, idInt);
 
     let content;
 
-    if (replyTo.isLoading) {
+    if (replyTo.fetch !== 'idle') {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
-    } else if (replyTo.isError) {
+    } else if (replyTo.cache === 'fail') {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">
-                    {replyTo.error?.message ?? t('unknown_error')}
-                </h3>
+                <h3 className="text-center">{t('unknown_error')}</h3>
                 <Button
                     variant="outline"
                     className="mt-2"
-                    onClick={() => void replyTo.refetch()}
+                    onClick={() => void communityPosts.refetch(app, idInt)}
                 >
                     {t('retry')}
                 </Button>
@@ -81,13 +78,16 @@ export function RepliesPage() {
 }
 
 interface ReplyContentProps {
-    id: number;
+    id: CommunityPostId;
     replyTo: CommunityDetailsResponse;
 }
 
 function ReplyContent({id, replyTo}: ReplyContentProps) {
     const backend = useBackend();
+    const app = useAppContext();
     const queryClient = useQueryClient();
+    const storage = useFriendlyStorage();
+    const navigate = useNavigate();
     const t = useTranslations('replies');
 
     const upstreamRef = useRef<HTMLDivElement>(null);
@@ -134,28 +134,47 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 
     const createPostMutation = useMutation({
         mutationFn: async (text: string) => {
-            const result = await backend.communityPost({
+            const post = {
                 replyTo: {
                     id: id,
                     accessHash: replyTo.post.accessHash,
                 },
                 text,
-            });
-            return forceUnwrap(result);
+            };
+            const result = await backend.communityPost(post);
+            return {
+                post: {
+                    ...post,
+                    ...forceUnwrap(result),
+                    instant: new Date().toISOString(),
+                    owner: (await users.ensureSelf(app)).details,
+                },
+                replies: {data: [], nextId: null},
+                upstream: [...replyTo.upstream, replyTo.post],
+            } satisfies CommunityDetailsResponse;
         },
-        onSuccess: () => {
-            void queryClient
-                .invalidateQueries({
-                    queryKey: ['communityReplies', id],
-                })
-                .then(() => {
-                    setNewPostText('');
-                });
+        onSuccess: details => {
+            void queryClient.invalidateQueries({
+                queryKey: ['communityReplies', id],
+            });
+            communityPosts.setDetails(app, details);
+            setNewPostText('');
+            void navigateReplies(details.post);
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
         },
     });
+
+    async function navigateReplies(descriptor: CommunityPostDescriptor) {
+        await storage.communityPosts.save({
+            id: descriptor.id,
+            accessHash: descriptor.accessHash,
+        });
+        await navigate(`/community/${descriptor.id}/replies`, {
+            replace: true,
+        });
+    }
 
     const handleCreatePost = useCallback(async () => {
         if (!newPostText.trim()) return;
@@ -227,9 +246,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 text={newPostText}
                 onTextChange={setNewPostText}
                 onSubmit={handleCreatePost}
-                isSubmitting={
-                    createPostMutation.isPending || postsQuery.isFetching
-                }
+                isSubmitting={createPostMutation.isPending}
                 post={replyTo.post}
             />
             {replies}

@@ -8,6 +8,7 @@ import {Copy, Loader2} from 'lucide-react';
 import QRCode from 'react-qr-code';
 import {toast} from 'sonner';
 import {useTranslations} from 'use-intl';
+import {users} from '@/services/users-service';
 
 export interface QrCodeDialogProps {
     open: boolean;
@@ -17,7 +18,8 @@ export interface QrCodeDialogProps {
 export function QrCodeDialog({open, setOpen}: QrCodeDialogProps) {
     const t = useTranslations('profile');
     const backend = useBackend();
-    const user = useAppContext().userDetails;
+    const app = useAppContext();
+    const user = users.useSelf(app).data!.details;
 
     const inviteQuery = useQuery({
         queryKey: ['inviteToken'],

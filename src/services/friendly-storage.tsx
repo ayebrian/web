@@ -1,7 +1,7 @@
 import {UserAccessHashesService} from './useraccesshashes-service';
-import {CommunityPostsService} from './community-posts-service';
+import {CommunityPostsDB} from './community-posts-db';
 
 export interface FriendlyStorage {
     userAccessHashes: UserAccessHashesService;
-    communityPosts: CommunityPostsService;
+    communityPosts: CommunityPostsDB;
 }

@@ -1,8 +1,12 @@
-import {UserDetails} from '@/types/user-details';
+import {FriendlyStorage} from '@/services/friendly-storage';
+import {useFriendlyStorage} from '@/components/friendly-storage-provider';
+import {users} from '@/services/users-service';
+import {useQueryClient, QueryClient} from '@tanstack/react-query';
+import {BackendService} from '@/services/backend-service';
+import {useBackend} from '@/backend.context';
 import {
     ReactElement,
     useEffect,
-    useState,
     createContext,
     useContext,
     RefObject,
@@ -25,8 +29,9 @@ export interface AppContextProviderProps {
  * That will automatically notify you if observed user was mutated.
  */
 export interface AppContext {
-    userDetails: UserDetails | undefined;
-    setUserDetails: (value: UserDetails) => void;
+    backend: BackendService;
+    queryClient: QueryClient;
+    storage: FriendlyStorage;
 }
 
 export function useAppContextRef(): RefObject<AppContext> {
@@ -51,23 +56,24 @@ export function useAppContext() {
 export function AppContextProvider({
     children,
 }: AppContextProviderProps): ReactElement {
-    const [userDetails, setUserDetails] = useState<UserDetails | undefined>();
+    const backend = useBackend();
+    const queryClient = useQueryClient();
+    const storage = useFriendlyStorage();
 
     const value: AppContext = {
-        userDetails,
-        setUserDetails,
+        backend,
+        queryClient,
+        storage,
     };
+
+    useEffect(() => {
+        backend.restoreAuthorizationIfPossible();
+        users.start(value);
+    }, []);
 
     return (
         <AppContextDescriptor.Provider value={value}>
             {children}
         </AppContextDescriptor.Provider>
     );
-}
-
-export function requireUser(context: AppContext): UserDetails {
-    if (!context.userDetails) {
-        throw new Error('User is not initialized yet');
-    }
-    return context.userDetails;
 }
