@@ -1,5 +1,6 @@
 import {useUserValidator, ValidateUserResult} from './user-validation';
-import {useAppContext, requireUser} from '@/app.context';
+import {useAppContext} from '@/app.context';
+import {users} from '@/services/users-service';
 import {useEffect} from 'react';
 import {useBackendLocale} from '@/network/backend-locale';
 import {EmailDialog} from './email-dialog';
@@ -46,7 +47,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
     const app = useAppContext();
 
-    const userDetails = requireUser(app);
+    const userDetails = users.useSelf(app).data!.details;
 
     const [loading, setLoading] = useState(false);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -116,7 +117,15 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
         setLoading(false);
         if (result.ok) {
             setOpen(false);
-            app.setUserDetails({...userDetails, ...validated, avatar});
+            const self = users.self(app).data!;
+            users.setSelf(app, {
+                ...self,
+                details: {
+                    ...self.details,
+                    ...validated,
+                    ...avatar,
+                },
+            });
         } else {
             toast.error(t('error-connection'));
         }
@@ -321,9 +330,13 @@ function EmailInput({
                 setEmailError(t('error-connection'));
                 return;
             }
-            app.setUserDetails({
-                ...requireUser(app),
-                email: null,
+            const self = users.self(app).data!;
+            users.setSelf(app, {
+                ...self,
+                details: {
+                    ...self.details,
+                    email: null,
+                },
             });
         } finally {
             setLoading(false);

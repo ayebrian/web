@@ -1,4 +1,5 @@
 import {useAppContext} from '@/app.context';
+import {users} from '@/services/users-service';
 import {Button} from '@/components/ui/button';
 import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
@@ -25,7 +26,7 @@ function FeedEmptyState() {
 
     return (
         <div className="h-full flex flex-col items-center justify-center gap-2 px-6 text-center">
-            <BookUser className="w-12 h-12" />
+            <BookUser className="w-12 h-12 text-muted-foreground" />
             <h3 className="text-base font-semibold text-foreground">
                 {t('empty_title')}
             </h3>
@@ -57,7 +58,7 @@ export default function FeedPage() {
         status: emailSuggestionStatus,
         setStatus: setEmailSuggestionStatus,
         trackSwipe,
-    } = useEmailBindingSuggestion(app.userDetails?.email ?? null);
+    } = useEmailBindingSuggestion(users.self(app).data!.details.email ?? null);
 
     useEffect(() => {
         if (!feedQuery.data?.ok) {

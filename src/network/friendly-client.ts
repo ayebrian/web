@@ -59,7 +59,7 @@ export interface FriendlyClient {
     ): Promise<Result<void, NetworkError>>;
     communityPost(
         request: CommunityPostRequest,
-    ): Promise<Result<void, NetworkError>>;
+    ): Promise<Result<CommunityPostDescriptor, NetworkError>>;
     communityList(
         request: CommunityListRequest,
     ): Promise<Result<CommunityListResponse, NetworkError>>;
@@ -328,8 +328,12 @@ export class FriendlyClientImpl implements FriendlyClient {
 
     communityPost(
         request: CommunityPostRequest,
-    ): Promise<Result<void, NetworkError>> {
-        return this.safeRequest(this.client.post('/community', request));
+    ): Promise<Result<CommunityPostDescriptor, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post<CommunityPostDescriptor>('/community', request)
+                .then(r => r.data),
+        );
     }
 
     communityList({
@@ -494,6 +498,11 @@ export interface AuthFirebaseRequest {
     firebaseToken: string;
 }
 
+export type CommunityPostId = number & {readonly __brand: unique symbol};
+export type CommunityPostAccessHash = string & {
+    readonly __brand: unique symbol;
+};
+
 export interface CommunityPostRequest {
     replyTo?: CommunityPostDescriptor;
     text: string;
@@ -509,8 +518,8 @@ export interface CommunityListResponse {
 }
 
 export interface CommunityDetailsRequest {
-    id: number;
-    accessHash: string;
+    id: CommunityPostId;
+    accessHash: CommunityPostAccessHash;
 }
 
 export interface CommunityDetailsResponse {
@@ -543,19 +552,19 @@ export interface ActivityListResponse {
 }
 
 export interface CommunityPostDescriptor {
-    id: number;
-    accessHash: string;
+    id: CommunityPostId;
+    accessHash: CommunityPostAccessHash;
 }
 
 export interface CommunityPostDetails {
-    id: number;
-    accessHash: string;
+    id: CommunityPostId;
+    accessHash: CommunityPostAccessHash;
     text: string;
     owner: UserDetails;
     instant: string;
 }
 
-type ActivityId = number & {readonly __brand: unique symbol};
+export type ActivityId = number & {readonly __brand: unique symbol};
 
 export type ActivityDetails = ActivityDetailsReply | ActivityDetailsUnknown;
 

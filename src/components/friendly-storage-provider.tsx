@@ -1,5 +1,5 @@
 import {UserAccessHashesService} from '@/services/useraccesshashes-service';
-import {CommunityPostsService} from '@/services/community-posts-service';
+import {CommunityPostsDB} from '@/services/community-posts-db';
 import {FriendlyStorage} from '@/services/friendly-storage';
 import {createContext, useContext, useMemo} from 'react';
 
@@ -15,7 +15,7 @@ export function FriendlyStorageProvider({
     const value = useMemo<FriendlyStorage>(() => {
         return {
             userAccessHashes: new UserAccessHashesService(),
-            communityPosts: new CommunityPostsService(),
+            communityPosts: new CommunityPostsDB(),
         };
     }, []);
 

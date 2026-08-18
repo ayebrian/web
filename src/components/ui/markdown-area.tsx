@@ -24,6 +24,7 @@ const linkClass = cn(
 interface MarkdownAreaProps {
     text: string;
     findLinks?: boolean;
+    styleHeadings?: boolean;
 }
 
 function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {

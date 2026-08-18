@@ -1,6 +1,7 @@
 import {useBlockingQR} from '@/app/blocking-qr/page';
-import {useAppContext, useAppContextRef} from '@/app.context';
-import {useEffect, useMemo, useState, useCallback} from 'react';
+import {users} from '@/services/users-service';
+import {useAppContext} from '@/app.context';
+import {useMemo, useState, useCallback} from 'react';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
 import {Activity, Loader2, LogOut, Pencil, QrCodeIcon} from 'lucide-react';
@@ -22,7 +23,7 @@ import {StyledAvatar} from '@/components/styled-avatar';
 function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
-    const userDetails = app.userDetails;
+    const userDetails = users.self(app).data!.details;
 
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
@@ -130,7 +131,6 @@ export function ProfilePage() {
     const t = useTranslations('profile');
 
     const app = useAppContext();
-    const appRef = useAppContextRef();
     const navigate = useNavigate();
     const backend = useBackend();
     const session = useSession();
@@ -143,43 +143,30 @@ export function ProfilePage() {
         void navigate('/sign-up');
     };
 
-    const userQuery = useQuery({
-        queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails2(),
-    });
+    const userQuery = users.useSelf(app);
 
     const networkQuery = useQuery({
         queryKey: ['networkDetails', blockingQR],
         queryFn: () => backend.getNetworkDetails(),
     });
 
-    const userResult = userQuery.data ?? null;
     const networkResult = networkQuery.data ?? null;
 
-    useEffect(() => {
-        if (userResult?.ok) {
-            appRef.current.setUserDetails(userResult.data.details);
-        }
-    }, [appRef, userResult]);
-
-    const hasResultError =
-        (userResult && !userResult.ok) || (networkResult && !networkResult.ok);
+    const hasResultError = networkResult && !networkResult.ok;
 
     const errorMessage =
-        userResult && !userResult.ok
-            ? formatNetworkError(userResult.error)
-            : networkResult && !networkResult.ok
-              ? formatNetworkError(networkResult.error)
-              : null;
+        networkResult && !networkResult.ok
+            ? formatNetworkError(networkResult.error)
+            : null;
 
-    const isError = userQuery.isError || hasResultError;
+    const isError = userQuery.cache === 'fail' || hasResultError;
 
-    const user = app.userDetails;
+    const user = userQuery.data;
     const friends = networkResult?.ok ? networkResult.data.friends : [];
 
     let content;
 
-    if (userQuery.isLoading) {
+    if (userQuery.cache === 'empty') {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -199,7 +186,9 @@ export function ProfilePage() {
                 <Separator />
 
                 <div className="flex flex-1 flex-col gap-8 p-8 min-w-0">
-                    <InterestsBlock interests={user?.interests ?? []} />
+                    <InterestsBlock
+                        interests={user?.details?.interests ?? []}
+                    />
                     <Separator className="my-4" />
                     <FriendsBlock friends={friends} />
                 </div>
