@@ -286,7 +286,7 @@ function MainPostCard({
     const replyRef = useRef<HTMLTextAreaElement>(null);
 
     function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-        if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
             event.preventDefault();
             if (!event.currentTarget.value.trim()) return;
             void onSubmit();
@@ -415,4 +415,16 @@ function formatTimeAgo(
     if (diffHours < 24) return t('hours_ago', {count: diffHours});
     if (diffDays < 7) return t('days_ago', {count: diffDays});
     return date.toLocaleDateString();
+}
+
+function isMobile(): boolean {
+    if (
+        'userAgentData' in navigator &&
+        typeof navigator.userAgentData === 'object' &&
+        navigator.userAgentData !== null &&
+        'mobile' in navigator.userAgentData
+    ) {
+        return !!navigator.userAgentData.mobile;
+    }
+    return false;
 }

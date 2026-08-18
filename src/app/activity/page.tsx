@@ -34,7 +34,7 @@ export function ActivityPage() {
 
     let content;
 
-    if (activityQuery.isLoading) {
+    if (activityQuery.isPending) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -163,7 +163,7 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
             <div className="flex-1" />
             <span className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
                 <Clock className="h-3 w-3" />
-                {formatTimeAgo(t, details.post.instant)}
+                {formatTimeAgo(t, details.instant)}
             </span>
         </div>
     );

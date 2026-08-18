@@ -571,6 +571,7 @@ export type ActivityDetails = ActivityDetailsReply | ActivityDetailsUnknown;
 export interface ActivityDetailsReply {
     type: 'reply';
     id: ActivityId;
+    instant: string;
     post: CommunityPostDetails;
 }
 

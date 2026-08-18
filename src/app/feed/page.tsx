@@ -45,6 +45,7 @@ export default function FeedPage() {
     const feedQuery = useQuery({
         queryKey: ['feedQueue'],
         queryFn: () => backend.getFeedQueue(),
+        refetchOnWindowFocus: false,
     });
 
     const [cards, setCards] = useState<FeedItem[]>([]);
@@ -54,11 +55,13 @@ export default function FeedPage() {
     const isBusy = pendingCardId !== null;
 
     const app = useAppContext();
+    const self = users.useSelf(app);
+
     const {
         status: emailSuggestionStatus,
         setStatus: setEmailSuggestionStatus,
         trackSwipe,
-    } = useEmailBindingSuggestion(users.self(app).data!.user.email ?? null);
+    } = useEmailBindingSuggestion();
 
     useEffect(() => {
         if (!feedQuery.data?.ok) {
@@ -103,7 +106,9 @@ export default function FeedPage() {
 
         setPendingCardId(getFeedItemKey(selectedCard));
 
-        trackSwipe();
+        if (self.data) {
+            trackSwipe(self.data.user.email);
+        }
 
         try {
             await onReview(selectedCard, direction);
@@ -131,7 +136,7 @@ export default function FeedPage() {
         void feedQuery.refetch();
     };
 
-    if (feedQuery.isLoading) {
+    if (feedQuery.isPending) {
         return (
             <div className="flex h-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

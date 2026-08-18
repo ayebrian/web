@@ -86,7 +86,7 @@ export function CommunityPage() {
 
     let content;
 
-    if (postsQuery.isLoading) {
+    if (postsQuery.isPending) {
         content = (
             <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
