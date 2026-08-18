@@ -104,10 +104,10 @@ function FriendTokenExpired() {
                     mb-20
                     "
                 >
-                    <Dialog.Title className="w-full text-md font-semibold text-center">
+                    <Dialog.Title className="w-full text-base font-semibold text-center">
                         {t('title')}
                     </Dialog.Title>
-                    <p className="text-md text-center">{t('description')}</p>
+                    <p className="text-base text-center">{t('description')}</p>
                 </div>
             </>
         </StyledDialogWrapper>

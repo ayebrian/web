@@ -34,9 +34,9 @@ export function SuggestEmailBindingDialog({
                     </Dialog.Close>
                 </div>
                 <div className="px-6 pb-6">
-                    <h2 className="text-center">
+                    <p className="text-center">
                         {t('email_binding.description')}
-                    </h2>
+                    </p>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         <Button
                             className="grow-1 cursor-pointer"

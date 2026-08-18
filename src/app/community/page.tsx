@@ -96,9 +96,9 @@ export function CommunityPage() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">
+                <p className="text-center">
                     {postsQuery.error?.message ?? t('unknown_error')}
-                </h3>
+                </p>
                 <Button
                     variant="outline"
                     className="mt-2"
@@ -116,9 +116,9 @@ export function CommunityPage() {
             content = (
                 <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
                     <Newspaper className="w-12 h-12 text-muted-foreground" />
-                    <h3 className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                         {t('empty_title')}
-                    </h3>
+                    </p>
                     <p className="max-w-xs text-sm text-muted-foreground">
                         {t('empty_desc')}
                     </p>

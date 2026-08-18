@@ -38,9 +38,9 @@ export function FriendCard({friend}: {friend: UserDetails}) {
                     nickname={friend.nickname}
                 />
                 <div className="flex flex-col flex-1 items-center min-w-0 w-full min-h-0">
-                    <h3 className="truncate text-sm font-semibold text-foreground max-w-full">
+                    <p className="truncate text-sm font-semibold text-foreground max-w-full">
                         {friend.nickname}
-                    </h3>
+                    </p>
                     <span className="text-center mt-2 w-full text-xs text-muted-foreground wrap-anywhere line-clamp-3">
                         <MarkdownArea
                             text={friend.description ?? t('no_description')}

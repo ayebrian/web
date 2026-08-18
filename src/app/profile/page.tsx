@@ -107,9 +107,9 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold uppercase mb-2 text-foreground">
+            <p className="text-sm font-semibold uppercase mb-2 text-foreground">
                 {t('interests')}
-            </h3>
+            </p>
             <div className="flex flex-row gap-2 flex-wrap">
                 {interests.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
@@ -176,7 +176,7 @@ export function ProfilePage() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3>{errorMessage ?? t('unknown_error')}</h3>
+                <p>{errorMessage ?? t('unknown_error')}</p>
             </div>
         );
     } else {

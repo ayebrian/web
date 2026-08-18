@@ -63,7 +63,7 @@ export function RepliesPage() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">{t('unknown_error')}</h3>
+                <p className="text-center">{t('unknown_error')}</p>
                 <Button
                     variant="outline"
                     className="mt-2"
@@ -228,9 +228,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         replies = (
             <div className="flex flex-col gap-2 mt-6 w-full items-center justify-center px-6 text-center">
                 <MessageCircle className="w-12 h-12 text-muted-foreground" />
-                <h3 className="text-base font-semibold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                     {t('no-replies')}
-                </h3>
+                </p>
                 <p className="max-w-xs text-sm text-muted-foreground">
                     {t('no-replies-desc')}
                 </p>

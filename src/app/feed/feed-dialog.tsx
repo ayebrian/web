@@ -137,9 +137,9 @@ export function FeedDialog({
             </div>
 
             <div className="flex flex-col flex-1 shrink p-6 pb-12 relative">
-                <h3 className="text-2xl font-semibold text-foreground mb-2">
+                <p className="text-2xl font-semibold text-foreground mb-2">
                     {selectedCard.details.nickname}
-                </h3>
+                </p>
 
                 <div className="break-words text-sm leading-6 text-foreground">
                     {selectedCard.details.description ? (

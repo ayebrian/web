@@ -123,7 +123,7 @@ function AdjusterContent({
     return (
         <>
             <div className="relative flex items-center mt-1 mx-1">
-                <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                <Dialog.Title className="w-full text-base font-semibold text-center pt-2">
                     {t('title')}
                 </Dialog.Title>
 

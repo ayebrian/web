@@ -74,7 +74,7 @@ export function BlockingQR(): ReactNode {
                         mb-20
                         "
                     >
-                        <Dialog.Title className="w-full text-md font-semibold text-center">
+                        <Dialog.Title className="w-full text-base font-semibold text-center">
                             {t('title')}
                         </Dialog.Title>
                         <Field>

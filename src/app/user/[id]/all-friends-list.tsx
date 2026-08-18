@@ -79,7 +79,7 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
                 <div className="p-0">
                     <div className="flex flex-col">
                         <div className="relative flex items-center mt-1 mx-1">
-                            <Dialog.Title className="w-full text-md font-semibold text-center pt-2">
+                            <Dialog.Title className="w-full text-base font-semibold text-center pt-2">
                                 {t('friends.see_all')}
                             </Dialog.Title>
                             <Dialog.Close

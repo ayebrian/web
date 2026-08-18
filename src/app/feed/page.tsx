@@ -27,9 +27,9 @@ function FeedEmptyState() {
     return (
         <div className="h-full flex flex-col items-center justify-center gap-2 px-6 text-center">
             <BookUser className="w-12 h-12 text-muted-foreground" />
-            <h3 className="text-base font-semibold text-foreground">
+            <p className="text-base font-semibold text-foreground">
                 {t('empty_title')}
-            </h3>
+            </p>
             <p className="max-w-xs text-sm text-muted-foreground">
                 {t('empty_desc')}
             </p>
