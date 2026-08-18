@@ -68,7 +68,7 @@ export function AppContextProvider({
 
     useEffect(() => {
         backend.restoreAuthorizationIfPossible();
-        users.start(value);
+        users.main(value);
     }, []);
 
     return (

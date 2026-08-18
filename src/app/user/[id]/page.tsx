@@ -4,7 +4,13 @@ import {forceUnwrap} from '@/network/result';
 import {cn} from '@/lib/utils';
 import {createFileLink, normalizeLink} from '@/lib/utils';
 import {useMutation, useQuery} from '@tanstack/react-query';
-import {Activity, Loader2, UserXIcon, ChevronLeft} from 'lucide-react';
+import {
+    Activity,
+    Loader2,
+    UserXIcon,
+    ChevronLeft,
+    Ellipsis,
+} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useMemo, useState, useEffect} from 'react';
 import {UserDetails} from '@/types/user-details';
@@ -40,7 +46,7 @@ function ProfileDropdown({onRemoveFriend}: ProfileDropdownProps) {
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="secondary" className="cursor-pointer">
-                        ...
+                        <Ellipsis />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -223,7 +229,7 @@ export default function UserPage() {
         content = (
             <div className="flex flex-col gap-2 pb-12">
                 <ProfileHeader
-                    userDetails={userQuery.data!.details}
+                    userDetails={userQuery.data!.user}
                     onRemoveFriend={declineFriend}
                 />
                 <Separator />
@@ -231,7 +237,7 @@ export default function UserPage() {
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
                         <InterestsBlock
-                            interests={userQuery.data!.details.interests}
+                            interests={userQuery.data!.user.interests}
                         />
                         {userQuery.data!.commonFriends!.length > 0 && (
                             <FriendsBlock

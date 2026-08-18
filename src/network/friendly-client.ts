@@ -413,7 +413,7 @@ export interface GenerateAccountResponse {
 }
 
 export interface UserDetailsResponse {
-    details: UserDetails;
+    user: UserDetails;
     commonFriends?: UserDetails[];
 }
 

@@ -23,7 +23,7 @@ import {StyledAvatar} from '@/components/styled-avatar';
 function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
-    const userDetails = users.self(app).data!.details;
+    const userDetails = users.self(app).data!.user;
 
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
@@ -186,9 +186,7 @@ export function ProfilePage() {
                 <Separator />
 
                 <div className="flex flex-1 flex-col gap-8 p-8 min-w-0">
-                    <InterestsBlock
-                        interests={user?.details?.interests ?? []}
-                    />
+                    <InterestsBlock interests={user?.user?.interests ?? []} />
                     <Separator className="my-4" />
                     <FriendsBlock friends={friends} />
                 </div>

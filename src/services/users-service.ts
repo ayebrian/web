@@ -14,7 +14,7 @@ function selfOptions(app: AppContext) {
     });
 }
 
-function start(app: AppContext) {
+function main(app: AppContext) {
     void app.queryClient.prefetchQuery(selfOptions(app));
 }
 
@@ -42,7 +42,7 @@ function useSelf(app: AppContext): Resource<UserDetailsResponse> {
 }
 
 export const users = {
-    start,
+    main,
     self,
     setSelf,
     ensureSelf,

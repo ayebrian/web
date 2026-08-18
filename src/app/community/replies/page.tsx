@@ -147,7 +147,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     ...post,
                     ...forceUnwrap(result),
                     instant: new Date().toISOString(),
-                    owner: (await users.ensureSelf(app)).details,
+                    owner: (await users.ensureSelf(app)).user,
                 },
                 replies: {data: [], nextId: null},
                 upstream: [...replyTo.upstream, replyTo.post],
@@ -320,8 +320,8 @@ function MainPostCard({
 
     const selfAvatarUrl = useMemo(
         () =>
-            selfQuery.data?.ok && selfQuery.data?.data?.details?.avatar
-                ? createFileLink(selfQuery.data.data.details.avatar)
+            selfQuery.data?.ok && selfQuery.data?.data?.user?.avatar
+                ? createFileLink(selfQuery.data.data.user.avatar)
                 : '',
         [selfQuery],
     );

@@ -19,7 +19,7 @@ export function QrCodeDialog({open, setOpen}: QrCodeDialogProps) {
     const t = useTranslations('profile');
     const backend = useBackend();
     const app = useAppContext();
-    const user = users.useSelf(app).data!.details;
+    const user = users.useSelf(app).data!.user;
 
     const inviteQuery = useQuery({
         queryKey: ['inviteToken'],
