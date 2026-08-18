@@ -146,9 +146,7 @@ export function CommunityPage() {
                 text={newPostText}
                 onTextChange={setNewPostText}
                 onSubmit={handleCreatePost}
-                isSubmitting={
-                    createPostMutation.isPending || postsQuery.isFetching
-                }
+                isSubmitting={createPostMutation.isPending}
             />
             {content}
             <div hidden={!postsQuery.hasNextPage}>
