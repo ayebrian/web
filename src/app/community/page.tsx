@@ -51,7 +51,7 @@ export function CommunityPage() {
             return {
                 ...forceUnwrap(result),
                 text,
-                owner: (await users.ensureSelf(app)).details,
+                owner: (await users.ensureSelf(app)).user,
                 instant: new Date().toISOString(),
             };
         },
@@ -192,8 +192,8 @@ function CreatePostCard({
 
     const avatarUrl = useMemo(
         () =>
-            userQuery.data?.ok && userQuery.data?.data?.details?.avatar
-                ? createFileLink(userQuery.data.data.details.avatar)
+            userQuery.data?.ok && userQuery.data?.data?.user?.avatar
+                ? createFileLink(userQuery.data.data.user.avatar)
                 : '',
         [userQuery],
     );
@@ -214,7 +214,7 @@ function CreatePostCard({
                     src={avatarUrl}
                     nickname={
                         userQuery?.data?.ok
-                            ? userQuery?.data?.data?.details?.nickname
+                            ? userQuery?.data?.data?.user?.nickname
                             : ''
                     }
                 />

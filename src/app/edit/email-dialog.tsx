@@ -67,8 +67,8 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
             const self = users.self(app).data!;
             users.setSelf(app, {
                 ...self,
-                details: {
-                    ...self.details,
+                user: {
+                    ...self.user,
                     email,
                 },
             });

@@ -47,7 +47,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
     const t = useTranslations('edit_profile_dialog');
     const app = useAppContext();
 
-    const userDetails = users.useSelf(app).data!.details;
+    const userDetails = users.useSelf(app).data!.user;
 
     const [loading, setLoading] = useState(false);
     const [avatarLoading, setAvatarLoading] = useState(false);
@@ -120,8 +120,8 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
             const self = users.self(app).data!;
             users.setSelf(app, {
                 ...self,
-                details: {
-                    ...self.details,
+                user: {
+                    ...self.user,
                     ...validated,
                     ...avatar,
                 },
@@ -333,8 +333,8 @@ function EmailInput({
             const self = users.self(app).data!;
             users.setSelf(app, {
                 ...self,
-                details: {
-                    ...self.details,
+                user: {
+                    ...self.user,
                     email: null,
                 },
             });

@@ -58,7 +58,7 @@ export default function FeedPage() {
         status: emailSuggestionStatus,
         setStatus: setEmailSuggestionStatus,
         trackSwipe,
-    } = useEmailBindingSuggestion(users.self(app).data!.details.email ?? null);
+    } = useEmailBindingSuggestion(users.self(app).data!.user.email ?? null);
 
     useEffect(() => {
         if (!feedQuery.data?.ok) {
