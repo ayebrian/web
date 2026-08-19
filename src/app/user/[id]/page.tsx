@@ -1,4 +1,5 @@
 import {useBackend} from '@/backend.context';
+import {useQueryClient} from '@tanstack/react-query';
 import {FriendsBlock} from './friends-block';
 import {forceUnwrap} from '@/network/result';
 import {cn} from '@/lib/utils';
@@ -31,15 +32,20 @@ import {ConfirmationDialog} from '@/components/confirmation-dialog';
 import {StyledAvatar} from '@/components/styled-avatar';
 
 interface ProfileDropdownProps {
-    onRemoveFriend: () => void;
+    showDecline: boolean;
+    onDecline: () => void;
 }
 
-function ProfileDropdown({onRemoveFriend}: ProfileDropdownProps) {
+function ProfileDropdown({onDecline, showDecline}: ProfileDropdownProps) {
     const tProfile = useTranslations('profile');
     const tRemoveFriendDialog = useTranslations('remove-friend-dialog');
 
     const [isRemoveFriendDialogOpen, setIsRemoveFriendDialogOpen] =
         useState(false);
+
+    if (!showDecline) {
+        return;
+    }
 
     return (
         <>
@@ -69,7 +75,7 @@ function ProfileDropdown({onRemoveFriend}: ProfileDropdownProps) {
                 description={tRemoveFriendDialog('description')}
                 actionLabel={tRemoveFriendDialog('action')}
                 cancelLabel={tRemoveFriendDialog('cancel')}
-                onAction={onRemoveFriend}
+                onAction={onDecline}
                 open={isRemoveFriendDialogOpen}
                 onOpenChange={isOpen => {
                     if (!isOpen) setIsRemoveFriendDialogOpen(isOpen);
@@ -81,12 +87,15 @@ function ProfileDropdown({onRemoveFriend}: ProfileDropdownProps) {
 
 interface ProfileHeaderProps {
     userDetails: UserDetails;
-    onRemoveFriend: () => void;
+    onRequest: () => void;
+    onDecline: () => void;
 }
 
-function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
-    const t = useTranslations('profile');
-
+function ProfileHeader({
+    userDetails,
+    onRequest,
+    onDecline,
+}: ProfileHeaderProps) {
     const avatarUrl = useMemo(
         () => (userDetails?.avatar ? createFileLink(userDetails.avatar) : ''),
         [userDetails],
@@ -113,23 +122,11 @@ function ProfileHeader({userDetails, onRemoveFriend}: ProfileHeaderProps) {
             </div>
 
             <div className="flex sm:flex-col gap-2 sm:ml-auto w-full sm:w-auto">
-                <ProfileDropdown onRemoveFriend={onRemoveFriend} />
-                {userDetails?.socialLink && (
-                    <Button
-                        variant="secondary"
-                        onClick={() => {
-                            window.open(
-                                userDetails?.socialLink
-                                    ? normalizeLink(userDetails?.socialLink)
-                                    : '#',
-                                '_blank',
-                            );
-                        }}
-                        className="grow-1 sm:grow-0 cursor-pointer"
-                    >
-                        {t('open_social')}
-                    </Button>
-                )}
+                <ProfileDropdown
+                    showDecline={userDetails.friendship === 'friends'}
+                    onDecline={onDecline}
+                />
+                <ActionButton userDetails={userDetails} onRequest={onRequest} />
             </div>
         </div>
     );
@@ -140,9 +137,9 @@ function InterestsBlock({interests}: {interests: string[]}) {
 
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold uppercase mb-2 text-foreground">
+            <p className="text-sm font-semibold uppercase mb-2 text-foreground">
                 {t('interests')}
-            </h3>
+            </p>
             <div className="flex flex-row gap-2 flex-wrap">
                 {interests.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
@@ -165,6 +162,7 @@ export default function UserPage() {
     const navigate = useNavigate();
     const backend = useBackend();
     const storage = useFriendlyStorage();
+    const queryClient = useQueryClient();
 
     const {id} = useParams();
     const userId = Number(id);
@@ -180,6 +178,8 @@ export default function UserPage() {
         return;
     }
 
+    const userKey = ['user', id];
+
     const {mutate: declineFriend, isPending: isDeclinePending} = useMutation({
         mutationFn: async () => {
             await backend.declineFriendRequest({
@@ -188,13 +188,27 @@ export default function UserPage() {
                     .accessHash,
             });
         },
-        onSuccess: () => {
-            void navigate('/');
+        onSuccess: () =>
+            void queryClient.invalidateQueries({
+                queryKey: userKey,
+            }),
+    });
+    const {mutate: requestFriend, isPending: isRequestPending} = useMutation({
+        mutationFn: async () => {
+            await backend.sendFriendRequest({
+                userId: userId,
+                userAccessHash: (await storage.userAccessHashes.get(userId))
+                    .accessHash,
+            });
         },
+        onSuccess: () =>
+            void queryClient.invalidateQueries({
+                queryKey: userKey,
+            }),
     });
 
     const userQuery = useQuery({
-        queryKey: ['user', id],
+        queryKey: userKey,
         queryFn: async () => {
             if (!id) {
                 throw new Error('Id is null or undefined');
@@ -212,7 +226,11 @@ export default function UserPage() {
 
     let content;
 
-    if (userQuery.isLoading || isDeclinePending) {
+    if (
+        userQuery.fetchStatus !== 'idle' ||
+        isDeclinePending ||
+        isRequestPending
+    ) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -222,7 +240,7 @@ export default function UserPage() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3>{userQuery.error?.message ?? t('unknown_error')}</h3>
+                <p>{userQuery.error?.message ?? t('unknown_error')}</p>
             </div>
         );
     } else {
@@ -230,7 +248,8 @@ export default function UserPage() {
             <div className="flex flex-col gap-2 pb-12">
                 <ProfileHeader
                     userDetails={userQuery.data!.user}
-                    onRemoveFriend={declineFriend}
+                    onDecline={declineFriend}
+                    onRequest={requestFriend}
                 />
                 <Separator />
 
@@ -270,4 +289,61 @@ export default function UserPage() {
             </div>
         </div>
     );
+}
+
+interface ActionButtonProps {
+    userDetails: UserDetails;
+    onRequest: () => void;
+}
+
+function ActionButton({userDetails, onRequest}: ActionButtonProps) {
+    const t = useTranslations('profile');
+    if (userDetails.friendship === 'friends' && userDetails?.socialLink) {
+        return (
+            <Button
+                variant="secondary"
+                onClick={() => {
+                    window.open(
+                        userDetails?.socialLink
+                            ? normalizeLink(userDetails?.socialLink)
+                            : '#',
+                        '_blank',
+                    );
+                }}
+                className="grow-1 sm:grow-0 cursor-pointer"
+            >
+                {t('open_social')}
+            </Button>
+        );
+    } else if (userDetails.friendship === 'incomingRequest') {
+        return (
+            <Button
+                variant="secondary"
+                onClick={() => onRequest()}
+                className="grow-1 sm:grow-0 cursor-pointer"
+            >
+                {t('accept-request')}
+            </Button>
+        );
+    } else if (userDetails.friendship === 'outgoingRequest') {
+        return (
+            <Button
+                disabled
+                variant="secondary"
+                className="grow-1 sm:grow-0 cursor-pointer"
+            >
+                {t('request-sent')}
+            </Button>
+        );
+    } else {
+        return (
+            <Button
+                variant="secondary"
+                onClick={() => onRequest()}
+                className="grow-1 sm:grow-0 cursor-pointer"
+            >
+                {t('send-request')}
+            </Button>
+        );
+    }
 }

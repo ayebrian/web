@@ -9,4 +9,12 @@ export interface UserDetails {
     interests: string[];
     avatar: FileDescriptor | null;
     socialLink: string | null;
+    friendship: Friendship;
 }
+
+export type Friendship =
+    | 'friends'
+    | 'incomingRequest'
+    | 'outgoingRequest'
+    | 'outgoingDecline'
+    | 'none';

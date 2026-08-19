@@ -34,7 +34,7 @@ export function ActivityPage() {
 
     let content;
 
-    if (activityQuery.isLoading) {
+    if (activityQuery.isPending) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -44,9 +44,9 @@ export function ActivityPage() {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">
+                <p className="text-center">
                     {activityQuery.error?.message ?? t('unknown-error')}
-                </h3>
+                </p>
                 <Button
                     variant="outline"
                     className="mt-2"
@@ -64,9 +64,9 @@ export function ActivityPage() {
             content = (
                 <div className="flex flex-col h-full gap-2 w-full items-center justify-center px-6 text-center">
                     <Inbox className="w-12 h-12 text-muted-foreground" />
-                    <h3 className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                         {t('empty-title')}
-                    </h3>
+                    </p>
                     <p className="max-w-xs text-sm text-muted-foreground">
                         {t('empty-desc')}
                     </p>
@@ -163,7 +163,7 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
             <div className="flex-1" />
             <span className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">
                 <Clock className="h-3 w-3" />
-                {formatTimeAgo(t, details.post.instant)}
+                {formatTimeAgo(t, details.instant)}
             </span>
         </div>
     );

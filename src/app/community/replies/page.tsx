@@ -18,7 +18,14 @@ import {
 } from '@tanstack/react-query';
 import {Loader2, MessageCircle, AlertCircle, Clock, Send} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
+import React, {
+    useRef,
+    useState,
+    useCallback,
+    useMemo,
+    useEffect,
+    RefObject,
+} from 'react';
 import {toast} from 'sonner';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -46,17 +53,17 @@ export function RepliesPage() {
 
     let content;
 
-    if (replyTo.fetch !== 'idle') {
+    if (replyTo.fetch === 'loading') {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
-    } else if (replyTo.cache === 'fail') {
+    } else if (replyTo.cache !== 'ok') {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <h3 className="text-center">{t('unknown_error')}</h3>
+                <p className="text-center">{t('unknown_error')}</p>
                 <Button
                     variant="outline"
                     className="mt-2"
@@ -91,13 +98,22 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     const t = useTranslations('replies');
 
     const upstreamRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         const upstream = upstreamRef.current;
-        if (upstream) {
+        if (upstream && replyTo.replies.data.length > 0) {
             upstream.scrollIntoView({
                 behavior: 'instant',
                 block: 'start',
+                inline: 'nearest',
+            });
+        }
+        const input = inputRef.current;
+        if (input && replyTo.replies.data.length === 0) {
+            input.scrollIntoView({
+                behavior: 'instant',
+                block: 'end',
                 inline: 'nearest',
             });
         }
@@ -153,13 +169,13 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 upstream: [...replyTo.upstream, replyTo.post],
             } satisfies CommunityDetailsResponse;
         },
-        onSuccess: details => {
+        onSuccess: async details => {
             void queryClient.invalidateQueries({
                 queryKey: ['communityReplies', id],
             });
             communityPosts.setDetails(app, details);
             setNewPostText('');
-            void navigateReplies(details.post);
+            await navigateReplies(details.post);
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -197,7 +213,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     ))}
                     <div
                         ref={upstreamRef}
-                        className="text-sm font-semibold uppercase text-foreground scroll-m-20"
+                        className="text-sm font-semibold uppercase text-foreground scroll-m-10"
                     />
                 </div>
             </>
@@ -212,9 +228,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         replies = (
             <div className="flex flex-col gap-2 mt-6 w-full items-center justify-center px-6 text-center">
                 <MessageCircle className="w-12 h-12 text-muted-foreground" />
-                <h3 className="text-base font-semibold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                     {t('no-replies')}
-                </h3>
+                </p>
                 <p className="max-w-xs text-sm text-muted-foreground">
                     {t('no-replies-desc')}
                 </p>
@@ -244,6 +260,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             {upstream}
             <MainPostCard
                 text={newPostText}
+                inputRef={inputRef}
                 onTextChange={setNewPostText}
                 onSubmit={handleCreatePost}
                 isSubmitting={createPostMutation.isPending}
@@ -270,6 +287,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 
 interface MainPostCardProps {
     post: CommunityPostDetails;
+    inputRef: RefObject<HTMLTextAreaElement | null>;
     text: string;
     onTextChange: (text: string) => void;
     onSubmit: () => Promise<void>;
@@ -279,14 +297,14 @@ interface MainPostCardProps {
 function MainPostCard({
     post,
     text,
+    inputRef,
     onTextChange,
     onSubmit,
     isSubmitting,
 }: MainPostCardProps) {
-    const replyRef = useRef<HTMLTextAreaElement>(null);
-
     function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-        if (event.key === 'Enter' && !event.shiftKey) {
+        if (isSubmitting) return;
+        if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
             event.preventDefault();
             if (!event.currentTarget.value.trim()) return;
             void onSubmit();
@@ -294,7 +312,7 @@ function MainPostCard({
     }
 
     useEffect(() => {
-        const reply = replyRef.current;
+        const reply = inputRef.current;
         if (reply) {
             reply.style.height = 'auto';
             reply.style.height = `${reply.scrollHeight}px`;
@@ -337,7 +355,7 @@ function MainPostCard({
     return (
         <div className="flex flex-col">
             <div className="bg-card rounded-xl border border-border p-4">
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                     <StyledAvatar
                         avatarClassName="cursor-pointer w-10 h-10"
                         onClick={() => void navigateProfile()}
@@ -371,10 +389,11 @@ function MainPostCard({
                     nickname={post.owner.nickname}
                 />
                 <textarea
-                    ref={replyRef}
+                    ref={inputRef}
                     className={cn(
                         'w-full content-center',
                         'text-sm outline-none resize-none',
+                        'scroll-m-60',
                     )}
                     id="reply"
                     value={text}
@@ -415,4 +434,16 @@ function formatTimeAgo(
     if (diffHours < 24) return t('hours_ago', {count: diffHours});
     if (diffDays < 7) return t('days_ago', {count: diffDays});
     return date.toLocaleDateString();
+}
+
+function isMobile(): boolean {
+    if (
+        'userAgentData' in navigator &&
+        typeof navigator.userAgentData === 'object' &&
+        navigator.userAgentData !== null &&
+        'mobile' in navigator.userAgentData
+    ) {
+        return !!navigator.userAgentData.mobile;
+    }
+    return false;
 }

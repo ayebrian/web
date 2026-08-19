@@ -126,7 +126,7 @@ export default function SignUpPage() {
                 )}
             >
                 <div className="relative flex items-center mt-1 mx-1">
-                    <div className="w-full text-md font-semibold text-center pt-2">
+                    <div className="w-full text-base font-semibold text-center pt-2">
                         {t('title')}
                     </div>
                 </div>

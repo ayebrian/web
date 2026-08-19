@@ -39,9 +39,9 @@ export function LogoutDialog({
                     </Dialog.Close>
                 </div>
                 <div className="px-4 pb-4">
-                    <h2 className="text-center">
+                    <p className="text-center">
                         {suggestBindEmail ? t('title_no_email') : t('title')}
-                    </h2>
+                    </p>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         {suggestBindEmail && (
                             <Button

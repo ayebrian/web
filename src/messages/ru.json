@@ -32,6 +32,9 @@
         "log_out": "Выйти",
         "interests": "Интересы",
         "open_social": "Связаться",
+        "send-request": "Добавить в друзья",
+        "accept-request": "Принять заявку",
+        "request-sent": "Запрос отправлен",
         "friends": {
             "title": "Друзья",
             "see_all": "Все друзья",
@@ -188,7 +191,7 @@
         "empty-title": "Здесь пока пусто",
         "empty-desc": "Скоро тут будет недавняя активность",
         "load-more": "Загрузить",
-        "reply": "Ответ от '<b>'{nickname}'</b>': \"{text}\"",
+        "reply": "Ответ от <b>{nickname}</b>",
         "just_now": "Только что",
         "minutes_ago": "{count} мин назад",
         "hours_ago": "{count} час назад",

@@ -12,10 +12,10 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
     return (
         <>
             <div className="flex flex-col gap-2">
-                <h3 className="flex flex-row gap-2 mb-2">
-                    <p className="flex-1 text-sm font-semibold uppercase text-foreground">
+                <p className="flex flex-row gap-2 mb-2">
+                    <span className="flex-1 text-sm font-semibold uppercase text-foreground">
                         {t('friends.title')}
-                    </p>
+                    </span>
                     <Link
                         to="#"
                         className="text-sm text-muted-foreground font-normal hover:underline"
@@ -24,7 +24,7 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                     >
                         {t('friends.see_all')}
                     </Link>
-                </h3>
+                </p>
                 <div className="flex gap-2 overflow-x-auto pb-4">
                     {friends.map(friend => (
                         <FriendCard key={friend.id} friend={friend} />

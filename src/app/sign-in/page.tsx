@@ -77,7 +77,7 @@ function SignInContent(): ReactNode {
     return (
         <div className="relative flex flex-col items-center mt-1 mx-1 gap-2">
             <CodeDialog email={email} open={openCode} setOpen={setOpenCode} />
-            <p className="w-full text-md font-semibold text-center">
+            <p className="w-full text-base font-semibold text-center">
                 {t('title')}
             </p>
             <p>{t('description')}</p>

@@ -12,23 +12,21 @@ export type EmailBindingSuggestionStatus =
 export interface EmailBindingSuggestion {
     status: EmailBindingSuggestionStatus;
     setStatus: (value: EmailBindingSuggestionStatus) => void;
-    trackSwipe: () => void;
+    trackSwipe: (userEmail: string | null) => void;
 }
 
-export function useEmailBindingSuggestion(
-    userEmail: string | null,
-): EmailBindingSuggestion {
+export function useEmailBindingSuggestion(): EmailBindingSuggestion {
     const [status, setStatus] =
         useState<EmailBindingSuggestionStatus>('pending');
 
-    const trackSwipe = useCallback(() => {
+    const trackSwipe = useCallback((userEmail: string | null) => {
         const prev = parseInt(localStorage.getItem(STORAGE_KEY) ?? '0', 10);
         const next = prev + 1;
         localStorage.setItem(STORAGE_KEY, next.toString());
         if (!userEmail && prev < THRESHOLD && next >= THRESHOLD) {
             setStatus('suggested');
         }
-    }, [userEmail]);
+    }, []);
 
     return {status, setStatus, trackSwipe};
 }
