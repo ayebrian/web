@@ -132,7 +132,6 @@ export function CommunityPage() {
                             key={post.id}
                             post={post}
                             minimize={false}
-                            replyReplace={false}
                         />
                     ))}
                 </div>

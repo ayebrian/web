@@ -208,7 +208,6 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                             key={post.id}
                             post={post}
                             minimize={true}
-                            replyReplace={true}
                         />
                     ))}
                     <div
@@ -248,7 +247,6 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                         key={post.id}
                         post={post}
                         minimize={false}
-                        replyReplace={true}
                     />
                 ))}
             </div>
@@ -355,7 +353,7 @@ function MainPostCard({
     return (
         <div className="flex flex-col">
             <div className="bg-card rounded-xl border border-border p-4">
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                     <StyledAvatar
                         avatarClassName="cursor-pointer w-10 h-10"
                         onClick={() => void navigateProfile()}
@@ -375,7 +373,7 @@ function MainPostCard({
                                 {formatTimeAgo(postT, postTime)}
                             </span>
                         </div>
-                        <div className="text-foreground whitespace-pre-wrap break-words">
+                        <div className="text-foreground break-words">
                             <MarkdownArea text={post.text} />
                         </div>
                     </div>

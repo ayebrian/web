@@ -11,14 +11,9 @@ import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 export interface CommunityPostCardProps {
     post: CommunityPostDetails;
     minimize: boolean;
-    replyReplace: boolean;
 }
 
-export function CommunityPostCard({
-    post,
-    minimize,
-    replyReplace,
-}: CommunityPostCardProps) {
+export function CommunityPostCard({post, minimize}: CommunityPostCardProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -33,9 +28,7 @@ export function CommunityPostCard({
             id: post.id,
             accessHash: post.accessHash,
         });
-        await navigate(`/community/${post.id}/replies`, {
-            replace: replyReplace,
-        });
+        await navigate(`/community/${post.id}/replies`);
     }
 
     async function navigateProfile(event: React.MouseEvent) {
@@ -72,7 +65,7 @@ export function CommunityPostCard({
                             {formatTimeAgo(t, postTime)}
                         </span>
                     </div>
-                    <div className="mt-1 text-foreground whitespace-pre-wrap break-words">
+                    <div className="text-foreground break-words">
                         <MarkdownArea text={post.text} />
                     </div>
 

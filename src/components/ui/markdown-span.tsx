@@ -1,5 +1,4 @@
 import {useMemo} from 'react';
-import remarkBreaks from 'remark-breaks';
 import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
 
@@ -22,12 +21,12 @@ const linkClass = cn(
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 );
 
-interface MarkdownAreaProps {
+export interface MarkdownSpanProps {
     text: string;
     findLinks?: boolean;
 }
 
-function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
+export function MarkdownSpan({text, findLinks = true}: MarkdownSpanProps) {
     const currentText = useMemo(
         () => (findLinks ? wrapBareLinks(text) : text),
         [text, findLinks],
@@ -35,7 +34,6 @@ function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
 
     return (
         <ReactMarkdown
-            remarkPlugins={[remarkBreaks]}
             components={{
                 a: ({href, children}) => (
                     <a
@@ -47,12 +45,10 @@ function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
                         {children}
                     </a>
                 ),
-                blockquote: ({children}) => <blockquote className="text-sm">{children}</blockquote>,
+                p: ({ children }) => <>{children}</>,
             }}
         >
             {currentText}
         </ReactMarkdown>
     );
 }
-
-export {MarkdownArea};
