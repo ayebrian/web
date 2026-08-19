@@ -1,7 +1,7 @@
 import {useBackend} from '@/backend.context';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {useNavigate} from 'react-router';
-import {MarkdownArea} from '@/components/ui/markdown-area';
+import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {forceUnwrap} from '@/network/result';
@@ -156,9 +156,9 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
                 nickname={details.post.owner.nickname}
                 src={avatar}
             />
-            <span className="[&_p]:inline line-clamp-2 text-foreground break-words">
+            <span className="line-clamp-2 text-foreground break-words">
                 {text} "
-                <MarkdownArea text={details.post.text} />"
+                <MarkdownSpan text={details.post.text} />"
             </span>
             <div className="flex-1" />
             <span className="flex items-center gap-1 text-sm text-muted-foreground whitespace-nowrap">

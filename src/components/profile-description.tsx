@@ -20,7 +20,7 @@ export function ProfileDescription({description}: {description: string}) {
         <>
             <div
                 className={cn(
-                    'text-muted-foreground wrap-break-word whitespace-pre-wrap transition-all duration-300 ease-in-out',
+                    'text-muted-foreground wrap-break-word transition-all duration-300 ease-in-out',
                     !expanded && 'line-clamp-4 sm:line-clamp-3',
                 )}
                 ref={descriptionRef}
