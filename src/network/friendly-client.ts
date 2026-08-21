@@ -69,6 +69,9 @@ export interface FriendlyClient {
     communityReplies(
         request: CommunityRepliesRequest,
     ): Promise<Result<CommunityRepliesResponse, NetworkError>>;
+    communityDelete(
+        request: CommunityDeleteRequest,
+    ): Promise<Result<void, NetworkError>>;
     activityList(
         request: ActivityListRequest,
     ): Promise<Result<ActivityListResponse, NetworkError>>;
@@ -383,6 +386,14 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
+    communityDelete({
+        id,
+    }: CommunityDeleteRequest): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client.post(`/community/${id}/delete`).then(() => undefined),
+        );
+    }
+
     activityList({
         cursorId,
     }: ActivityListRequest): Promise<
@@ -513,7 +524,7 @@ export interface CommunityListRequest {
 }
 
 export interface CommunityListResponse {
-    data: CommunityPostDetails[];
+    data: CommunityPostDetailsPlain[];
     nextId: string | null;
 }
 
@@ -542,6 +553,10 @@ export interface CommunityRepliesResponse {
     nextId: string | null;
 }
 
+export interface CommunityDeleteRequest {
+    id: number;
+}
+
 export interface ActivityListRequest {
     cursorId: string | null;
 }
@@ -556,11 +571,28 @@ export interface CommunityPostDescriptor {
     accessHash: CommunityPostAccessHash;
 }
 
-export interface CommunityPostDetails {
+export type CommunityPostDetails = {
+    id: CommunityPostId;
+    accessHash: CommunityPostAccessHash;
+    instant: string;
+    text?: string;
+    owner?: UserDetails;
+} & (
+    | ({type: 'plain'} & CommunityPostDetailsPlain)
+    | ({type: 'deleted'} & CommunityPostDetailsDeleted)
+);
+
+export interface CommunityPostDetailsPlain {
     id: CommunityPostId;
     accessHash: CommunityPostAccessHash;
     text: string;
     owner: UserDetails;
+    instant: string;
+}
+
+export interface CommunityPostDetailsDeleted {
+    id: CommunityPostId;
+    accessHash: CommunityPostAccessHash;
     instant: string;
 }
 
@@ -572,7 +604,7 @@ export interface ActivityDetailsReply {
     type: 'reply';
     id: ActivityId;
     instant: string;
-    post: CommunityPostDetails;
+    post: CommunityPostDetailsPlain;
 }
 
 export interface ActivityDetailsUnknown {

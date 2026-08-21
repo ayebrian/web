@@ -1,35 +1,23 @@
 import {useBackend} from '@/backend.context';
+import {MainPostCard} from '@/app/community/replies/main-post';
 import {communityPosts} from '@/services/community-posts-service';
 import {CommunityPostId} from '@/network/friendly-client';
 import {users} from '@/services/users-service';
 import {
     CommunityDetailsResponse,
     CommunityPostDescriptor,
-    CommunityPostDetails,
 } from '@/network/friendly-client';
 import {Button} from '@/components/ui/button';
 import {forceUnwrap} from '@/network/result';
-import {cn} from '@/lib/utils';
 import {
     useInfiniteQuery,
     useMutation,
-    useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {Loader2, MessageCircle, AlertCircle, Clock, Send} from 'lucide-react';
+import {Loader2, MessageCircle, AlertCircle} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import React, {
-    useRef,
-    useState,
-    useCallback,
-    useMemo,
-    useEffect,
-    RefObject,
-} from 'react';
+import React, {useRef, useState, useCallback, useEffect} from 'react';
 import {toast} from 'sonner';
-import {StyledAvatar} from '@/components/styled-avatar';
-import {createFileLink} from '@/lib/utils';
-import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate, useParams} from 'react-router';
 import {CommunityPostCard} from '../post';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
@@ -53,7 +41,7 @@ export function RepliesPage() {
 
     let content;
 
-    if (replyTo.fetch === 'loading') {
+    if (replyTo.cache === 'empty') {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -67,7 +55,9 @@ export function RepliesPage() {
                 <Button
                     variant="outline"
                     className="mt-2"
-                    onClick={() => void communityPosts.refetch(app, idInt)}
+                    onClick={() =>
+                        void communityPosts.invalidateDetails(app, idInt)
+                    }
                 >
                     {t('retry')}
                 </Button>
@@ -96,9 +86,19 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     const storage = useFriendlyStorage();
     const navigate = useNavigate();
     const t = useTranslations('replies');
+    const replyPost = communityPosts.usePost(replyTo.post.id).data!;
 
     const upstreamRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        for (const reply of replyTo.replies.data) {
+            void communityPosts.prefetchDetails(app, reply.id);
+        }
+        for (const upstream of replyTo.upstream) {
+            void communityPosts.prefetchDetails(app, upstream.id);
+        }
+    }, [replyTo]);
 
     useEffect(() => {
         const upstream = upstreamRef.current;
@@ -126,7 +126,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         queryFn: async ({pageParam}: {pageParam: string | null}) => {
             const result = await backend.communityReplies({
                 id: id,
-                accessHash: replyTo.post.accessHash,
+                accessHash: replyPost.accessHash,
                 cursorId: pageParam,
             });
             return forceUnwrap(result);
@@ -153,29 +153,46 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             const post = {
                 replyTo: {
                     id: id,
-                    accessHash: replyTo.post.accessHash,
+                    accessHash: replyPost.accessHash,
                 },
                 text,
             };
             const result = await backend.communityPost(post);
-            return {
+            const response = {
                 post: {
+                    type: 'plain',
                     ...post,
                     ...forceUnwrap(result),
                     instant: new Date().toISOString(),
                     owner: (await users.ensureSelf(app)).user,
                 },
                 replies: {data: [], nextId: null},
-                upstream: [...replyTo.upstream, replyTo.post],
+                upstream: [...replyTo.upstream, replyPost],
             } satisfies CommunityDetailsResponse;
-        },
-        onSuccess: async details => {
             void queryClient.invalidateQueries({
                 queryKey: ['communityReplies', id],
             });
-            communityPosts.setDetails(app, details);
+            communityPosts.setDetails(app, response);
+            await navigateReplies(response.post);
             setNewPostText('');
-            await navigateReplies(details.post);
+        },
+        onError: error => {
+            toast.error(error.message ?? t('post_create_error'));
+        },
+    });
+
+    const deletePostMutation = useMutation({
+        mutationFn: async () => {
+            const result = await backend.communityDelete({
+                id: replyPost.id,
+            });
+            forceUnwrap(result);
+            communityPosts.setPost(app, {
+                type: 'deleted',
+                id: replyPost.id,
+                accessHash: replyPost.accessHash,
+                instant: replyPost.instant,
+            });
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -192,9 +209,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         });
     }
 
-    const handleCreatePost = useCallback(async () => {
+    const handleCreatePost = useCallback(() => {
         if (!newPostText.trim()) return;
-        await createPostMutation.mutateAsync(newPostText);
+        createPostMutation.mutate(newPostText);
     }, [newPostText, createPostMutation]);
 
     let upstream;
@@ -206,7 +223,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     {replyTo.upstream.map(post => (
                         <CommunityPostCard
                             key={post.id}
-                            post={post}
+                            postId={post.id}
                             minimize={true}
                         />
                     ))}
@@ -245,7 +262,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 {posts.map(post => (
                     <CommunityPostCard
                         key={post.id}
-                        post={post}
+                        postId={post.id}
                         minimize={false}
                     />
                 ))}
@@ -262,7 +279,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 onTextChange={setNewPostText}
                 onSubmit={handleCreatePost}
                 isSubmitting={createPostMutation.isPending}
-                post={replyTo.post}
+                onDelete={() => deletePostMutation.mutate()}
+                isDeleting={deletePostMutation.isPending}
+                post={replyPost}
             />
             {replies}
             <div hidden={!postsQuery.hasNextPage}>
@@ -281,167 +300,4 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             </div>
         </div>
     );
-}
-
-interface MainPostCardProps {
-    post: CommunityPostDetails;
-    inputRef: RefObject<HTMLTextAreaElement | null>;
-    text: string;
-    onTextChange: (text: string) => void;
-    onSubmit: () => Promise<void>;
-    isSubmitting: boolean;
-}
-
-function MainPostCard({
-    post,
-    text,
-    inputRef,
-    onTextChange,
-    onSubmit,
-    isSubmitting,
-}: MainPostCardProps) {
-    function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-        if (isSubmitting) return;
-        if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
-            event.preventDefault();
-            if (!event.currentTarget.value.trim()) return;
-            void onSubmit();
-        }
-    }
-
-    useEffect(() => {
-        const reply = inputRef.current;
-        if (reply) {
-            reply.style.height = 'auto';
-            reply.style.height = `${reply.scrollHeight}px`;
-        }
-    }, [text]);
-
-    const t = useTranslations('replies');
-    const postT = useTranslations('post');
-    const backend = useBackend();
-    const storage = useFriendlyStorage();
-    const navigate = useNavigate();
-
-    const avatarUrl = post.owner.avatar
-        ? createFileLink(post.owner.avatar)
-        : undefined;
-
-    const postTime = new Date(post.instant);
-
-    const selfQuery = useQuery({
-        queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails2(),
-    });
-
-    const selfAvatarUrl = useMemo(
-        () =>
-            selfQuery.data?.ok && selfQuery.data?.data?.user?.avatar
-                ? createFileLink(selfQuery.data.data.user.avatar)
-                : '',
-        [selfQuery],
-    );
-
-    async function navigateProfile() {
-        await storage.userAccessHashes.save({
-            id: post.owner.id,
-            accessHash: post.owner.accessHash,
-        });
-        await navigate(`/user/${post.owner.id}`);
-    }
-
-    return (
-        <div className="flex flex-col">
-            <div className="bg-card rounded-xl border border-border p-4">
-                <div className="flex gap-3">
-                    <StyledAvatar
-                        avatarClassName="cursor-pointer w-10 h-10"
-                        onClick={() => void navigateProfile()}
-                        src={avatarUrl}
-                        nickname={post.owner.nickname}
-                    />
-                    <div className="flex-1 flex flex-col min-w-0">
-                        <div className="flex items-center gap-2">
-                            <p
-                                onClick={() => void navigateProfile()}
-                                className="cursor-pointer font-semibold text-foreground truncate"
-                            >
-                                {post.owner.nickname}
-                            </p>
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                                <Clock className="h-3 w-3" />
-                                {formatTimeAgo(postT, postTime)}
-                            </span>
-                        </div>
-                        <div className="text-foreground break-words">
-                            <MarkdownArea text={post.text} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="h-2" />
-            <div className="flex bg-card rounded-xl border border-border flex-row gap-2 px-2 py-1">
-                <StyledAvatar
-                    avatarClassName="mt-1 w-8 h-8"
-                    src={selfAvatarUrl}
-                    nickname={post.owner.nickname}
-                />
-                <textarea
-                    ref={inputRef}
-                    className={cn(
-                        'w-full content-center',
-                        'text-sm outline-none resize-none',
-                        'scroll-m-60',
-                    )}
-                    id="reply"
-                    value={text}
-                    onKeyDown={onKeyDown}
-                    onChange={e => onTextChange(e.target.value)}
-                    placeholder={t('reply-placeholder')}
-                />
-                <Button
-                    className="mt-1 w-8 h-8"
-                    onClick={() => void onSubmit()}
-                    disabled={!text.trim() || isSubmitting}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <Send />
-                    )}
-                </Button>
-            </div>
-            <div className="h-4" />
-        </div>
-    );
-}
-
-function formatTimeAgo(
-    t: ReturnType<typeof useTranslations<'post'>>,
-    date: Date,
-) {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffSecs = Math.floor(diffMs / 1000);
-    const diffMins = Math.floor(diffSecs / 60);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffSecs < 60) return t('just_now');
-    if (diffMins < 60) return t('minutes_ago', {count: diffMins});
-    if (diffHours < 24) return t('hours_ago', {count: diffHours});
-    if (diffDays < 7) return t('days_ago', {count: diffDays});
-    return date.toLocaleDateString();
-}
-
-function isMobile(): boolean {
-    if (
-        'userAgentData' in navigator &&
-        typeof navigator.userAgentData === 'object' &&
-        navigator.userAgentData !== null &&
-        'mobile' in navigator.userAgentData
-    ) {
-        return !!navigator.userAgentData.mobile;
-    }
-    return false;
 }

@@ -1,10 +1,7 @@
-import {
-    MutationCache,
-    QueryCache,
-    QueryClient,
-    QueryClientProvider,
-} from '@tanstack/react-query';
-import {useEffect, useRef, useState} from 'react';
+import {QueryClient} from '@tanstack/react-query';
+import {createAsyncStoragePersister} from '@tanstack/query-async-storage-persister';
+import {PersistQueryClientProvider} from '@tanstack/react-query-persist-client';
+import {useEffect, useRef, useMemo} from 'react';
 import {useSession} from '@/components/session-provider';
 
 export function QueryProvider({children}: {children: React.ReactNode}) {
@@ -16,7 +13,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
         sessionRef.current = session;
     }, [session]);
 
-    const [client] = useState(
+    const client = useMemo(
         () =>
             new QueryClient({
                 defaultOptions: {
@@ -29,15 +26,24 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                         staleTime: 1000 * 60,
                     },
                 },
-                queryCache: new QueryCache({
-                    // TODO:
-                }),
-                mutationCache: new MutationCache({
-                    // TODO:
-                }),
             }),
+        [],
     );
+
+    const persister = useMemo(
+        () =>
+            createAsyncStoragePersister({
+                storage: window.localStorage,
+            }),
+        [],
+    );
+
     return (
-        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+        <PersistQueryClientProvider
+            client={client}
+            persistOptions={{persister}}
+        >
+            {children}
+        </PersistQueryClientProvider>
     );
 }

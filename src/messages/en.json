@@ -199,6 +199,7 @@
         "days_ago_plural": "{count} days ago"
     },
     "post": {
+        "deleted": "Post was deleted by the author.",
         "just_now": "Just now",
         "minutes_ago": "{count} min ago",
         "hours_ago": "{count} hour ago",
@@ -216,6 +217,13 @@
         "no-replies-desc": "Be the first to discuss this!",
         "load-more": "Load more",
         "replies": "Replies",
+        "delete": {
+            "trigger": "Delete",
+            "title": "Confirm action",
+            "description": "Are you sure you want to delete this post? This action cannot be undone",
+            "action": "Yes",
+            "cancel": "Cancel"
+        },
         "go-back": "Go back",
         "upstream": "Upstream"
     },

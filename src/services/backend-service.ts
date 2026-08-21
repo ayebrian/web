@@ -12,6 +12,7 @@ import {
     CommunityRepliesResponse,
     CommunityDetailsRequest,
     CommunityDetailsResponse,
+    CommunityDeleteRequest,
     ActivityListRequest,
     ActivityListResponse,
     NetworkDetailsResponse,
@@ -202,6 +203,12 @@ export class BackendService {
         request: CommunityRepliesRequest,
     ): Promise<Result<CommunityRepliesResponse, NetworkError>> {
         return this.client.communityReplies(request);
+    }
+
+    communityDelete(
+        request: CommunityDeleteRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.client.communityDelete(request);
     }
 
     async activityList(

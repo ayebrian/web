@@ -34,24 +34,26 @@ function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
     );
 
     return (
-        <ReactMarkdown
-            remarkPlugins={[remarkBreaks]}
-            components={{
-                a: ({href, children}) => (
-                    <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={linkClass}
-                    >
-                        {children}
-                    </a>
-                ),
-                blockquote: ({children}) => <blockquote className="text-sm">{children}</blockquote>,
-            }}
-        >
-            {currentText}
-        </ReactMarkdown>
+        <div className="w-full max-w-full min-w-0 overflow-x-scroll">
+            <ReactMarkdown
+                remarkPlugins={[remarkBreaks]}
+                components={{
+                    a: ({href, children}) => (
+                        <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={linkClass}
+                        >
+                            {children}
+                        </a>
+                    ),
+                    blockquote: ({children}) => <blockquote className="text-sm">{children}</blockquote>,
+                }}
+            >
+                {currentText}
+            </ReactMarkdown>
+        </div>
     );
 }
 
