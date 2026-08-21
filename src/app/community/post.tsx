@@ -1,19 +1,41 @@
 import {Button} from '@/components/ui/button';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {CommunityPostDetails} from '@/network/friendly-client';
+import {
+    CommunityPostDetailsPlain,
+    CommunityPostDetailsDeleted,
+} from '@/network/friendly-client';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
+import {communityPosts} from '@/services/community-posts-service';
+import {CommunityPostId} from '@/network/friendly-client';
 
 export interface CommunityPostCardProps {
-    post: CommunityPostDetails;
+    postId: CommunityPostId;
     minimize: boolean;
 }
 
-export function CommunityPostCard({post, minimize}: CommunityPostCardProps) {
+export function CommunityPostCard(props: CommunityPostCardProps) {
+    const post = communityPosts.usePost(props.postId).data!;
+    switch (post.type) {
+        case 'plain':
+            return (
+                <CommunityPostCardPlain post={post} minimize={props.minimize} />
+            );
+        case 'deleted':
+            return <CommunityPostCardDeleted post={post} />;
+    }
+}
+
+export interface CommunityPostCardPlainProps {
+    post: CommunityPostDetailsPlain;
+    minimize: boolean;
+}
+
+function CommunityPostCardPlain({post, minimize}: CommunityPostCardPlainProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -83,6 +105,40 @@ export function CommunityPostCard({post, minimize}: CommunityPostCardProps) {
                     )}
                 </div>
             </div>
+        </div>
+    );
+}
+
+interface CommunityPostCardDeletedProps {
+    post: CommunityPostDetailsDeleted;
+}
+
+function CommunityPostCardDeleted({post}: CommunityPostCardDeletedProps) {
+    const t = useTranslations('post');
+    const navigate = useNavigate();
+    const storage = useFriendlyStorage();
+    const postTime = new Date(post.instant);
+
+    async function navigateReplies() {
+        await storage.communityPosts.save({
+            id: post.id,
+            accessHash: post.accessHash,
+        });
+        await navigate(`/community/${post.id}/replies`);
+    }
+
+    return (
+        <div
+            className="bg-card rounded-xl border border-border p-4 cursor-pointer flex items-center justify-between"
+            onClick={() => void navigateReplies()}
+        >
+            <p className="italic text-foreground truncate cursor-pointer">
+                {t('deleted')}
+            </p>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                <Clock className="h-3 w-3" />
+                {formatTimeAgo(t, postTime)}
+            </span>
         </div>
     );
 }

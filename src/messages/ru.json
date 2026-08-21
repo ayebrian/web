@@ -200,6 +200,7 @@
         "days_ago_plural": "{count} дней назад"
     },
     "post": {
+        "deleted": "Пост был удалён автором.",
         "just_now": "Только что",
         "minutes_ago": "{count} мин назад",
         "hours_ago": "{count} час назад",
@@ -221,7 +222,14 @@
         "load-more": "Загрузить ещё",
         "replies": "Ответы",
         "go-back": "Назад",
-        "upstream": "Ветка"
+        "upstream": "Ветка",
+        "delete": {
+            "trigger": "Удалить",
+            "title": "Подтвердить",
+            "description": "Вы уверены, что хотите удалить пост? Это действие нельзя отменить",
+            "action": "Да",
+            "cancel": "Отменить"
+        }
     },
     "chat": {
         "title": "В работе...",

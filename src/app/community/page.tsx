@@ -32,8 +32,16 @@ export function CommunityPage() {
     const postsQuery = useInfiniteQuery({
         queryKey: ['communityPosts'],
         queryFn: async ({pageParam}) => {
-            const result = await backend.communityList({cursorId: pageParam});
-            return forceUnwrap(result);
+            const result = forceUnwrap(
+                await backend.communityList({cursorId: pageParam}),
+            );
+            for (const post of result.data) {
+                communityPosts.setPost(app, {
+                    type: 'plain',
+                    ...post,
+                });
+            }
+            return result;
         },
         initialPageParam: null as string | null,
         getNextPageParam: lastPage => lastPage.nextId,
@@ -49,6 +57,7 @@ export function CommunityPage() {
         mutationFn: async (text: string) => {
             const result = await backend.communityPost({text});
             return {
+                type: 'plain' as const,
                 ...forceUnwrap(result),
                 text,
                 owner: (await users.ensureSelf(app)).user,
@@ -130,7 +139,7 @@ export function CommunityPage() {
                     {posts.map(post => (
                         <CommunityPostCard
                             key={post.id}
-                            post={post}
+                            postId={post.id}
                             minimize={false}
                         />
                     ))}
