@@ -79,12 +79,11 @@ export function CommunityPage() {
                     },
                     upstream: [],
                 });
-                await navigate(`/community/${details.id}/replies`);
-                await new Promise(resolve => setTimeout(resolve, 300));
                 setNewPostText('');
                 void queryClient.invalidateQueries({
                     queryKey: ['communityPosts'],
                 });
+                void navigate(`/community/${details.id}/replies`);
             })();
         },
         onError: error => {

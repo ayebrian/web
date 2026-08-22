@@ -1,7 +1,7 @@
 import {useBackend} from '@/backend.context';
 import {MainPostCard} from '@/app/community/replies/main-post';
 import {communityPosts} from '@/services/community-posts-service';
-import {CommunityPostId} from '@/network/friendly-client';
+import {CommunityPostId, CommunityPostDetails} from '@/network/friendly-client';
 import {users} from '@/services/users-service';
 import {
     CommunityDetailsResponse,
@@ -13,6 +13,7 @@ import {
     useInfiniteQuery,
     useMutation,
     useQueryClient,
+    infiniteQueryOptions,
 } from '@tanstack/react-query';
 import {Loader2, MessageCircle, AlertCircle} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -121,23 +122,34 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 
     const [newPostText, setNewPostText] = useState('');
 
-    const postsQuery = useInfiniteQuery({
-        queryKey: ['communityReplies', id],
-        queryFn: async ({pageParam}: {pageParam: string | null}) => {
-            const result = await backend.communityReplies({
-                id: id,
-                accessHash: replyPost.accessHash,
-                cursorId: pageParam,
-            });
-            return forceUnwrap(result);
-        },
-        initialData: {
-            pages: [replyTo.replies],
-            pageParams: [null],
-        },
-        initialPageParam: null,
-        getNextPageParam: lastPage => lastPage.nextId,
-    });
+    function postsOptions(
+        descriptor: CommunityPostDescriptor,
+        initialData?: {data: CommunityPostDetails[]; nextId: string | null},
+    ) {
+        return infiniteQueryOptions({
+            queryKey: ['communityReplies', descriptor.id],
+            queryFn: async ({pageParam}: {pageParam: string | null}) => {
+                const result = await backend.communityReplies({
+                    id: descriptor.id,
+                    accessHash: descriptor.accessHash,
+                    cursorId: pageParam,
+                });
+                return forceUnwrap(result);
+            },
+            initialData: initialData
+                ? {
+                      pages: [initialData],
+                      pageParams: [null],
+                  }
+                : undefined,
+            initialPageParam: null,
+            getNextPageParam: lastPage => lastPage.nextId,
+        });
+    }
+
+    const postsQuery = useInfiniteQuery(
+        postsOptions(replyTo.post, replyTo.replies),
+    );
 
     const pages = postsQuery.data?.pages ?? [];
     const posts = pages.flatMap(p => p.data);
@@ -182,17 +194,33 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     });
 
     const deletePostMutation = useMutation({
+        mutationKey: ['communityDelete', replyTo.post.id],
         mutationFn: async () => {
             const result = await backend.communityDelete({
                 id: replyPost.id,
             });
             forceUnwrap(result);
-            communityPosts.setPost(app, {
-                type: 'deleted',
-                id: replyPost.id,
-                accessHash: replyPost.accessHash,
-                instant: replyPost.instant,
-            });
+            if (replyTo.replies.data.length === 0) {
+                if (replyTo.upstream.length === 0) {
+                    await communityPosts.prefetchList(app, {staleTime: 0});
+                    await navigate('/community');
+                } else {
+                    const lastUpstream =
+                        replyTo.upstream[replyTo.upstream.length - 1];
+                    await queryClient.prefetchInfiniteQuery({
+                        ...postsOptions(lastUpstream),
+                        staleTime: 0,
+                    });
+                    await navigateReplies({...lastUpstream});
+                }
+            } else {
+                communityPosts.setPost(app, {
+                    type: 'deleted',
+                    id: replyPost.id,
+                    accessHash: replyPost.accessHash,
+                    instant: replyPost.instant,
+                });
+            }
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
