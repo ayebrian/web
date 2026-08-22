@@ -135,6 +135,7 @@ function prefetchList(
 }
 
 export const communityPosts = {
+    listOptions,
     saveDescriptor,
     setDetails,
     setPost,

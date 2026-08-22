@@ -24,7 +24,7 @@ const messaging = getMessaging(app);
 
 const swiped = Number(localStorage.getItem('feed-swipes') ?? '0');
 
-if (swiped > 20) {
+if (swiped > 20 || localStorage.getItem('request-notifications') === 'true') {
     void window.Notification.requestPermission().then(permission => {
         if (permission !== 'granted') return;
         void getToken(messaging, {

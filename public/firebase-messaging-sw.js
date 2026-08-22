@@ -58,6 +58,17 @@ async function handleMessage(payload) {
                 }
             }
             break;
+        case 'new_reply':
+            switch (language) {
+                case 'en':
+                    title = `New reply from ${details.post.owner.nickname}`;
+                    body = 'Click to view in browser';
+                    break;
+                case 'ru':
+                    title = `Новый ответ от ${details.post.owner.nickname}`;
+                    body = 'Нажми, чтобы продолжить в браузере';
+                    break;
+            }
     }
 
     if (title !== undefined && body !== undefined) {
