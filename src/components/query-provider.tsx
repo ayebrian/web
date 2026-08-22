@@ -1,8 +1,30 @@
 import {QueryClient} from '@tanstack/react-query';
-import {createAsyncStoragePersister} from '@tanstack/query-async-storage-persister';
-import {PersistQueryClientProvider} from '@tanstack/react-query-persist-client';
+import {
+    PersistQueryClientProvider,
+    PersistedClient,
+    Persister,
+} from '@tanstack/react-query-persist-client';
 import {useEffect, useRef, useMemo} from 'react';
 import {useSession} from '@/components/session-provider';
+import {get, set, del} from 'idb-keyval';
+
+/**
+ * Avoid local-storage limits.
+ * @see https://github.com/TanStack/query/discussions/3198#discussion-3801221
+ */
+export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
+    return {
+        persistClient: async (client: PersistedClient) => {
+            await set(idbValidKey, client);
+        },
+        restoreClient: async () => {
+            return await get<PersistedClient>(idbValidKey);
+        },
+        removeClient: async () => {
+            await del(idbValidKey);
+        },
+    } satisfies Persister;
+}
 
 export function QueryProvider({children}: {children: React.ReactNode}) {
     const session = useSession();
@@ -30,13 +52,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
         [],
     );
 
-    const persister = useMemo(
-        () =>
-            createAsyncStoragePersister({
-                storage: window.localStorage,
-            }),
-        [],
-    );
+    const persister = useMemo(() => createIDBPersister(), []);
 
     return (
         <PersistQueryClientProvider

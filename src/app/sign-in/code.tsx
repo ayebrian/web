@@ -97,6 +97,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
         blockingQR.dismissBlockingQR();
         await handleAddFriend();
         await Notifications.nudge();
+        localStorage.setItem('request-notifications', 'true');
         void navigate('/');
         setLoading(false);
     }
