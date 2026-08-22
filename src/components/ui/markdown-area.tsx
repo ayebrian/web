@@ -34,7 +34,7 @@ function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
     );
 
     return (
-        <div className="w-full max-w-full min-w-0 overflow-x-scroll">
+        <div className="w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden">
             <ReactMarkdown
                 remarkPlugins={[remarkBreaks]}
                 components={{

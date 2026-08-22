@@ -12,11 +12,16 @@ import {ConfirmationDialog} from '@/components/confirmation-dialog';
 
 export interface MainPostMenuProps {
     onDelete: () => void;
+    showDelete: boolean;
 }
 
-export function MainPostMenu({onDelete}: MainPostMenuProps) {
+export function MainPostMenu({onDelete, showDelete}: MainPostMenuProps) {
     const t = useTranslations('replies');
     const [isDeletePostOpen, setDeletePostOpen] = useState(false);
+
+    if (!showDelete) {
+        return;
+    }
 
     return (
         <>
