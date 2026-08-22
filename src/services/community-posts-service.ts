@@ -5,7 +5,11 @@ import {
     CommunityDetailsResponse,
 } from '@/network/friendly-client';
 import {forceUnwrap} from '@/network/result';
-import {useQuery, queryOptions} from '@tanstack/react-query';
+import {
+    useQuery,
+    queryOptions,
+    infiniteQueryOptions,
+} from '@tanstack/react-query';
 import {CommunityPostId} from '@/network/friendly-client';
 import {CommunityPostDetails} from '@/network/friendly-client';
 
@@ -36,6 +40,29 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
             }
             return result;
         },
+    });
+}
+
+function listOptions(app: AppContext) {
+    return infiniteQueryOptions({
+        queryKey: ['communityPosts'],
+        queryFn: async ({pageParam}) => {
+            const result = forceUnwrap(
+                await app.backend.communityList({cursorId: pageParam}),
+            );
+            for (const post of result.data) {
+                communityPosts.setPost(app, {
+                    type: 'plain',
+                    ...post,
+                });
+                void communityPosts.prefetchDetails(app, post.id, {
+                    staleTime: Infinity,
+                });
+            }
+            return result;
+        },
+        initialPageParam: null as string | null,
+        getNextPageParam: lastPage => lastPage.nextId,
     });
 }
 
@@ -93,6 +120,20 @@ function prefetchDetails(
     });
 }
 
+export interface PrefetchListOptions {
+    staleTime: number;
+}
+
+function prefetchList(
+    app: AppContext,
+    options?: PrefetchListOptions,
+): Promise<void> {
+    return app.queryClient.prefetchInfiniteQuery({
+        ...listOptions(app),
+        ...options,
+    });
+}
+
 export const communityPosts = {
     saveDescriptor,
     setDetails,
@@ -101,4 +142,5 @@ export const communityPosts = {
     usePost,
     invalidateDetails,
     prefetchDetails,
+    prefetchList,
 };
