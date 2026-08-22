@@ -18,12 +18,12 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
             new QueryClient({
                 defaultOptions: {
                     queries: {
-                        retry: 3,
-                        retryDelay: attempt =>
-                            Math.min(1_000 * 2 ** attempt, 10_000),
+                        retry: true,
+                        retryDelay: 1_000,
                         refetchOnWindowFocus: true,
                         refetchOnReconnect: true,
-                        staleTime: 1000 * 60,
+                        staleTime: 1_000,
+                        gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
                     },
                 },
             }),

@@ -78,8 +78,19 @@ function invalidateDetails(
     return app.queryClient.invalidateQueries(postDetailsOptions(app, id));
 }
 
-function prefetchDetails(app: AppContext, id: CommunityPostId): Promise<void> {
-    return app.queryClient.prefetchQuery(postDetailsOptions(app, id));
+export interface PrefetchDetailsOptions {
+    staleTime: number;
+}
+
+function prefetchDetails(
+    app: AppContext,
+    id: CommunityPostId,
+    options?: PrefetchDetailsOptions,
+): Promise<void> {
+    return app.queryClient.prefetchQuery({
+        ...postDetailsOptions(app, id),
+        ...options,
+    });
 }
 
 export const communityPosts = {

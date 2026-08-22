@@ -177,6 +177,7 @@
         "title": "Community",
         "placeholder": "What's on your mind?",
         "create_post": "Post",
+        "clear-draft": "Clear",
         "post_create_error": "Failed to create post",
         "retry": "Retry",
         "unknown_error": "Something went wrong",

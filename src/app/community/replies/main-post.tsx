@@ -72,7 +72,13 @@ export function MainPostCard({
     } else
         switch (post.type) {
             case 'plain':
-                card = <MainPostCardPlain post={post} onDelete={onDelete} />;
+                card = (
+                    <MainPostCardPlain
+                        post={post}
+                        onDelete={onDelete}
+                        isAuthor={selfQuery.data?.user?.id === post.owner.id}
+                    />
+                );
                 break;
             case 'deleted':
                 card = <MainPostCardDeleted />;
@@ -130,9 +136,10 @@ function MainPostCardLoading() {
 export interface MainPostCardPlainProps {
     post: CommunityPostDetailsPlain;
     onDelete: () => void;
+    isAuthor: boolean;
 }
 
-function MainPostCardPlain({post, onDelete}: MainPostCardPlainProps) {
+function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -172,12 +179,16 @@ function MainPostCardPlain({post, onDelete}: MainPostCardPlainProps) {
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(t, postTime)}
                         </span>
+                        <div className="flex-1" />
+                        <MainPostMenu
+                            onDelete={onDelete}
+                            showDelete={isAuthor}
+                        />
                     </div>
                     <div className="text-foreground break-words">
                         <MarkdownArea text={post.text} />
                     </div>
                 </div>
-                <MainPostMenu onDelete={onDelete} />
             </div>
         </div>
     );

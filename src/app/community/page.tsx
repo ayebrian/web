@@ -12,10 +12,11 @@ import {
     useQuery,
     useQueryClient,
 } from '@tanstack/react-query';
-import {Loader2, AlertCircle, SquarePen, Newspaper} from 'lucide-react';
+import {Loader2, AlertCircle, SquarePen, Newspaper, Trash} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useState, useCallback, useMemo, useRef, useEffect} from 'react';
+import {useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
+import {newPost} from '@/services/new-post-service';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {CommunityPostCard} from './post';
@@ -27,7 +28,7 @@ export function CommunityPage() {
     const navigate = useNavigate();
     const app = useAppContext();
 
-    const [newPostText, setNewPostText] = useState('');
+    const [newPostText, setNewPostText] = newPost.useText();
 
     const postsQuery = useInfiniteQuery({
         queryKey: ['communityPosts'],
@@ -39,6 +40,9 @@ export function CommunityPage() {
                 communityPosts.setPost(app, {
                     type: 'plain',
                     ...post,
+                });
+                void communityPosts.prefetchDetails(app, post.id, {
+                    staleTime: Infinity,
                 });
             }
             return result;
@@ -235,7 +239,18 @@ function CreatePostCard({
                         onChange={e => onTextChange(e.target.value)}
                         placeholder={t('placeholder')}
                     />
-                    <div className="w-full flex items-center justify-end">
+                    <div className="w-full flex items-center justify-end gap-1">
+                        {text.length > 0 && (
+                            <Button
+                                onClick={() => onTextChange('')}
+                                variant="ghost"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <Trash />
+                                    {t('clear-draft')}
+                                </div>
+                            </Button>
+                        )}
                         <Button
                             onClick={() => void onSubmit()}
                             disabled={!text.trim() || isSubmitting}
