@@ -41,15 +41,30 @@ export function CommunityPage() {
                     type: 'plain',
                     ...post,
                 });
-                void communityPosts.prefetchDetails(app, post.id, {
-                    staleTime: Infinity,
-                });
             }
             return result;
         },
         initialPageParam: null as string | null,
         getNextPageParam: lastPage => lastPage.nextId,
     });
+
+    useEffect(() => {
+        if (!postsQuery.data) return;
+        let shouldBreak = false;
+        void (async () => {
+            for (const page of postsQuery.data.pages) {
+                for (const post of page.data) {
+                    if (shouldBreak) break;
+                    await communityPosts.prefetchDetails(app, post.id, {
+                        staleTime: Infinity,
+                    });
+                }
+            }
+        })();
+        return () => {
+            shouldBreak = true;
+        };
+    }, [postsQuery.data]);
 
     const loadMore = () => {
         if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
