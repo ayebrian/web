@@ -1,6 +1,6 @@
 {
     "name": "friendly-web",
-    "version": "2026.2.1",
+    "version": "2026.3",
     "private": true,
     "packageManager": "pnpm@11.1.2",
     "scripts": {

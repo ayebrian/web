@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {BlockingQR} from '@/app/blocking-qr/page';
 import {AppPage, AuthorizedGuard, UnauthorizedGuard} from '@/app/page';
 import {ActivityPage} from '@/app/activity/page';
+import {DevPage} from '@/app/dev/page';
 import SignInPage from '@/app/sign-in/page';
 import SignUpPage from '@/app/sign-up/page';
 import {CommunityPage} from '@/app/community/page';
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: '/',
                 Component: AppPage,
+            },
+            {
+                path: '/dev',
+                Component: DevPage,
             },
             {
                 element: <UnauthorizedGuard />,
