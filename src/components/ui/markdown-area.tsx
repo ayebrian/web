@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
 import remarkBreaks from 'remark-breaks';
 import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
@@ -25,16 +25,25 @@ const linkClass = cn(
 interface MarkdownAreaProps {
     text: string;
     findLinks?: boolean;
+    className?: string;
+    ref?: React.Ref<HTMLDivElement>;
 }
 
-function MarkdownArea({text, findLinks = true}: MarkdownAreaProps) {
+function MarkdownArea(
+    {text, findLinks = true, className, ref}: MarkdownAreaProps,
+) {
     const currentText = useMemo(
         () => (findLinks ? wrapBareLinks(text) : text),
         [text, findLinks],
     );
 
     return (
-        <div className="w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden">
+        <div
+            ref={ref}
+            className={cn(
+                "w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden space-y-1 break-words",
+                className,
+            )}>
             <ReactMarkdown
                 remarkPlugins={[remarkBreaks]}
                 components={{

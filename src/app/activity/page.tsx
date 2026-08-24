@@ -1,4 +1,6 @@
 import {useBackend} from '@/backend.context';
+import {useAppContext} from '@/app.context';
+import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
@@ -130,6 +132,7 @@ export interface ReplyActivityCardProps {
 function ReplyActivityCard({details}: ReplyActivityCardProps) {
     const t = useTranslations('activity');
     const navigate = useNavigate();
+    const app = useAppContext();
     const avatar = details.post.owner.avatar
         ? createFileLink(details.post.owner.avatar)
         : undefined;
@@ -138,6 +141,7 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
+        await communityPosts.setPost(app, {type: 'plain', ...details.post});
         await navigate(`/community/${details.post.id}/replies`);
     }
     return (

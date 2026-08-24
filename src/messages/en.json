@@ -35,6 +35,8 @@
         "send-request": "Add friend",
         "accept-request": "Accept",
         "request-sent": "Request sent",
+        "show-less": "Show less",
+        "show-more": "Show more",
         "friends": {
             "title": "Friends",
             "see_all": "All friends",
@@ -207,7 +209,9 @@
         "hours_ago_plural": "{count} hours ago",
         "days_ago": "{count} day ago",
         "days_ago_plural": "{count} days ago",
-        "reply": "Reply"
+        "reply": "Reply",
+        "show-less": "Show less",
+        "show-more": "Show more"
     },
     "replies": {
         "reply-placeholder": "Type your reply...",

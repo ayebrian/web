@@ -36,12 +36,14 @@ export function CommunityPage() {
             const result = forceUnwrap(
                 await backend.communityList({cursorId: pageParam}),
             );
-            for (const post of result.data) {
-                communityPosts.setPost(app, {
-                    type: 'plain',
-                    ...post,
-                });
-            }
+            await Promise.all(
+                result.data.map(post =>
+                    communityPosts.setPost(app, {
+                        type: 'plain',
+                        ...post,
+                    }),
+                ),
+            );
             return result;
         },
         initialPageParam: null as string | null,
@@ -85,7 +87,7 @@ export function CommunityPage() {
         },
         onSuccess: details => {
             void (async () => {
-                communityPosts.setDetails(app, {
+                await communityPosts.setDetails(app, {
                     post: details,
                     replies: {
                         data: [],
@@ -157,7 +159,8 @@ export function CommunityPage() {
                         <CommunityPostCard
                             key={post.id}
                             postId={post.id}
-                            minimize={false}
+                            minimizeToolbar={false}
+                            minimizeText={true}
                         />
                     ))}
                 </div>

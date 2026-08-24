@@ -65,22 +65,19 @@
     }
 
     h1,
-    h2,
+    h2 {
+        @apply font-bold text-foreground;
+    }
+
     h3,
     h4,
     h5,
     h6 {
-        @apply font-bold text-foreground;
+        @apply font-bold text-muted-foreground;
     }
 
     h1 {
-        @apply text-4xl;
-    }
-    h2 {
-        @apply text-3xl;
-    }
-    h3 {
-        @apply text-2xl;
+        @apply text-lg;
     }
 
     blockquote {

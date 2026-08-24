@@ -95,7 +95,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         void (async () => {
             for (const reply of replyTo.replies.data) {
                 if (shouldBreak) break;
-                await communityPosts.prefetchDetails(app, reply.id);
+                await communityPosts.prefetchDetails(app, reply.id, {
+                    staleTime: Infinity,
+                });
             }
         })();
         void (async () => {
@@ -194,7 +196,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             void queryClient.invalidateQueries({
                 queryKey: ['communityReplies', id],
             });
-            communityPosts.setDetails(app, response);
+            await communityPosts.setDetails(app, response);
             await navigateReplies(response.post);
             setNewPostText('');
         },
@@ -224,7 +226,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     await navigateReplies({...lastUpstream});
                 }
             } else {
-                communityPosts.setPost(app, {
+                await communityPosts.setPost(app, {
                     type: 'deleted',
                     id: replyPost.id,
                     accessHash: replyPost.accessHash,
@@ -256,7 +258,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                         <CommunityPostCard
                             key={post.id}
                             postId={post.id}
-                            minimize={true}
+                            minimizeToolbar={true}
                         />
                     ))}
                     <div
@@ -295,7 +297,8 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     <CommunityPostCard
                         key={post.id}
                         postId={post.id}
-                        minimize={false}
+                        minimizeToolbar={false}
+                        minimizeText={true}
                     />
                 ))}
             </div>

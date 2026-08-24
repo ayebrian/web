@@ -31,13 +31,13 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
             const result = forceUnwrap(
                 await app.backend.communityDetails(descriptor),
             );
-            setPost(app, result.post);
-            for (const reply of result.replies.data) {
-                setPost(app, reply);
-            }
-            for (const upstream of result.upstream) {
-                setPost(app, upstream);
-            }
+            await setPost(app, result.post);
+            await Promise.all(
+                result.replies.data.map(reply => setPost(app, reply)),
+            );
+            await Promise.all(
+                result.upstream.map(upstream => setPost(app, upstream)),
+            );
             return result;
         },
     });
@@ -50,11 +50,15 @@ function listOptions(app: AppContext) {
             const result = forceUnwrap(
                 await app.backend.communityList({cursorId: pageParam}),
             );
+            await Promise.all(
+                result.data.map(post =>
+                    communityPosts.setPost(app, {
+                        type: 'plain',
+                        ...post,
+                    }),
+                ),
+            );
             for (const post of result.data) {
-                communityPosts.setPost(app, {
-                    type: 'plain',
-                    ...post,
-                });
                 void communityPosts.prefetchDetails(app, post.id, {
                     staleTime: Infinity,
                 });
@@ -73,16 +77,16 @@ function saveDescriptor(
     return app.storage.communityPosts.save(descriptor);
 }
 
-function setDetails(app: AppContext, value: CommunityDetailsResponse) {
+async function setDetails(app: AppContext, value: CommunityDetailsResponse) {
     app.queryClient.setQueryData(
         postDetailsOptions(app, value.post.id).queryKey,
         value,
     );
-    setPost(app, value.post);
+    await setPost(app, value.post);
 }
 
-function setPost(app: AppContext, value: CommunityPostDetails) {
-    void app.storage.communityPosts.save(value);
+async function setPost(app: AppContext, value: CommunityPostDetails) {
+    await app.storage.communityPosts.save(value);
     app.queryClient.setQueryData(postOptions(value.id).queryKey, value);
 }
 
