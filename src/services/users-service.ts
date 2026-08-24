@@ -1,8 +1,10 @@
 import {Resource} from '@/network/resource';
 import {UserDetailsResponse} from '@/network/friendly-client';
+import {useEffect} from 'react';
 import {useQuery, queryOptions} from '@tanstack/react-query';
 import {AppContext} from '@/app.context';
 import {forceUnwrap} from '@/network/result';
+import {useSession} from '@/components/session-provider';
 
 function selfOptions(app: AppContext) {
     return queryOptions({
@@ -14,8 +16,12 @@ function selfOptions(app: AppContext) {
     });
 }
 
-function main(app: AppContext) {
-    void app.queryClient.prefetchQuery(selfOptions(app));
+function use(app: AppContext) {
+    const session = useSession();
+    useEffect(() => {
+        if (session.status !== 'authed') return;
+        void app.queryClient.prefetchQuery(selfOptions(app));
+    }, [session.status]);
 }
 
 function self(app: AppContext): Resource<UserDetailsResponse> {
@@ -42,7 +48,7 @@ function useSelf(app: AppContext): Resource<UserDetailsResponse> {
 }
 
 export const users = {
-    main,
+    use,
     self,
     setSelf,
     ensureSelf,

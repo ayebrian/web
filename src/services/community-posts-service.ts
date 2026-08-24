@@ -82,6 +82,7 @@ function setDetails(app: AppContext, value: CommunityDetailsResponse) {
 }
 
 function setPost(app: AppContext, value: CommunityPostDetails) {
+    void app.storage.communityPosts.save(value);
     app.queryClient.setQueryData(postOptions(value.id).queryKey, value);
 }
 

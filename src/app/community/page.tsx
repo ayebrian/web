@@ -85,7 +85,6 @@ export function CommunityPage() {
         },
         onSuccess: details => {
             void (async () => {
-                await communityPosts.saveDescriptor(app, details);
                 communityPosts.setDetails(app, {
                     post: details,
                     replies: {

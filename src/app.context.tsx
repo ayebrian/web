@@ -68,8 +68,9 @@ export function AppContextProvider({
 
     useEffect(() => {
         backend.restoreAuthorizationIfPossible();
-        users.main(value);
     }, []);
+
+    users.use(value);
 
     return (
         <AppContextDescriptor.Provider value={value}>

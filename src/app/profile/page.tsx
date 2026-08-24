@@ -146,7 +146,7 @@ export function ProfilePage() {
     const userQuery = users.useSelf(app);
 
     const networkQuery = useQuery({
-        queryKey: ['networkDetails', blockingQR],
+        queryKey: ['networkDetails', blockingQR.shouldBlock],
         queryFn: () => backend.getNetworkDetails(),
     });
 
