@@ -196,7 +196,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             void queryClient.invalidateQueries({
                 queryKey: ['communityReplies', id],
             });
-            communityPosts.setDetails(app, response);
+            await communityPosts.setDetails(app, response);
             await navigateReplies(response.post);
             setNewPostText('');
         },
@@ -226,7 +226,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     await navigateReplies({...lastUpstream});
                 }
             } else {
-                communityPosts.setPost(app, {
+                await communityPosts.setPost(app, {
                     type: 'deleted',
                     id: replyPost.id,
                     accessHash: replyPost.accessHash,
