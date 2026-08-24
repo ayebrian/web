@@ -265,5 +265,8 @@
         "go_home": "Go home",
         "reload_page": "Reload page",
         "copy_report": "Copy error report"
+    },
+    "markdown": {
+        "image": "Image"
     }
 }

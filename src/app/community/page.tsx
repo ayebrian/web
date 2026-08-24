@@ -213,13 +213,13 @@ function CreatePostCard({
     const backend = useBackend();
     const userQuery = useQuery({
         queryKey: ['userDetails'],
-        queryFn: () => backend.getUserDetails2(),
+        queryFn: async () => forceUnwrap(await backend.getUserDetails2()),
     });
 
     const avatarUrl = useMemo(
         () =>
-            userQuery.data?.ok && userQuery.data?.data?.user?.avatar
-                ? createFileLink(userQuery.data.data.user.avatar)
+            userQuery.data?.user?.avatar
+                ? createFileLink(userQuery.data.user.avatar)
                 : '',
         [userQuery],
     );
@@ -238,11 +238,7 @@ function CreatePostCard({
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
                     src={avatarUrl}
-                    nickname={
-                        userQuery?.data?.ok
-                            ? userQuery?.data?.data?.user?.nickname
-                            : ''
-                    }
+                    nickname={userQuery?.data?.user?.nickname ?? ''}
                 />
                 <div className="w-full flex-1 flex flex-col min-w-0">
                     <textarea

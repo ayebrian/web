@@ -1,4 +1,5 @@
 import {useMemo} from 'react';
+import {useTranslations} from 'use-intl';
 import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
 
@@ -27,6 +28,8 @@ export interface MarkdownSpanProps {
 }
 
 export function MarkdownSpan({text, findLinks = true}: MarkdownSpanProps) {
+    const t = useTranslations('markdown');
+
     const currentText = useMemo(
         () => (findLinks ? wrapBareLinks(text) : text),
         [text, findLinks],
@@ -46,6 +49,13 @@ export function MarkdownSpan({text, findLinks = true}: MarkdownSpanProps) {
                     </a>
                 ),
                 p: ({ children }) => <>{children}</>,
+                h1: ({ children }) => <b>{children}</b>,
+                h2: ({ children }) => <b>{children}</b>,
+                h3: ({ children }) => <b>{children}</b>,
+                h4: ({ children }) => <b>{children}</b>,
+                h5: ({ children }) => <b>{children}</b>,
+                h6: ({ children }) => <b>{children}</b>,
+                img: ({ children }) => <i>{t('image')}</i>,
             }}
         >
             {currentText}
