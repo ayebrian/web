@@ -1,5 +1,4 @@
 import {useBackend} from '@/backend.context';
-import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {useNavigate} from 'react-router';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
@@ -130,7 +129,6 @@ export interface ReplyActivityCardProps {
 
 function ReplyActivityCard({details}: ReplyActivityCardProps) {
     const t = useTranslations('activity');
-    const storage = useFriendlyStorage();
     const navigate = useNavigate();
     const avatar = details.post.owner.avatar
         ? createFileLink(details.post.owner.avatar)
@@ -140,10 +138,6 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
-        await storage.communityPosts.save({
-            id: details.post.id,
-            accessHash: details.post.accessHash,
-        });
         await navigate(`/community/${details.post.id}/replies`);
     }
     return (

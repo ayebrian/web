@@ -46,10 +46,6 @@ function CommunityPostCardPlain({post, minimize}: CommunityPostCardPlainProps) {
     const postTime = new Date(post.instant);
 
     async function navigateReplies() {
-        await storage.communityPosts.save({
-            id: post.id,
-            accessHash: post.accessHash,
-        });
         await navigate(`/community/${post.id}/replies`);
     }
 
@@ -116,14 +112,9 @@ interface CommunityPostCardDeletedProps {
 function CommunityPostCardDeleted({post}: CommunityPostCardDeletedProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
-    const storage = useFriendlyStorage();
     const postTime = new Date(post.instant);
 
     async function navigateReplies() {
-        await storage.communityPosts.save({
-            id: post.id,
-            accessHash: post.accessHash,
-        });
         await navigate(`/community/${post.id}/replies`);
     }
 

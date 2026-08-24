@@ -21,7 +21,6 @@ import React, {useRef, useState, useCallback, useEffect} from 'react';
 import {toast} from 'sonner';
 import {useNavigate, useParams} from 'react-router';
 import {CommunityPostCard} from '../post';
-import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {useAppContext} from '@/app.context';
 
 export function RepliesPage() {
@@ -84,7 +83,6 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     const backend = useBackend();
     const app = useAppContext();
     const queryClient = useQueryClient();
-    const storage = useFriendlyStorage();
     const navigate = useNavigate();
     const t = useTranslations('replies');
     const replyPost = communityPosts.usePost(replyTo.post.id).data!;
@@ -103,7 +101,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         void (async () => {
             for (const upstream of replyTo.upstream) {
                 if (shouldBreak) break;
-                await communityPosts.prefetchDetails(app, upstream.id);
+                await communityPosts.prefetchDetails(app, upstream.id, {
+                    staleTime: Infinity,
+                });
             }
         })();
         return () => {
@@ -238,13 +238,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     });
 
     async function navigateReplies(descriptor: CommunityPostDescriptor) {
-        await storage.communityPosts.save({
-            id: descriptor.id,
-            accessHash: descriptor.accessHash,
-        });
-        await navigate(`/community/${descriptor.id}/replies`, {
-            replace: true,
-        });
+        await navigate(`/community/${descriptor.id}/replies`);
     }
 
     const handleCreatePost = useCallback(() => {

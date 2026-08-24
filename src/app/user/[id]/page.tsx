@@ -226,11 +226,7 @@ export default function UserPage() {
 
     let content;
 
-    if (
-        userQuery.fetchStatus !== 'idle' ||
-        isDeclinePending ||
-        isRequestPending
-    ) {
+    if (userQuery.isPending || isDeclinePending || isRequestPending) {
         content = (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -247,7 +243,7 @@ export default function UserPage() {
         content = (
             <div className="flex flex-col gap-2 pb-12">
                 <ProfileHeader
-                    userDetails={userQuery.data!.user}
+                    userDetails={userQuery.data.user}
                     onDecline={declineFriend}
                     onRequest={requestFriend}
                 />
@@ -256,11 +252,11 @@ export default function UserPage() {
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
                         <InterestsBlock
-                            interests={userQuery.data!.user.interests}
+                            interests={userQuery.data.user.interests}
                         />
-                        {userQuery.data!.commonFriends!.length > 0 && (
+                        {userQuery.data.commonFriends!.length > 0 && (
                             <FriendsBlock
-                                friends={userQuery.data!.commonFriends!}
+                                friends={userQuery.data.commonFriends!}
                             />
                         )}
                     </div>
@@ -298,7 +294,10 @@ interface ActionButtonProps {
 
 function ActionButton({userDetails, onRequest}: ActionButtonProps) {
     const t = useTranslations('profile');
-    if (userDetails.friendship === 'friends' && userDetails?.socialLink) {
+    if (userDetails.friendship === 'friends') {
+        if (!userDetails?.socialLink) {
+            return;
+        }
         return (
             <Button
                 variant="secondary"
