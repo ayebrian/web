@@ -93,12 +93,22 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        for (const reply of replyTo.replies.data) {
-            void communityPosts.prefetchDetails(app, reply.id);
-        }
-        for (const upstream of replyTo.upstream) {
-            void communityPosts.prefetchDetails(app, upstream.id);
-        }
+        let shouldBreak = false;
+        void (async () => {
+            for (const reply of replyTo.replies.data) {
+                if (shouldBreak) break;
+                await communityPosts.prefetchDetails(app, reply.id);
+            }
+        })();
+        void (async () => {
+            for (const upstream of replyTo.upstream) {
+                if (shouldBreak) break;
+                await communityPosts.prefetchDetails(app, upstream.id);
+            }
+        })();
+        return () => {
+            shouldBreak = true;
+        };
     }, [replyTo]);
 
     useEffect(() => {
