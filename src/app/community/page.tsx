@@ -157,7 +157,8 @@ export function CommunityPage() {
                         <CommunityPostCard
                             key={post.id}
                             postId={post.id}
-                            minimize={false}
+                            minimizeToolbar={false}
+                            minimizeText={true}
                         />
                     ))}
                 </div>

@@ -35,6 +35,8 @@
         "send-request": "Добавить в друзья",
         "accept-request": "Принять заявку",
         "request-sent": "Запрос отправлен",
+        "show-less": "Скрыть",
+        "show-more": "Показать ещё",
         "friends": {
             "title": "Друзья",
             "see_all": "Все друзья",
@@ -211,7 +213,9 @@
         "load-more": "Загрузить ещё",
         "reply": "Ответить",
         "replies": "Ответы",
-        "go-back": "Назад"
+        "go-back": "Назад",
+        "show-less": "Скрыть",
+        "show-more": "Показать ещё"
     },
     "replies": {
         "reply-placeholder": "Ваш ответ...",

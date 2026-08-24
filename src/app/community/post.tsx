@@ -12,10 +12,12 @@ import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {communityPosts} from '@/services/community-posts-service';
 import {CommunityPostId} from '@/network/friendly-client';
+import {cn} from '@/lib/utils';
 
 export interface CommunityPostCardProps {
     postId: CommunityPostId;
-    minimize: boolean;
+    minimizeText?: boolean;
+    minimizeToolbar?: boolean;
 }
 
 export function CommunityPostCard(props: CommunityPostCardProps) {
@@ -23,7 +25,11 @@ export function CommunityPostCard(props: CommunityPostCardProps) {
     switch (post.type) {
         case 'plain':
             return (
-                <CommunityPostCardPlain post={post} minimize={props.minimize} />
+                <CommunityPostCardPlain
+                    post={post}
+                    minimizeText={props.minimizeText}
+                    minimizeToolbar={props.minimizeToolbar}
+                />
             );
         case 'deleted':
             return <CommunityPostCardDeleted post={post} />;
@@ -32,10 +38,15 @@ export function CommunityPostCard(props: CommunityPostCardProps) {
 
 export interface CommunityPostCardPlainProps {
     post: CommunityPostDetailsPlain;
-    minimize: boolean;
+    minimizeText?: boolean;
+    minimizeToolbar?: boolean;
 }
 
-function CommunityPostCardPlain({post, minimize}: CommunityPostCardPlainProps) {
+function CommunityPostCardPlain({
+    post,
+    minimizeText,
+    minimizeToolbar,
+}: CommunityPostCardPlainProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -83,24 +94,25 @@ function CommunityPostCardPlain({post, minimize}: CommunityPostCardPlainProps) {
                             {formatTimeAgo(t, postTime)}
                         </span>
                     </div>
-                    <div className="text-foreground break-words">
-                        <MarkdownArea text={post.text} />
-                    </div>
-
-                    {!minimize && (
-                        <div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
-                            >
-                                <MessageCircle className="h-4 w-4" />
-                                {t('reply')}
-                            </Button>
-                        </div>
-                    )}
+                    <MarkdownArea
+                        className={cn(
+                            'text-foreground transition-all duration-300 ease-in-out',
+                            minimizeText && 'line-clamp-10',
+                        )}
+                        text={post.text}
+                    />
                 </div>
             </div>
+            {!minimizeToolbar && (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
+                >
+                    <MessageCircle className="h-4 w-4" />
+                    {t('reply')}
+                </Button>
+            )}
         </div>
     );
 }
