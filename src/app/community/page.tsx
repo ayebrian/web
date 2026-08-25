@@ -77,24 +77,25 @@ export function CommunityPage() {
     const createPostMutation = useMutation({
         mutationFn: async (text: string) => {
             const result = await backend.communityPost({text});
-            return {
+            const details = {
                 type: 'plain' as const,
                 ...forceUnwrap(result),
                 text,
                 owner: (await users.ensureSelf(app)).user,
                 instant: new Date().toISOString(),
             };
+            await communityPosts.setDetails(app, {
+                post: details,
+                replies: {
+                    data: [],
+                    nextId: null,
+                },
+                upstream: [],
+            });
+            return details;
         },
         onSuccess: details => {
             void (async () => {
-                await communityPosts.setDetails(app, {
-                    post: details,
-                    replies: {
-                        data: [],
-                        nextId: null,
-                    },
-                    upstream: [],
-                });
                 setNewPostText('');
                 void queryClient.invalidateQueries({
                     queryKey: ['communityPosts'],

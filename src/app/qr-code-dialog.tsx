@@ -32,14 +32,6 @@ export function QrCodeDialog({open, setOpen}: QrCodeDialogProps) {
             ? createFriendInviteLink(user.id, inviteQuery.data.data)
             : null;
 
-    // const queryClient = useQueryClient();
-    // async function forceRefresh() {
-    //     await backend.friendsGenerateForce();
-    //     void queryClient.invalidateQueries({
-    //         queryKey: ['inviteToken'],
-    //     });
-    // }
-
     return (
         <BaseDialog
             isShow={open}
@@ -70,15 +62,6 @@ export function QrCodeDialog({open, setOpen}: QrCodeDialogProps) {
                         <Copy className="size-4" />
                         {t('qr.copy')}
                     </Button>
-                    {/* <Button */}
-                    {/*     variant="outline" */}
-                    {/*     className="cursor-pointer px-4" */}
-                    {/*     onClick={() => void forceRefresh()} */}
-                    {/*     aria-label={t('qr.regenerate')} */}
-                    {/*     title={t('qr.regenerate')} */}
-                    {/* > */}
-                    {/*     <RotateCcw className="size-4" /> */}
-                    {/* </Button> */}
                 </div>
             </div>
         </BaseDialog>

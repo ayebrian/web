@@ -141,12 +141,17 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         return infiniteQueryOptions({
             queryKey: ['communityReplies', descriptor.id],
             queryFn: async ({pageParam}: {pageParam: string | null}) => {
-                const result = await backend.communityReplies({
-                    id: descriptor.id,
-                    accessHash: descriptor.accessHash,
-                    cursorId: pageParam,
-                });
-                return forceUnwrap(result);
+                const result = forceUnwrap(
+                    await backend.communityReplies({
+                        id: descriptor.id,
+                        accessHash: descriptor.accessHash,
+                        cursorId: pageParam,
+                    }),
+                );
+                await Promise.all(
+                    result.data.map(post => communityPosts.setPost(app, post)),
+                );
+                return result;
             },
             initialData: initialData
                 ? {
