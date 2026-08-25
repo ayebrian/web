@@ -2,6 +2,7 @@ import {useBackend} from '@/backend.context';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
+import {useEffect} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -20,8 +21,9 @@ export function ActivityPage() {
     const activityQuery = useInfiniteQuery({
         queryKey: ['activity'],
         queryFn: async ({pageParam}) => {
-            const activity = await backend.activityList({cursorId: pageParam});
-            return forceUnwrap(activity);
+            return forceUnwrap(
+                await backend.activityList({cursorId: pageParam}),
+            );
         },
         initialPageParam: null as string | null,
         getNextPageParam: lastPage => lastPage.nextId,
@@ -74,13 +76,7 @@ export function ActivityPage() {
                 </div>
             );
         } else {
-            content = (
-                <div className="w-full flex flex-col gap-4">
-                    {activity.map(details => (
-                        <ActivityCard key={details.id} details={details} />
-                    ))}
-                </div>
-            );
+            content = <ActivityList activity={activity} />;
         }
     }
 
@@ -103,6 +99,106 @@ export function ActivityPage() {
             </div>
         </div>
     );
+}
+
+type TimeGroup = 'today' | 'yesterday' | 'older';
+
+interface ActivityListProps {
+    activity: ActivityDetails[];
+}
+
+function ActivityList({activity}: ActivityListProps) {
+    const app = useAppContext();
+
+    useEffect(() => {
+        let shouldBreak = false;
+        void (async () => {
+            for (const item of activity) {
+                if (shouldBreak) break;
+                switch (item.type) {
+                    case 'reply':
+                        await communityPosts.setPost(app, {
+                            type: 'plain',
+                            ...item.post,
+                        });
+                        await communityPosts.prefetchDetails(
+                            app,
+                            item.post.id,
+                            {staleTime: Infinity},
+                        );
+                        break;
+                    default:
+                        item satisfies never;
+                }
+            }
+        })();
+        return () => {
+            shouldBreak = true;
+        };
+    }, []);
+
+    const timeGroups = Object.groupBy(activity, activity => {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const startOfYesterday = new Date();
+        startOfYesterday.setDate(startOfToday.getDate() - 1);
+        startOfYesterday.setHours(0, 0, 0, 0);
+
+        let group: TimeGroup;
+        const postDate = new Date(activity.instant);
+        if (postDate > startOfToday) {
+            group = 'today';
+        } else if (postDate > startOfYesterday) {
+            group = 'yesterday';
+        } else {
+            group = 'older';
+        }
+
+        return group;
+    });
+
+    activity = Object.values(timeGroups).flatMap(list => list ?? []);
+    return (
+        <div className="w-full flex flex-col gap-2">
+            {Object.entries(timeGroups).map(([timeGroup, activity]) => (
+                <>
+                    <TimeGroupHeading
+                        key={timeGroup}
+                        timeGroup={timeGroup as TimeGroup}
+                    />
+                    {activity.map(details => (
+                        <ActivityCard key={details.id} details={details} />
+                    ))}
+                </>
+            ))}
+        </div>
+    );
+}
+
+interface TimeGroupHeadingProps {
+    timeGroup: TimeGroup;
+}
+
+function TimeGroupHeading({timeGroup}: TimeGroupHeadingProps) {
+    const t = useTranslations('activity');
+
+    let title;
+    switch (timeGroup) {
+        case 'today':
+            title = t('today');
+            break;
+        case 'yesterday':
+            title = t('yesterday');
+            break;
+        case 'older':
+            title = t('older');
+            break;
+        default:
+            timeGroup satisfies never;
+    }
+
+    return <p className="text-lg font-semibold">{title}</p>;
 }
 
 interface ActivityCardProps {

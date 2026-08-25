@@ -199,7 +199,10 @@
         "hours_ago": "{count} hour ago",
         "hours_ago_plural": "{count} hours ago",
         "days_ago": "{count} day ago",
-        "days_ago_plural": "{count} days ago"
+        "days_ago_plural": "{count} days ago",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "older": "Older"
     },
     "post": {
         "deleted": "Post was deleted by the author.",

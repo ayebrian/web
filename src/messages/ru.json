@@ -200,7 +200,10 @@
         "hours_ago": "{count} час назад",
         "hours_ago_plural": "{count} часа назад",
         "days_ago": "{count} день назад",
-        "days_ago_plural": "{count} дней назад"
+        "days_ago_plural": "{count} дней назад",
+        "today": "Сегодня",
+        "yesterday": "Вчера",
+        "older": "Ранее"
     },
     "post": {
         "deleted": "Пост был удалён автором.",

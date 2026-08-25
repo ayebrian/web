@@ -16,6 +16,10 @@ function wrapBareLinks(text: string): string {
     return linked.replace(/\x00(\d+)\x00/g, (_, i) => placeholders[Number(i)]);
 }
 
+function wrapNewlines(text: string): string {
+    return text.replaceAll(/\n(?=\n)/g, '\n\xa0')
+}
+
 const linkClass = cn(
     'font-medium text-primary underline underline-offset-4',
     'decoration-primary/30 transition-colors hover:decoration-primary',
@@ -33,7 +37,11 @@ function MarkdownArea(
     {text, findLinks = true, className, ref}: MarkdownAreaProps,
 ) {
     const currentText = useMemo(
-        () => (findLinks ? wrapBareLinks(text) : text),
+        () => {
+            const links = findLinks ? wrapBareLinks(text) : text;
+            const newlines = wrapNewlines(links);
+            return newlines;
+        },
         [text, findLinks],
     );
 
@@ -41,7 +49,7 @@ function MarkdownArea(
         <div
             ref={ref}
             className={cn(
-                "w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden space-y-1 break-words",
+                "w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden leading-5 break-words",
                 className,
             )}>
             <ReactMarkdown
