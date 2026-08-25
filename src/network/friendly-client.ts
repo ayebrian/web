@@ -610,4 +610,5 @@ export interface ActivityDetailsReply {
 export interface ActivityDetailsUnknown {
     type: never;
     id: ActivityId;
+    instant: string;
 }
