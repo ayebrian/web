@@ -21,7 +21,11 @@ export interface CommunityPostCardProps {
 }
 
 export function CommunityPostCard(props: CommunityPostCardProps) {
-    const post = communityPosts.usePost(props.postId).data!;
+    const postResource = communityPosts.usePost(props.postId);
+    if (!postResource.data) {
+        throw new Error(`${JSON.stringify(postResource)}`);
+    }
+    const post = postResource.data;
     switch (post.type) {
         case 'plain':
             return (

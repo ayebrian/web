@@ -58,11 +58,6 @@ function listOptions(app: AppContext) {
                     }),
                 ),
             );
-            for (const post of result.data) {
-                void communityPosts.prefetchDetails(app, post.id, {
-                    staleTime: Infinity,
-                });
-            }
             return result;
         },
         initialPageParam: null as string | null,

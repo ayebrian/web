@@ -13,17 +13,28 @@ import {Loader2, AlertCircle, Inbox, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {ActivityDetails, ActivityDetailsReply} from '@/network/friendly-client';
 
-// todo: add instants + sticky headers
 export function ActivityPage() {
     const t = useTranslations('activity');
+    const app = useAppContext();
     const backend = useBackend();
 
     const activityQuery = useInfiniteQuery({
         queryKey: ['activity'],
         queryFn: async ({pageParam}) => {
-            return forceUnwrap(
+            const result = forceUnwrap(
                 await backend.activityList({cursorId: pageParam}),
             );
+            await Promise.all(
+                result.data
+                    .filter(activity => activity.type === 'reply')
+                    .map(activity =>
+                        communityPosts.setPost(app, {
+                            type: 'plain',
+                            ...activity.post,
+                        }),
+                    ),
+            );
+            return result;
         },
         initialPageParam: null as string | null,
         getNextPageParam: lastPage => lastPage.nextId,
@@ -117,10 +128,6 @@ function ActivityList({activity}: ActivityListProps) {
                 if (shouldBreak) break;
                 switch (item.type) {
                     case 'reply':
-                        await communityPosts.setPost(app, {
-                            type: 'plain',
-                            ...item.post,
-                        });
                         await communityPosts.prefetchDetails(
                             app,
                             item.post.id,
@@ -162,15 +169,12 @@ function ActivityList({activity}: ActivityListProps) {
     return (
         <div className="w-full flex flex-col gap-2">
             {Object.entries(timeGroups).map(([timeGroup, activity]) => (
-                <>
-                    <TimeGroupHeading
-                        key={timeGroup}
-                        timeGroup={timeGroup as TimeGroup}
-                    />
+                <div key={timeGroup} className="flex flex-col gap-2">
+                    <TimeGroupHeading timeGroup={timeGroup as TimeGroup} />
                     {activity.map(details => (
                         <ActivityCard key={details.id} details={details} />
                     ))}
-                </>
+                </div>
             ))}
         </div>
     );
@@ -228,7 +232,6 @@ export interface ReplyActivityCardProps {
 function ReplyActivityCard({details}: ReplyActivityCardProps) {
     const t = useTranslations('activity');
     const navigate = useNavigate();
-    const app = useAppContext();
     const avatar = details.post.owner.avatar
         ? createFileLink(details.post.owner.avatar)
         : undefined;
@@ -237,7 +240,6 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
-        await communityPosts.setPost(app, {type: 'plain', ...details.post});
         await navigate(`/community/${details.post.id}/replies`);
     }
     return (
