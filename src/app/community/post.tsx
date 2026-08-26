@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import {AvatarGroup} from '@/components/ui/avatar';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {
@@ -108,14 +109,33 @@ function CommunityPostCardPlain({
                 </div>
             </div>
             {!minimizeToolbar && (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent ml-auto"
-                >
-                    <MessageCircle className="h-4 w-4" />
-                    {t('reply')}
-                </Button>
+                <div className="flex items-center justify-end mt-2">
+                    {post.replyPreviews.length > 0 && (
+                        <AvatarGroup>
+                            {post.replyPreviews.map(user => (
+                                <StyledAvatar
+                                    avatarClassName={cn('w-6 h-6')}
+                                    fallbackClassName="text-[0.7em]"
+                                    key={user.id}
+                                    src={
+                                        user.avatar
+                                            ? createFileLink(user.avatar)
+                                            : undefined
+                                    }
+                                    nickname={user.nickname}
+                                />
+                            ))}
+                        </AvatarGroup>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent"
+                    >
+                        <MessageCircle className="h-4 w-4" />
+                        {<p>{t('reply')}</p>}
+                    </Button>
+                </div>
             )}
         </div>
     );

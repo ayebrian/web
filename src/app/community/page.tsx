@@ -83,6 +83,7 @@ export function CommunityPage() {
                 text,
                 owner: (await users.ensureSelf(app)).user,
                 instant: new Date().toISOString(),
+                replyPreviews: [],
             };
             await communityPosts.setDetails(app, {
                 post: details,
