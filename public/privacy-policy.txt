@@ -1,0 +1,193 @@
+# Privacy Policy
+
+**Effective date: August 27, 2026**
+
+This Privacy Policy applies to the Friendly mobile applications, web application, and related services operated by Emil Gazizov (collectively, **“Friendly”** or the **“Application”**). Emil Gazizov is referred to as the **“Service Provider.”**
+
+## Information We Collect
+
+Friendly may collect and process the following information:
+
+### Information you provide
+
+Depending on the features you use, this may include:
+
+- nickname;
+- profile description;
+- social link;
+- interests;
+- profile avatar or other images you upload;
+- email address, if you choose to link one to your account;
+- your connections with other Friendly users, including friend relationships, mutual connections, blocks, and similar social-network information;
+- content and information you choose to submit through the Application.
+
+Some profile information may be shown to other Friendly users according to Friendly's network and privacy functionality.
+
+### Information collected automatically
+
+When you use Friendly, certain technical information may be collected automatically, including:
+
+- Internet Protocol (IP) address;
+- device and operating-system information;
+- application or browser version;
+- access times and dates;
+- pages, screens, or features used;
+- technical and diagnostic information necessary to operate and secure the service.
+
+Where push notifications are enabled, Friendly may also process a device or application registration token used to deliver notifications.
+
+## How We Use Information
+
+The Service Provider may use personal data to:
+
+- provide and operate Friendly;
+- create and maintain user profiles and accounts;
+- display users within Friendly's network and connection features;
+- establish and manage connections between users;
+- authenticate users and provide account recovery or sign-in functionality;
+- deliver notifications requested or enabled by the user;
+- maintain security and prevent abuse, fraud, spam, or unauthorized activity;
+- diagnose technical problems and improve the reliability of the Application;
+- comply with applicable legal obligations;
+- respond to support, privacy, or legal requests.
+
+Where required by applicable law, optional analytics, marketing, or other non-essential processing will be performed only after obtaining the required consent.
+
+## Legal Bases for Processing
+
+Where laws such as the GDPR apply, personal data may be processed on one or more of the following legal bases:
+
+- **Performance of a contract:** where processing is necessary to provide Friendly and its features.
+- **Legitimate interests:** including maintaining security, preventing abuse, improving reliability, and operating the service, where those interests are not overridden by your rights.
+- **Consent:** where you have affirmatively agreed to optional processing.
+- **Legal obligations:** where processing is required by applicable law.
+
+Where processing is based on consent, you may withdraw your consent at any time. Withdrawal does not affect processing that occurred before withdrawal.
+
+## Cookies and Similar Technologies
+
+Friendly's web services may use cookies, local storage, SDKs, and similar technologies where necessary to provide functionality, maintain sessions, protect the service, or remember user preferences.
+
+Non-essential analytics or tracking technologies will be used only where permitted by applicable law and, where required, after obtaining consent.
+
+## Third-Party Services
+
+Friendly may use third-party service providers to operate parts of the Application.
+
+The Android version of Friendly uses **Google Firebase Cloud Messaging** to support push notifications. Firebase may process technical identifiers such as application-instance or device registration information necessary to provide notification delivery.
+
+The Service Provider may also use infrastructure, hosting, email-delivery, storage, or other technical service providers where necessary to operate Friendly.
+
+These providers may process information on behalf of the Service Provider according to their own privacy terms and applicable data-processing agreements.
+
+The Service Provider does not authorize service providers to use personal data received from Friendly for unrelated purposes.
+
+## Sharing of Information
+
+Personal data may be disclosed:
+
+- to service providers acting on behalf of the Service Provider;
+- where necessary to provide functionality requested by the user;
+- where required by law or valid legal process;
+- where reasonably necessary to protect the security, rights, or safety of users, the Service Provider, or others;
+- in connection with investigating fraud, abuse, security incidents, or unlawful activity.
+
+Information that you intentionally include in your Friendly profile may be visible to other users according to Friendly's network functionality.
+
+The Service Provider does not sell personal data for monetary consideration.
+
+## International Data Transfers
+
+Friendly or its service providers may process personal data in countries outside your country of residence.
+
+Where applicable law requires safeguards for international transfers, appropriate mechanisms will be used, which may include:
+
+- European Commission Standard Contractual Clauses;
+- adequacy decisions;
+- other legally recognized transfer mechanisms; or
+- consent where legally permitted and appropriate.
+
+## Data Retention
+
+Personal data is retained only for as long as reasonably necessary for the purposes described in this Privacy Policy.
+
+Unless a different period is required for a particular purpose:
+
+- account and profile information is retained while your account remains active;
+- information may be retained for a limited period after account deletion where necessary to complete deletion, maintain security, prevent fraud or abuse, resolve disputes, or comply with legal obligations;
+- technical and operational logs may be retained for up to 24 months;
+- anonymized information that can no longer reasonably identify an individual may be retained indefinitely.
+
+Where personal data is no longer required, it will be deleted, anonymized, or otherwise disposed of as appropriate.
+
+## Account and Data Deletion
+
+You may request deletion of your Friendly account and associated personal data.
+
+Where account deletion is available within the Application, you may initiate deletion through the relevant account settings. You may also request deletion by contacting:
+
+**friendly@demn.dev**
+
+When an account is deleted, the Service Provider will delete personal data associated with that account unless specific information must be retained for security, fraud prevention, legal compliance, dispute resolution, or another lawful purpose.
+
+Temporary suspension or deactivation of an account is not treated as account deletion.
+
+## Your Privacy Rights
+
+Depending on your location and applicable law, you may have rights including the right to:
+
+- request access to your personal data;
+- request correction of inaccurate personal data;
+- request deletion of personal data;
+- request restriction of processing;
+- object to certain processing;
+- receive certain personal data in a portable format;
+- withdraw consent where processing is based on consent;
+- lodge a complaint with the competent data-protection authority.
+
+To exercise your rights, contact **friendly@demn.dev**.
+
+The Service Provider may request reasonable information necessary to verify your identity before fulfilling certain requests.
+
+## California Privacy Rights
+
+Residents of California may have additional privacy rights under applicable California law, including rights relating to access, correction, deletion, and certain disclosures concerning the use or sharing of personal information.
+
+Where such laws apply to the Service Provider, requests may be submitted to **friendly@demn.dev**.
+
+The Service Provider will not discriminate against users for exercising applicable privacy rights.
+
+## Children
+
+Friendly is not intended for children under **16 years of age**, or a higher minimum age where required by applicable law.
+
+The Service Provider does not knowingly collect personal data from children in violation of applicable law.
+
+If the Service Provider learns that personal data has been collected from a child who is not legally permitted to use Friendly, that information will be deleted as reasonably required.
+
+Parents or guardians who believe a child has provided personal information unlawfully may contact **friendly@demn.dev**.
+
+## Security
+
+The Service Provider uses reasonable technical and organizational measures designed to protect personal data against unauthorized access, loss, misuse, alteration, or disclosure.
+
+No method of electronic transmission or storage is completely secure, and absolute security cannot be guaranteed.
+
+## Data Breaches
+
+If a personal-data breach occurs, the Service Provider will investigate the incident and provide notifications to affected individuals or authorities where required by applicable law.
+
+## Changes to This Privacy Policy
+
+This Privacy Policy may be updated when Friendly's functionality, data practices, service providers, or legal obligations change.
+
+Material changes will be communicated by making the updated Privacy Policy available through Friendly or its website and updating the effective date.
+
+Where applicable law requires consent to a change, consent will be obtained before the relevant processing begins.
+
+## Contact
+
+For privacy questions, requests, complaints, or account-deletion requests, contact:
+
+**Emil Gazizov**  
+**friendly@demn.dev**
