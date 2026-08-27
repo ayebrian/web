@@ -192,6 +192,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     type: 'plain',
                     ...post,
                     ...forceUnwrap(result),
+                    replyPreviews: [],
                     instant: new Date().toISOString(),
                     owner: (await users.ensureSelf(app)).user,
                 },
@@ -236,6 +237,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                     id: replyPost.id,
                     accessHash: replyPost.accessHash,
                     instant: replyPost.instant,
+                    replyPreviews: replyPost.replyPreviews,
                 });
             }
         },

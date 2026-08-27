@@ -585,15 +585,17 @@ export type CommunityPostDetails = {
 export interface CommunityPostDetailsPlain {
     id: CommunityPostId;
     accessHash: CommunityPostAccessHash;
+    instant: string;
+    replyPreviews: UserDetails[];
     text: string;
     owner: UserDetails;
-    instant: string;
 }
 
 export interface CommunityPostDetailsDeleted {
     id: CommunityPostId;
     accessHash: CommunityPostAccessHash;
     instant: string;
+    replyPreviews: UserDetails[];
 }
 
 export type ActivityId = number & {readonly __brand: unique symbol};
