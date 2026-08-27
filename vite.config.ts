@@ -53,8 +53,7 @@ function appVersionPlugin(): Plugin {
         name: 'app-version',
         config: () => ({
             define: {
-                'import.meta.env.VITE_APP_VERSION':
-                    JSON.stringify(longVersionName),
+                'import.meta.env.APP_VERSION': JSON.stringify(longVersionName),
             },
         }),
     };
@@ -101,6 +100,9 @@ export default defineConfig({
                     },
                 ],
             },
+            // devOptions: {
+            //     enabled: true,
+            // },
         }),
     ],
     resolve: {

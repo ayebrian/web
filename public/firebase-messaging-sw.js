@@ -31,9 +31,13 @@ async function handleMessage(payload) {
 
     let title;
     let body;
+    let data;
 
     switch (details.type) {
         case 'new_request':
+            data = {
+                url: 'https://web.getfriend.ly/feed',
+            };
             if (details.from.isMutual) {
                 switch (language) {
                     case 'en':
@@ -59,6 +63,9 @@ async function handleMessage(payload) {
             }
             break;
         case 'new_reply':
+            data = {
+                url: 'https://web.getfriend.ly/activity',
+            };
             switch (language) {
                 case 'en':
                     title = `New reply from ${details.post.owner.nickname}`;
@@ -75,12 +82,21 @@ async function handleMessage(payload) {
         self.registration.showNotification(title, {
             body: body,
             icon: '/pwa-icon.svg',
+            data,
         });
     }
 }
 
+async function handleClick(event) {
+    event.notification.close();
+    const targetUrl =
+        event.notification.data?.url || 'https://web.getfriend.ly';
+    event.waitUntil(clients.openWindow(targetUrl));
+}
+
 messaging.onBackgroundMessage(handleMessage);
 self.addEventListener('message', message => handleMessage(message.data));
+self.addEventListener('notificationclick', handleClick);
 
 const supportedLanguages = ['en', 'ru'];
 

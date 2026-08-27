@@ -1,4 +1,6 @@
 :root {
+    color-scheme: light;
+    accent-color: #007aff;
     --background: oklch(0.9821 0 0);
     --foreground: oklch(0.2435 0 0);
     --card: oklch(0.9911 0 0);
@@ -66,7 +68,7 @@
 
 .dark {
     color-scheme: dark;
-
+    accent-color: #2f5eff;
     --background: oklch(0.1776 0 0);
     --foreground: oklch(0.9491 0 0);
     --card: oklch(0.2134 0 0);

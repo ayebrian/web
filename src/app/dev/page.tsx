@@ -1,6 +1,6 @@
 import {ReactNode} from 'react';
 
-const appVersion = String(import.meta.env.VITE_APP_VERSION);
+const appVersion = String(import.meta.env.APP_VERSION);
 
 export function DevPage(): ReactNode {
     return (

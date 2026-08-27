@@ -112,7 +112,7 @@ function CommunityPostCardPlain({
                 <div className="flex items-center justify-end mt-2">
                     {post.replyPreviews.length > 0 && (
                         <AvatarGroup>
-                            {post.replyPreviews.map(user => (
+                            {post.replyPreviews.toReversed().map(user => (
                                 <StyledAvatar
                                     avatarClassName={cn('w-6 h-6')}
                                     fallbackClassName="text-[0.7em]"
