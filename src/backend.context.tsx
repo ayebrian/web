@@ -1,17 +1,26 @@
-import {createContext, useContext, useMemo} from 'react';
+import {createContext, useContext} from 'react';
+import {authService} from '@/services/auth-service';
 import {BackendService} from '@/services/backend-service';
 import {FriendlyClient, FriendlyClientImpl} from '@/network/friendly-client';
+import {useAppContext, AppContext} from '@/app.context';
 
 const BackendContext = createContext<BackendService | null>(null);
 
+export function initializeBackendService(app: AppContext) {
+    const client: FriendlyClient = new FriendlyClientImpl();
+    const service = new BackendService(client);
+    const authorization = authService.get(app);
+    if (authorization) {
+        service.setAuthorization(authorization);
+    }
+    app.backend = service;
+}
+
 export function BackendProvider({children}: {children: React.ReactNode}) {
-    const service = useMemo(() => {
-        const client: FriendlyClient = new FriendlyClientImpl();
-        return new BackendService(client);
-    }, []);
+    const app = useAppContext();
 
     return (
-        <BackendContext.Provider value={service}>
+        <BackendContext.Provider value={app.backend}>
             {children}
         </BackendContext.Provider>
     );

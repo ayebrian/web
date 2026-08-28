@@ -1,4 +1,7 @@
 import {StrictMode} from 'react';
+import {initializeBackendService} from '@/backend.context';
+import * as Notifications from '@/notifications';
+import {authService} from '@/services/auth-service';
 import {createRoot} from 'react-dom/client';
 import {BlockingQR} from '@/app/blocking-qr/page';
 import {AppPage, AuthorizedGuard, UnauthorizedGuard} from '@/app/page';
@@ -12,7 +15,6 @@ import {ChatPage} from '@/app/chat/page';
 import Bypass from '@/app/blocking-qr/bypass/page';
 import UserPage from '@/app/user/[id]/page';
 import DeeplinkPage from '@/app/redirect/[deeplink]/page';
-import * as Notifications from '@/notifications';
 import {NotFoundPage} from '@/app/not-found';
 import {ProfilePage} from '@/app/profile/page';
 import {RootLayout} from '@/app/layout';
@@ -20,13 +22,21 @@ import {createBrowserRouter, RouterProvider} from 'react-router';
 import FeedPage from '@/app/feed/page';
 import RouteErrorScreen from '@/route-errorscreen';
 import IntlProvider from '@/components/intl-provider';
+import {AppContext} from '@/app.context';
 
-void Notifications.nudge();
+// Dynamic initialization for the app context.
+//
+// This dynamism helps to stop fighting type system where logic can be easily
+// checked once during startup. Either it starts, or it fails.
+//
+// No conditionals should be introduced while initializing app context to avoid
+// floating bugs.
+const app = {} as AppContext;
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <RootLayout />,
+        element: <RootLayout app={app} />,
         errorElement: (
             <IntlProvider>
                 <RouteErrorScreen />
@@ -106,6 +116,14 @@ const router = createBrowserRouter([
         ],
     },
 ]);
+
+const start = performance.now();
+
+await authService.initialize(app);
+initializeBackendService(app);
+Notifications.main(app);
+
+console.log(`Initialization finished in ${performance.now() - start}`);
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>

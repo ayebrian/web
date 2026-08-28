@@ -1,12 +1,14 @@
 import {QueryClient} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
+import {useAppContext} from '@/app.context';
 import {
     PersistQueryClientProvider,
     PersistedClient,
     Persister,
 } from '@tanstack/react-query-persist-client';
-import {useEffect, useRef, useMemo} from 'react';
-import {useSession} from '@/components/session-provider';
+import {useMemo} from 'react';
 import {get, set, del} from 'idb-keyval';
+import {ReactNode} from 'react';
 
 /**
  * Avoid local-storage limits.
@@ -27,30 +29,21 @@ export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
 }
 
 export function QueryProvider({children}: {children: React.ReactNode}) {
-    const session = useSession();
-
-    const sessionRef = useRef(session);
-
-    useEffect(() => {
-        sessionRef.current = session;
-    }, [session]);
-
-    const client = useMemo(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        retry: true,
-                        retryDelay: 1_000,
-                        refetchOnWindowFocus: true,
-                        refetchOnReconnect: true,
-                        staleTime: 1_000,
-                        gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-                    },
+    const client = useMemo(() => {
+        const client = new QueryClient({
+            defaultOptions: {
+                queries: {
+                    retry: true,
+                    retryDelay: 1_000,
+                    refetchOnWindowFocus: true,
+                    refetchOnReconnect: true,
+                    staleTime: 1_000,
+                    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
                 },
-            }),
-        [],
-    );
+            },
+        });
+        return client;
+    }, []);
 
     const persister = useMemo(() => createIDBPersister(), []);
 
@@ -60,9 +53,26 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
             persistOptions={{
                 persister,
                 buster: 'v0.1.0',
+                maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             }}
         >
+            <PopulateQueryClient />
             {children}
         </PersistQueryClientProvider>
     );
+}
+
+// WHY?
+//
+// Tanstack Query uses custom caching logic that breaks react double-pass
+// system. Specifically tanstack caches query client if properties didn't
+// change, but useMemo runs twice resulting in saving a queryClient that is
+// rejected later.
+//
+// This logic lives under QueryClientProvider.ts
+function PopulateQueryClient(): ReactNode {
+    const client = useQueryClient();
+    const app = useAppContext();
+    app.queryClient = client;
+    return;
 }

@@ -12,16 +12,21 @@ import IntlProvider from '@/components/intl-provider';
 import {FriendlyStorageProvider} from '@/components/friendly-storage-provider';
 import {DeferredLinkProvider} from '@/app/redirect/[deeplink]/deferred-link';
 import {AppPage} from '@/app/page';
+import {AppContext} from '@/app.context';
 
-export function RootLayout() {
+export interface RootLayoutProps {
+    app: AppContext;
+}
+
+export function RootLayout({app}: RootLayoutProps) {
     return (
         <>
             <Suspense>
-                <BackendProvider>
-                    <SessionProvider>
-                        <FriendlyStorageProvider>
-                            <QueryProvider>
-                                <AppContextProvider>
+                <AppContextProvider preset={app}>
+                    <BackendProvider>
+                        <QueryProvider>
+                            <FriendlyStorageProvider>
+                                <SessionProvider>
                                     <DeferredLinkProvider>
                                         <IntlProvider>
                                             <RootContainer>
@@ -34,11 +39,11 @@ export function RootLayout() {
                                             </RootContainer>
                                         </IntlProvider>
                                     </DeferredLinkProvider>
-                                </AppContextProvider>
-                            </QueryProvider>
-                        </FriendlyStorageProvider>
-                    </SessionProvider>
-                </BackendProvider>
+                                </SessionProvider>
+                            </FriendlyStorageProvider>
+                        </QueryProvider>
+                    </BackendProvider>
+                </AppContextProvider>
             </Suspense>
         </>
     );
