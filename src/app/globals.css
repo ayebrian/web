@@ -92,7 +92,7 @@
  */
 @media (prefers-color-scheme: dark) {
     body {
-        background-color: oklch(0.145 0 0);
+        background-color: #0a0a0a;
     }
 }
 /* ---break---
