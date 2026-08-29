@@ -27,6 +27,7 @@ import {cn} from '@/lib/utils';
 export default function SignUpPage() {
     const t = useTranslations('sign-up');
 
+    const app = useAppContext();
     const navigate = useNavigate();
     const session = useSession();
     const [deferredLink, setDeferredLink] = useDeferredLink();
@@ -86,7 +87,6 @@ export default function SignUpPage() {
     }
 
     async function onSignUp() {
-        const app = useAppContext();
         const validated = validator();
         if (!validated) return;
         setLoading(true);
