@@ -6,6 +6,8 @@ import {
     useMemo,
     useState,
 } from 'react';
+import {authService} from '@/services/auth-service';
+import {useAppContext} from '@/app.context';
 import {useBackend} from '@/backend.context';
 
 type SessionStatus = 'loading' | 'authed' | 'guest';
@@ -22,10 +24,11 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 
 export function SessionProvider({children}: {children: React.ReactNode}) {
     const backend = useBackend();
+    const app = useAppContext();
     const [status, setStatus] = useState<SessionStatus>('loading');
 
     const refresh = useCallback(() => {
-        const ok = backend.restoreAuthorizationIfPossible();
+        const ok = authService.get(app);
         setStatus(ok ? 'authed' : 'guest');
     }, [backend]);
 
@@ -34,6 +37,7 @@ export function SessionProvider({children}: {children: React.ReactNode}) {
     const logOut = useCallback(() => {
         localStorage.clear();
         backend.clearAuthorization();
+        authService.clear(app);
         setStatus('guest');
     }, [backend]);
 

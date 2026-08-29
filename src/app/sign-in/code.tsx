@@ -1,4 +1,6 @@
 import {REGEXP_ONLY_DIGITS} from 'input-otp';
+import {authService} from '@/services/auth-service';
+import {useAppContext} from '@/app.context';
 import {useSession} from '@/components/session-provider';
 import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
 import {useBlockingQR} from '@/app/blocking-qr/page';
@@ -47,6 +49,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const app = useAppContext();
     const backend = useBackend();
     const navigate = useNavigate();
     const session = useSession();
@@ -89,14 +92,12 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             }
             return;
         }
-        backend.storeAuthorization(
-            result.data.token,
-            result.data.id.toString(),
-        );
+        authService.save(app, result.data);
+        backend.setAuthorization(result.data);
         session.setAuthed();
         blockingQR.dismissBlockingQR();
         await handleAddFriend();
-        await Notifications.nudge();
+        await Notifications.nudge(app);
         localStorage.setItem('request-notifications', 'true');
         void navigate('/');
         setLoading(false);

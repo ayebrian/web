@@ -1,4 +1,6 @@
 import {Spinner} from '@/components/ui/spinner';
+import {authService} from '@/services/auth-service';
+import {useAppContext} from '@/app.context';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
 import {useDeferredLink} from '@/app/redirect/[deeplink]/deferred-link';
@@ -84,6 +86,7 @@ export default function SignUpPage() {
     }
 
     async function onSignUp() {
+        const app = useAppContext();
         const validated = validator();
         if (!validated) return;
         setLoading(true);
@@ -96,13 +99,11 @@ export default function SignUpPage() {
                 validated.socialLink,
             );
             if (result.ok) {
-                backend.storeAuthorization(
-                    result.data.token,
-                    result.data.id.toString(),
-                );
+                authService.save(app, result.data);
+                backend.setAuthorization(result.data);
                 session.setAuthed();
                 await handleAddFriend();
-                await Notifications.nudge();
+                await Notifications.nudge(app);
                 void navigate('/');
             } else {
                 toast.error(t('error-connection'));

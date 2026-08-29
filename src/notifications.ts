@@ -1,12 +1,11 @@
 import {initializeApp} from 'firebase/app';
+import {AppContext} from '@/app.context';
 import {
     getMessaging,
     getToken,
     onMessage,
     MessagePayload,
 } from 'firebase/messaging';
-import {FriendlyClientImpl} from '@/network/friendly-client';
-import {BackendService} from '@/services/backend-service';
 
 // Erm... Actually, these are not private
 const firebaseConfig = {
@@ -24,17 +23,22 @@ const messaging = getMessaging(app);
 
 const swiped = Number(localStorage.getItem('feed-swipes') ?? '0');
 
-if (swiped > 20 || localStorage.getItem('request-notifications') === 'true') {
-    void window.Notification.requestPermission().then(permission => {
-        if (permission !== 'granted') return;
-        void getToken(messaging, {
-            vapidKey:
-                'BAEj5IbZiBmuUHKNu1Z3hoM5OHEEETG63Lg7mcxxG-kX5t-r5minZEeZTFC-qlW5vYir7mSt3eruuZbr0WcORX0',
-        }).then(token => {
-            setFirebaseToken(token);
-            void nudge();
+export function main(app: AppContext) {
+    if (
+        swiped > 20 ||
+        localStorage.getItem('request-notifications') === 'true'
+    ) {
+        void window.Notification.requestPermission().then(permission => {
+            if (permission !== 'granted') return;
+            void getToken(messaging, {
+                vapidKey:
+                    'BAEj5IbZiBmuUHKNu1Z3hoM5OHEEETG63Lg7mcxxG-kX5t-r5minZEeZTFC-qlW5vYir7mSt3eruuZbr0WcORX0',
+            }).then(token => {
+                setFirebaseToken(token);
+                void nudge(app);
+            });
         });
-    });
+    }
 }
 
 /**
@@ -52,17 +56,13 @@ if (swiped > 20 || localStorage.getItem('request-notifications') === 'true') {
  * |  callback is provided by firebase (but it will be provided in the future
  * |  versions).
  */
-export async function nudge() {
+export async function nudge(app: AppContext) {
     const firebaseToken = getFirebaseToken();
     if (!firebaseToken) return;
     if (firebaseToken === getUploadedToken()) return;
 
-    const client = new FriendlyClientImpl();
-    const backend = new BackendService(client);
-    if (!backend.restoreAuthorizationIfPossible()) return;
-
     while (true) {
-        const result = await backend.authFirebase({firebaseToken});
+        const result = await app.backend.authFirebase({firebaseToken});
         if (result.ok) break;
     }
 

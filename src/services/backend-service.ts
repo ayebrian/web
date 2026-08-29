@@ -1,4 +1,5 @@
 import {FileDescriptor} from '@/types/file-descriptor';
+import {Authorization} from '@/types/authorization';
 import {
     DeclineFriendRequest,
     FeedQueueResponse,
@@ -49,34 +50,12 @@ export function mapResult<T, U>(
 export class BackendService {
     constructor(private client: FriendlyClient) {}
 
-    /**
-     * Try to restore auth from cookies if possible.
-     *
-     * @returns true if auth restored successfully.
-     */
-    restoreAuthorizationIfPossible(): boolean {
-        const userId = localStorage.getItem('userId');
-        const authToken = localStorage.getItem('token');
-
-        if (userId === null || authToken === null) {
-            return false;
-        }
-
-        this.client.setAuthToken(authToken, userId);
-        return true;
-    }
-
-    storeAuthorization(token: string, userId: string) {
-        this.client.setAuthToken(token, userId);
-
-        localStorage.setItem('userId', userId);
-        localStorage.setItem('token', token);
+    setAuthorization(auth: Authorization) {
+        this.client.setAuthToken(auth.token, auth.id.toString());
     }
 
     clearAuthorization() {
         this.client.setAuthToken(null, null);
-        localStorage.removeItem('userId');
-        localStorage.removeItem('token');
     }
 
     async getUserDetails2(): Promise<

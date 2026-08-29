@@ -13,6 +13,7 @@ importScripts(
 importScripts(
     'https://www.gstatic.com/firebasejs/11.0.0/firebase-messaging-compat.js',
 );
+importScripts('https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js');
 
 firebase.initializeApp({
     apiKey: 'AIzaSyCNiyRTYRCUC5RrDUevOHh1PIvs-E8m0E0',
@@ -26,7 +27,27 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 async function handleMessage(payload) {
-    const details = JSON.parse(payload.data.details);
+    const authorization = await idbKeyval.get('auth');
+    const id = Number(payload.data.id);
+
+    let details;
+
+    try {
+        const response = await fetch(
+            `https://api.getfriend.ly/notifications/details/${id}`,
+            {
+                headers: {
+                    'X-Token': authorization.token,
+                    'X-User-Id': authorization.id,
+                },
+            },
+        );
+        details = await response.json();
+    } catch (e) {
+        console.log(e);
+        return;
+    }
+
     const language = pickLanguage();
 
     let title;
