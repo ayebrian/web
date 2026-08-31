@@ -1,4 +1,6 @@
 import {useBackend} from '@/backend.context';
+import {authService} from '@/services/auth-service';
+import {useAppContext} from '@/app.context';
 import {useQueryClient} from '@tanstack/react-query';
 import {FriendsBlock} from './friends-block';
 import {forceUnwrap} from '@/network/result';
@@ -160,13 +162,14 @@ function InterestsBlock({interests}: {interests: string[]}) {
 export default function UserPage() {
     const t = useTranslations('profile');
     const navigate = useNavigate();
+    const app = useAppContext();
     const backend = useBackend();
     const storage = useFriendlyStorage();
     const queryClient = useQueryClient();
 
     const {id} = useParams();
     const userId = Number(id);
-    const selfId = useMemo(() => Number(localStorage.getItem('userId')), []);
+    const selfId = authService.get(app)?.id;
 
     useEffect(() => {
         if (userId === selfId) {
