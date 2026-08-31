@@ -41,7 +41,11 @@ export function BlockingQR(): ReactNode {
             const {userId, token} = parseLinkResult.data;
             const result = await backend.addFriend({userId, token});
             if (!result.ok) {
-                toast.error(t('error-connection'));
+                if (result.error.type === 'status') {
+                    toast.error(t('link-expired'));
+                } else {
+                    toast.error(t('error-connection'));
+                }
                 return;
             }
             if (result.data.type === 'FriendTokenExpired') {

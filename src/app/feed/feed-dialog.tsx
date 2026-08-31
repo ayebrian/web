@@ -15,7 +15,7 @@ import {useState} from 'react';
 
 interface FeedDialogProps {
     selectedCard: FeedItem;
-    isBusy: boolean;
+    loading: boolean;
     handleReview: (direction: SwipeDirection) => void;
 }
 
@@ -23,7 +23,7 @@ export type SwipeDirection = 'left' | 'right';
 
 export function FeedDialog({
     selectedCard,
-    isBusy,
+    loading,
     handleReview,
 }: FeedDialogProps) {
     const t = useTranslations('profile.feed');
@@ -155,7 +155,7 @@ export function FeedDialog({
                     <Button
                         variant="outline"
                         className="flex-1 h-12 cursor-pointer"
-                        disabled={isBusy}
+                        disabled={loading}
                         onClick={() => handleReview('left')}
                     >
                         <X className="h-5 w-5 mr-2" />
@@ -163,7 +163,7 @@ export function FeedDialog({
                     </Button>
                     <Button
                         className="flex-1 h-12 cursor-pointer"
-                        disabled={isBusy}
+                        disabled={loading}
                         onClick={() => handleReview('right')}
                     >
                         {selectedCard.isRequest ? (

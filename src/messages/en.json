@@ -71,7 +71,7 @@
             "skip": "Skip",
             "accept": "Accept",
             "connect": "Connect",
-            "queue_error": "We couldn't load your connection feed.",
+            "error-connection": "Can't get to our servers :(",
             "accept_success": "Connection request sent.",
             "request_success": "Friend request accepted.",
             "skip_success": "Card removed from your queue.",

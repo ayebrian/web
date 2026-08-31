@@ -1,25 +1,23 @@
 import {useAppContext} from '@/app.context';
+import {FeedQueueResponse} from '@/network/friendly-client';
+import {useQueryClient} from '@tanstack/react-query';
+import {forceUnwrap} from '@/network/result';
 import {users} from '@/services/users-service';
 import {Button} from '@/components/ui/button';
 import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
 import {Activity, BookUser, Loader2} from 'lucide-react';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {SuggestEmailBindingDialog} from '@/app/suggest-email-binding-dialog';
 import {FeedDialog} from '@/app/feed/feed-dialog';
 import {useBackend} from '@/backend.context';
 import {useQuery} from '@tanstack/react-query';
-import {formatNetworkError} from '@/services/backend-service';
 import {toast} from 'sonner';
 import {cn} from '@/lib/utils';
 
 export type SwipeDirection = 'left' | 'right';
-
-function getFeedItemKey(item: FeedItem) {
-    return `${item.details.id}-${item.isRequest ? 'request' : 'suggested'}`;
-}
 
 function FeedEmptyState() {
     const t = useTranslations('profile.feed');
@@ -41,18 +39,15 @@ export default function FeedPage() {
     const t = useTranslations('profile.feed');
 
     const backend = useBackend();
+    const queryClient = useQueryClient();
 
     const feedQuery = useQuery({
         queryKey: ['feedQueue'],
-        queryFn: () => backend.getFeedQueue(),
-        refetchOnWindowFocus: false,
+        queryFn: async () => forceUnwrap(await backend.getFeedQueue()),
     });
+    const selectedCard = feedQuery.data?.entries?.[0];
 
-    const [cards, setCards] = useState<FeedItem[]>([]);
-
-    const [selectedCard, setSelectedCard] = useState<FeedItem | null>(null);
-    const [pendingCardId, setPendingCardId] = useState<string | null>(null);
-    const isBusy = pendingCardId !== null;
+    const [loading, setLoading] = useState(false);
 
     const app = useAppContext();
     const self = users.useSelf(app);
@@ -62,21 +57,6 @@ export default function FeedPage() {
         setStatus: setEmailSuggestionStatus,
         trackSwipe,
     } = useEmailBindingSuggestion();
-
-    useEffect(() => {
-        if (!feedQuery.data?.ok) {
-            return;
-        }
-
-        setCards(feedQuery.data.data.entries);
-        if (feedQuery.data.data.entries.length > 0)
-            setSelectedCard(feedQuery.data.data.entries[0]);
-    }, [feedQuery.data]);
-
-    const feedErrorMessage =
-        feedQuery.data && !feedQuery.data.ok
-            ? formatNetworkError(feedQuery.data.error)
-            : null;
 
     const onReview = useCallback(
         async (card: FeedItem, direction: SwipeDirection) => {
@@ -91,20 +71,22 @@ export default function FeedPage() {
                     : await backend.declineFriendRequest(request);
 
             if (!result.ok) {
-                toast.error(formatNetworkError(result.error));
+                toast.error(t('error-connection'));
             }
-
-            setCards(current =>
-                current.filter(item => item.details.id !== card.details.id),
-            );
         },
         [backend],
     );
 
     const handleReview = async (direction: SwipeDirection) => {
-        if (!selectedCard || isBusy) return;
+        if (!selectedCard || loading) return;
 
-        setPendingCardId(getFeedItemKey(selectedCard));
+        if (feedQuery.data === undefined) {
+            throw new Error(
+                'Selected card should not be true-ish without query data',
+            );
+        }
+
+        setLoading(true);
 
         if (self.data) {
             trackSwipe(self.data.user.email);
@@ -112,23 +94,24 @@ export default function FeedPage() {
 
         try {
             await onReview(selectedCard, direction);
-
-            // Wait for fade out animation
             await new Promise(resolve => setTimeout(resolve, 150));
-
-            const currentIndex = cards.findIndex(
-                card => getFeedItemKey(card) === getFeedItemKey(selectedCard),
+            queryClient.setQueryData<FeedQueueResponse>(
+                ['feedQueue'],
+                response => {
+                    if (response === undefined) {
+                        throw new Error(
+                            "Shouldn't be executing onReview without response",
+                        );
+                    }
+                    return {
+                        entries: response.entries.filter(
+                            item => item.details.id !== selectedCard.details.id,
+                        ),
+                    };
+                },
             );
-            const nextIndex = currentIndex + 1;
-            const haveMoreCards = nextIndex < cards.length;
-
-            if (haveMoreCards) {
-                setSelectedCard(cards[nextIndex]);
-            } else {
-                setSelectedCard(null);
-            }
         } finally {
-            setPendingCardId(null);
+            setLoading(false);
         }
     };
 
@@ -149,7 +132,7 @@ export default function FeedPage() {
             <div className="flex h-full flex-col items-center justify-center rounded-xl border border-destructive/30 bg-card px-6 text-center">
                 <Activity className="h-8 w-8 text-destructive" />
                 <p className="mt-4 text-sm text-foreground">
-                    {feedErrorMessage ?? t('queue_error')}
+                    {t('error-connection')}
                 </p>
                 <Button className="mt-5 cursor-pointer" onClick={onRetry}>
                     {t('retry')}
@@ -158,7 +141,7 @@ export default function FeedPage() {
         );
     }
 
-    if (cards.length === 0 || selectedCard === null) {
+    if (selectedCard === null) {
         return <FeedEmptyState />;
     }
 
@@ -174,7 +157,7 @@ export default function FeedPage() {
                 {selectedCard && (
                     <FeedDialog
                         selectedCard={selectedCard}
-                        isBusy={isBusy}
+                        loading={loading}
                         handleReview={direction => void handleReview(direction)}
                     />
                 )}
