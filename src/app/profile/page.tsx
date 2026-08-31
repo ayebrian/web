@@ -1,4 +1,5 @@
 import {useBlockingQR} from '@/app/blocking-qr/page';
+import {forceUnwrap} from '@/network/result';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
 import {useMemo, useState, useCallback} from 'react';
@@ -147,22 +148,11 @@ export function ProfilePage() {
 
     const networkQuery = useQuery({
         queryKey: ['networkDetails', blockingQR.shouldBlock],
-        queryFn: () => backend.getNetworkDetails(),
+        queryFn: async () => forceUnwrap(await backend.getNetworkDetails()),
     });
 
-    const networkResult = networkQuery.data ?? null;
-
-    const hasResultError = networkResult && !networkResult.ok;
-
-    const errorMessage =
-        networkResult && !networkResult.ok
-            ? formatNetworkError(networkResult.error)
-            : null;
-
-    const isError = userQuery.cache === 'fail' || hasResultError;
-
     const user = userQuery.data;
-    const friends = networkResult?.ok ? networkResult.data.friends : [];
+    const friends = networkQuery.data?.friends ?? [];
 
     let content;
 
@@ -172,11 +162,11 @@ export function ProfilePage() {
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
-    } else if (isError) {
+    } else if (userQuery.data === undefined || networkQuery === undefined) {
         content = (
             <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
                 <Activity className="h-10 w-10 animate-pulse text-foreground/80" />
-                <p>{errorMessage ?? t('unknown_error')}</p>
+                <p>{t('unknown_error')}</p>
             </div>
         );
     } else {
