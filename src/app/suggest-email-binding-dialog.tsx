@@ -39,13 +39,15 @@ export function SuggestEmailBindingDialog({
                     </p>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         <Button
-                            className="grow-1 cursor-pointer"
+                            className="cursor-pointer"
+                            variant="ghost"
                             onClick={() => setStatus('declined')}
                         >
                             {t('email_binding.decline')}
                         </Button>
+                        <div className="flex-1" />
                         <Button
-                            className="grow-2 cursor-pointer"
+                            className="cursor-pointer"
                             onClick={() => setStatus('accepted')}
                         >
                             {t('email_binding.confirm')}

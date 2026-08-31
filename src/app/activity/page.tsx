@@ -257,8 +257,8 @@ function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
-        onClick();
         await navigate(`/community/${details.post.id}/replies`);
+        onClick();
     }
     return (
         <div
