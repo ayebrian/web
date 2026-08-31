@@ -29,7 +29,21 @@ interface MainPostCardProps {
     isDeleting: boolean;
 }
 
-const emojis = ['👍', '❤️', '🤝', '🤔', '❓', '✅', '🎉', '👀'];
+const emojis = [
+    '❤️',
+    '🔥',
+    '👍',
+    '🤝',
+    '🎉',
+    '🤯',
+    '👀',
+    '🥰',
+    '🥺',
+    '😭',
+    '😇',
+    '✅',
+    '🫡',
+];
 
 export function MainPostCard({
     post,
