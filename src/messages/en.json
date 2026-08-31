@@ -161,8 +161,9 @@
         "title": "Are you sure?",
         "title_no_email": "You have no email bound. Are you sure you want to log out?",
         "bind_email": "Bind email",
+        "anyway": "Log out anyway",
         "yes": "Yes",
-        "no": "No"
+        "cancel": "Cancel"
     },
     "redirect": {
         "friend-token-expired": {

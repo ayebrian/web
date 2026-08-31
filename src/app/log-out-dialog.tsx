@@ -39,29 +39,50 @@ export function LogoutDialog({
                     </Dialog.Close>
                 </div>
                 <div className="px-4 pb-4">
-                    <p className="text-center">
+                    <Dialog.Title className="text-center font-normal">
                         {suggestBindEmail ? t('title_no_email') : t('title')}
-                    </p>
+                    </Dialog.Title>
                     <div className="w-full flex flex-row grow-1 gap-2 mt-4">
                         {suggestBindEmail && (
-                            <Button
-                                className="grow-1 cursor-pointer"
-                                onClick={() => {
-                                    if (onBindEmail !== undefined) {
-                                        onBindEmail();
-                                    }
-                                }}
-                            >
-                                {t('bind_email')}
-                            </Button>
+                            <>
+                                <Button
+                                    className="cursor-pointer"
+                                    variant="ghost"
+                                    onClick={onLogout}
+                                >
+                                    {t('anyway')}
+                                </Button>
+                                <div className="flex-1" />
+                                <Button
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        if (onBindEmail !== undefined) {
+                                            onBindEmail();
+                                        }
+                                    }}
+                                >
+                                    {t('bind_email')}
+                                </Button>
+                            </>
                         )}
-                        <Button
-                            className="grow-1 cursor-pointer"
-                            variant="destructive"
-                            onClick={onLogout}
-                        >
-                            {t('yes')}
-                        </Button>
+                        {!suggestBindEmail && (
+                            <>
+                                <Button
+                                    className="cursor-pointer"
+                                    variant="ghost"
+                                    onClick={onLogout}
+                                >
+                                    {t('cancel')}
+                                </Button>
+                                <div className="flex-1" />
+                                <Button
+                                    className="cursor-pointer"
+                                    onClick={onLogout}
+                                >
+                                    {t('yes')}
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

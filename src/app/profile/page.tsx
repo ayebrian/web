@@ -9,7 +9,6 @@ import {Activity, Loader2, LogOut, Pencil, QrCodeIcon} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {useNavigate} from 'react-router';
 import {useBackend} from '@/backend.context';
-import {formatNetworkError} from '@/services/backend-service';
 import {createFileLink} from '@/lib/utils';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {useSession} from '@/components/session-provider';

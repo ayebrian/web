@@ -62,7 +62,7 @@ async function handleMessage(payload) {
             if (details.from.isMutual) {
                 switch (language) {
                     case 'en':
-                        title = `New connection with ${details.from.nickname}`;
+                        title = `${details.from.nickname} is your friend now`;
                         body = 'Click to view in browser';
                         break;
                     case 'ru':
