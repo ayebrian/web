@@ -2,19 +2,10 @@ import {useMemo} from 'react';
 import {useTranslations} from 'use-intl';
 import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
-
-const MARKDOWN_LINK_REGEX = /\[([^\]]*)]\(([^)]*)\)/g;
-const BARE_URL_REGEX = /https?:\/\/[^\s\]()]+/g;
-
-function wrapBareLinks(text: string): string {
-    const placeholders: string[] = [];
-    const guarded = text.replace(MARKDOWN_LINK_REGEX, (match) => {
-        placeholders.push(match);
-        return `\x00${placeholders.length - 1}\x00`;
-    });
-    const linked = guarded.replace(BARE_URL_REGEX, (url) => `[${url}](${url})`);
-    return linked.replace(/\x00(\d+)\x00/g, (_, i) => placeholders[Number(i)]);
-}
+import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 
 const linkClass = cn(
     'font-medium text-primary underline underline-offset-4',
@@ -24,29 +15,20 @@ const linkClass = cn(
 
 export interface MarkdownSpanProps {
     text: string;
-    findLinks?: boolean;
 }
 
-export function MarkdownSpan({text, findLinks = true}: MarkdownSpanProps) {
+export function MarkdownSpan({text}: MarkdownSpanProps) {
     const t = useTranslations('markdown');
-
-    const currentText = useMemo(
-        () => (findLinks ? wrapBareLinks(text) : text),
-        [text, findLinks],
-    );
 
     return (
         <ReactMarkdown
+            remarkPlugins={[remarkBreaks, remarkGfm]}
+            rehypePlugins={[rehypeRaw, rehypeSanitize]}
             components={{
                 a: ({href, children}) => (
-                    <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={linkClass}
-                    >
+                    <span className={linkClass}>
                         {children}
-                    </a>
+                    </span>
                 ),
                 p: ({ children }) => <>{children}</>,
                 h1: ({ children }) => <b>{children}</b>,
@@ -58,7 +40,7 @@ export function MarkdownSpan({text, findLinks = true}: MarkdownSpanProps) {
                 img: ({ children }) => <i>{t('image')}</i>,
             }}
         >
-            {currentText}
+            {text}
         </ReactMarkdown>
     );
 }

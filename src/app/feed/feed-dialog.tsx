@@ -10,7 +10,7 @@ import {useNavigate} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {AvatarGroup, AvatarGroupCount} from '@/components/ui/avatar';
-import {AllFriendsList} from '@/app/friends/all-friends-list';
+import {AllFriendsList} from '@/app/profile/all-friends-list';
 import {useState} from 'react';
 
 interface FeedDialogProps {

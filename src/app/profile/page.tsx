@@ -16,7 +16,7 @@ import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
 import {LogoutDialog} from '@/app/log-out-dialog';
 import {ProfileDescription} from '@/components/profile-description';
-import {FriendsBlock} from '@/app/friends/friends-block';
+import {FriendsBlock} from '@/app/profile/friends-block';
 import {QrCodeDialog} from '@/app/qr-code-dialog';
 import {StyledAvatar} from '@/components/styled-avatar';
 

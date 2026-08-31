@@ -28,24 +28,24 @@ export function FriendCard({friend}: {friend: UserDetails}) {
     return (
         <div
             key={friend.id}
-            className="shrink-0 w-45 cursor-pointer"
+            className="shrink-0 cursor-pointer"
             onClick={() => void openFriendPage()}
         >
-            <div className="flex flex-col items-center gap-3 bg-card hover:bg-accent rounded-xl border border-border p-4 shadow-sm transition-colors h-58">
+            <div className="flex flex-col items-center bg-card hover:bg-accent rounded-xl border border-border p-4 shadow-sm transition-colors h-45 w-36">
                 <StyledAvatar
                     avatarClassName="w-16 h-16"
                     src={avatarUrl}
                     nickname={friend.nickname}
                 />
-                <div className="flex flex-col flex-1 items-center min-w-0 w-full min-h-0">
-                    <p className="truncate text-sm font-semibold text-foreground max-w-full">
-                        {friend.nickname}
-                    </p>
-                    <span className="text-center mt-2 w-full text-xs text-muted-foreground wrap-anywhere line-clamp-3">
-                        <MarkdownSpan
-                            text={friend.description ?? t('no_description')}
-                        />
-                    </span>
+                <div className="h-2" />
+                <p className="truncate text-xs font-semibold text-foreground max-w-full">
+                    {friend.nickname}
+                </p>
+                <div className="h-2" />
+                <div className="text-center w-full text-xs text-muted-foreground wrap-anywhere line-clamp-3">
+                    <MarkdownSpan
+                        text={friend.description ?? t('no_description')}
+                    />
                 </div>
             </div>
         </div>

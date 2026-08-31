@@ -3,7 +3,7 @@ import {useTranslations} from 'use-intl';
 import {Link} from 'react-router';
 import {useState} from 'react';
 import {FriendCard} from './friend-card';
-import {AllFriendsList} from '@/app/friends/all-friends-list';
+import {AllFriendsList} from '@/app/profile/all-friends-list';
 
 export function FriendsBlock({friends}: {friends: UserDetails[]}) {
     const t = useTranslations('profile');

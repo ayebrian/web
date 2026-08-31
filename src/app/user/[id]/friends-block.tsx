@@ -15,9 +15,9 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
             <Separator className="my-4" />
             <div className="flex flex-col gap-2">
                 <p className="flex flex-row gap-2 mb-2">
-                    <p className="flex-1 text-sm font-semibold uppercase text-foreground">
+                    <span className="flex-1 text-sm font-semibold uppercase text-foreground">
                         {t('title')}
-                    </p>
+                    </span>
                     <Link
                         to="#"
                         className="text-sm text-muted-foreground font-normal hover:underline"
