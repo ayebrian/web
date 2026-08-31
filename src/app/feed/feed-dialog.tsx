@@ -46,25 +46,8 @@ export function FeedDialog({
         >
             <div className="relative w-full aspect-square shrink-0 overflow-hidden">
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">
-                    <div className="flex flex-col ms-4">
-                        {(selectedCard.isRequest ||
-                            selectedCard.isExtendedNetwork) && (
-                            <Badge
-                                variant="secondary"
-                                className={cn(
-                                    'bg-secondary/50 -ms-4 me-5',
-                                    'backdrop-blur-md border rounded-md',
-                                    'text-sm px-3 py-1',
-                                )}
-                            >
-                                {selectedCard.isRequest
-                                    ? t('requests_badge')
-                                    : selectedCard.isExtendedNetwork
-                                      ? t('extended_network')
-                                      : null}
-                            </Badge>
-                        )}
-                        <AvatarGroup className="space-x-2">
+                    <div className="flex justify-between flex-1">
+                        <AvatarGroup className="space-x-2 ms-4">
                             {selectedCard.commonFriends
                                 .slice(0, 5)
                                 .map(friend => {
@@ -98,6 +81,23 @@ export function FeedDialog({
                                 </AvatarGroupCount>
                             )}
                         </AvatarGroup>
+                        {(selectedCard.isRequest ||
+                            selectedCard.isExtendedNetwork) && (
+                            <Badge
+                                variant="secondary"
+                                className={cn(
+                                    'bg-secondary/50',
+                                    'backdrop-blur-md border rounded-md',
+                                    'text-sm px-3 py-1',
+                                )}
+                            >
+                                {selectedCard.isRequest
+                                    ? t('requests_badge')
+                                    : selectedCard.isExtendedNetwork
+                                      ? t('extended_network')
+                                      : null}
+                            </Badge>
+                        )}
                         <AllFriendsList
                             friends={selectedCard.commonFriends}
                             open={showAllFriends}
