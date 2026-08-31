@@ -141,7 +141,7 @@ export default function FeedPage() {
         );
     }
 
-    if (selectedCard === null) {
+    if (selectedCard === undefined) {
         return <FeedEmptyState />;
     }
 
