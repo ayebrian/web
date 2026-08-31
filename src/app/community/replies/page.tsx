@@ -319,6 +319,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 text={newPostText}
                 inputRef={inputRef}
                 onTextChange={setNewPostText}
+                onEmoji={emoji => createPostMutation.mutate(emoji)}
                 onSubmit={handleCreatePost}
                 isSubmitting={createPostMutation.isPending}
                 onDelete={() => deletePostMutation.mutate()}

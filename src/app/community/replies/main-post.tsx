@@ -21,6 +21,7 @@ interface MainPostCardProps {
     post: CommunityPostDetails;
     inputRef: RefObject<HTMLTextAreaElement | null>;
     text: string;
+    onEmoji: (value: string) => void;
     onTextChange: (text: string) => void;
     onSubmit: () => void;
     isSubmitting: boolean;
@@ -28,10 +29,13 @@ interface MainPostCardProps {
     isDeleting: boolean;
 }
 
+const emojis = ['👍', '❤️', '🤝', '🤔', '❓', '✅', '🎉', '👀'];
+
 export function MainPostCard({
     post,
     text,
     inputRef,
+    onEmoji,
     onTextChange,
     onSubmit,
     isSubmitting,
@@ -120,8 +124,38 @@ export function MainPostCard({
                     )}
                 </Button>
             </div>
+            <div className="h-2" />
+            <div className="flex gap-1 overflow-x-auto scrollbar-none">
+                {emojis.map((emoji, index) => (
+                    <Emoji
+                        key={index}
+                        emoji={emoji}
+                        onClick={() => onEmoji(emoji)}
+                    />
+                ))}
+            </div>
             <div className="h-4" />
         </div>
+    );
+}
+
+interface EmojiProps {
+    emoji: string;
+    onClick: () => void;
+}
+
+function Emoji({emoji, onClick}: EmojiProps) {
+    return (
+        <span
+            onClick={onClick}
+            className={cn(
+                'flex bg-card rounded-xl',
+                'border border-border flex-row gap-2 px-2 py-1 hover:bg-accent/50',
+                'cursor-pointer',
+            )}
+        >
+            {emoji}
+        </span>
     );
 }
 
@@ -194,7 +228,6 @@ function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
     );
 }
 
-// todo: when deleted if no replies, delete completely
 function MainPostCardDeleted() {
     const t = useTranslations('post');
     return (
