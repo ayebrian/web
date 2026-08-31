@@ -178,13 +178,13 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     };
 
     const createPostMutation = useMutation({
-        mutationFn: async (text: string) => {
+        mutationFn: async (props: {text: string; redirect?: boolean}) => {
             const post = {
                 replyTo: {
                     id: id,
                     accessHash: replyPost.accessHash,
                 },
-                text,
+                text: props.text,
             };
             const result = await backend.communityPost(post);
             const response = {
@@ -199,12 +199,18 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 replies: {data: [], nextId: null},
                 upstream: [...replyTo.upstream, replyPost],
             } satisfies CommunityDetailsResponse;
-            void queryClient.invalidateQueries({
-                queryKey: ['communityReplies', id],
-            });
             await communityPosts.setDetails(app, response);
-            await navigateReplies(response.post);
-            setNewPostText('');
+            if (props.redirect) {
+                void queryClient.invalidateQueries({
+                    queryKey: ['communityReplies', id],
+                });
+                await navigateReplies(response.post);
+                setNewPostText('');
+            } else {
+                await queryClient.prefetchQuery({
+                    queryKey: ['communityReplies', id],
+                });
+            }
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -252,7 +258,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 
     const handleCreatePost = useCallback(() => {
         if (!newPostText.trim()) return;
-        createPostMutation.mutate(newPostText);
+        createPostMutation.mutate({text: newPostText, redirect: true});
     }, [newPostText, createPostMutation]);
 
     let upstream;
@@ -319,7 +325,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 text={newPostText}
                 inputRef={inputRef}
                 onTextChange={setNewPostText}
-                onEmoji={emoji => createPostMutation.mutate(emoji)}
+                onEmoji={emoji => createPostMutation.mutate({text: emoji})}
                 onSubmit={handleCreatePost}
                 isSubmitting={createPostMutation.isPending}
                 onDelete={() => deletePostMutation.mutate()}
