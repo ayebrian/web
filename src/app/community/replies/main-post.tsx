@@ -130,6 +130,7 @@ export function MainPostCard({
                     <Emoji
                         key={index}
                         emoji={emoji}
+                        disabled={isSubmitting}
                         onClick={() => onEmoji(emoji)}
                     />
                 ))}
@@ -142,16 +143,21 @@ export function MainPostCard({
 interface EmojiProps {
     emoji: string;
     onClick: () => void;
+    disabled: boolean;
 }
 
-function Emoji({emoji, onClick}: EmojiProps) {
+function Emoji({emoji, onClick, disabled}: EmojiProps) {
     return (
         <span
-            onClick={onClick}
+            onClick={() => {
+                if (disabled) return;
+                onClick();
+            }}
             className={cn(
                 'flex bg-card rounded-xl',
                 'border border-border flex-row gap-2 px-2 py-1 hover:bg-accent/50',
                 'cursor-pointer',
+                disabled ? 'opacity-40' : '',
             )}
         >
             {emoji}

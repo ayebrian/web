@@ -75,6 +75,9 @@ export interface FriendlyClient {
     activityList(
         request: ActivityListRequest,
     ): Promise<Result<ActivityListResponse, NetworkError>>;
+    activityRead(
+        request: ActivityReadRequest,
+    ): Promise<Result<void, NetworkError>>;
 }
 
 export class FriendlyClientImpl implements FriendlyClient {
@@ -407,6 +410,14 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .then(r => r.data),
         );
     }
+
+    activityRead({
+        id,
+    }: ActivityReadRequest): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client.post(`/activity/read/${id}`).then(() => undefined),
+        );
+    }
 }
 
 export interface GenerateAccountRequest {
@@ -566,6 +577,10 @@ export interface ActivityListResponse {
     nextId: string | null;
 }
 
+export interface ActivityReadRequest {
+    id: ActivityId;
+}
+
 export interface CommunityPostDescriptor {
     id: CommunityPostId;
     accessHash: CommunityPostAccessHash;
@@ -606,6 +621,7 @@ export interface ActivityDetailsReply {
     type: 'reply';
     id: ActivityId;
     instant: string;
+    isRead: boolean;
     post: CommunityPostDetailsPlain;
 }
 
@@ -613,4 +629,5 @@ export interface ActivityDetailsUnknown {
     type: never;
     id: ActivityId;
     instant: string;
+    isRead: boolean;
 }

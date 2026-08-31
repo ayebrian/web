@@ -189,7 +189,7 @@ export function CommunityPage() {
                     {postsQuery.isFetchingNextPage ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        'Load more'
+                        t('load-more')
                     )}
                 </Button>
             </div>

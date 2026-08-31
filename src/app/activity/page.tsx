@@ -1,4 +1,6 @@
-import {useBackend} from '@/backend.context';
+import {useMutation} from '@tanstack/react-query';
+import {activity} from '@/services/activity';
+import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
@@ -11,34 +13,17 @@ import {Button} from '@/components/ui/button';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {Loader2, AlertCircle, Inbox, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {ActivityDetails, ActivityDetailsReply} from '@/network/friendly-client';
+import {
+    ActivityDetails,
+    ActivityDetailsReply,
+    ActivityId,
+} from '@/network/friendly-client';
 
 export function ActivityPage() {
     const t = useTranslations('activity');
     const app = useAppContext();
-    const backend = useBackend();
 
-    const activityQuery = useInfiniteQuery({
-        queryKey: ['activity'],
-        queryFn: async ({pageParam}) => {
-            const result = forceUnwrap(
-                await backend.activityList({cursorId: pageParam}),
-            );
-            await Promise.all(
-                result.data
-                    .filter(activity => activity.type === 'reply')
-                    .map(activity =>
-                        communityPosts.setPost(app, {
-                            type: 'plain',
-                            ...activity.post,
-                        }),
-                    ),
-            );
-            return result;
-        },
-        initialPageParam: null as string | null,
-        getNextPageParam: lastPage => lastPage.nextId,
-    });
+    const activityQuery = useInfiniteQuery(activity.listOptions(app));
 
     const loadMore = () => {
         if (activityQuery.hasNextPage && !activityQuery.isFetchingNextPage) {
@@ -104,7 +89,7 @@ export function ActivityPage() {
                     {activityQuery.isFetchingNextPage ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        'Load more'
+                        t('load-more')
                     )}
                 </Button>
             </div>
@@ -172,7 +157,7 @@ function ActivityList({activity}: ActivityListProps) {
                 <div key={timeGroup} className="flex flex-col gap-2">
                     <TimeGroupHeading timeGroup={timeGroup as TimeGroup} />
                     {activity.map(details => (
-                        <ActivityCard key={details.id} details={details} />
+                        <ActivityCard key={details.id} id={details.id} />
                     ))}
                 </div>
             ))}
@@ -206,20 +191,50 @@ function TimeGroupHeading({timeGroup}: TimeGroupHeadingProps) {
 }
 
 interface ActivityCardProps {
-    details: ActivityDetails;
+    id: ActivityId;
 }
 
-function ActivityCard({details}: ActivityCardProps) {
+function ActivityCard({id}: ActivityCardProps) {
+    const app = useAppContext();
+
+    const details = activity.useDetails(id).data;
+    if (details === undefined) {
+        throw new Error('Activity details must be present after loading');
+    }
+
+    const readMutation = useMutation({
+        mutationKey: ['activityRead', id],
+        mutationFn: async () => {
+            await activity.setDetails(app, {
+                ...details,
+                isRead: true,
+            });
+            forceUnwrap(await app.backend.activityRead({id}));
+        },
+    });
+
+    function handleClick() {
+        if (readMutation.isPending) return;
+        readMutation.mutate();
+    }
+
     let content;
 
     switch (details.type) {
         case 'reply':
-            content = <ReplyActivityCard details={details} />;
+            content = (
+                <ReplyActivityCard details={details} onClick={handleClick} />
+            );
             break;
     }
 
     return (
-        <div className="bg-card rounded-xl border border-border cursor-pointer">
+        <div
+            className={cn(
+                'rounded-xl border border-border cursor-pointer',
+                details.isRead ? 'bg-card' : 'bg-accent',
+            )}
+        >
             {content}
         </div>
     );
@@ -227,10 +242,12 @@ function ActivityCard({details}: ActivityCardProps) {
 
 export interface ReplyActivityCardProps {
     details: ActivityDetailsReply;
+    onClick: () => void;
 }
 
-function ReplyActivityCard({details}: ReplyActivityCardProps) {
+function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
     const t = useTranslations('activity');
+
     const navigate = useNavigate();
     const avatar = details.post.owner.avatar
         ? createFileLink(details.post.owner.avatar)
@@ -240,6 +257,7 @@ function ReplyActivityCard({details}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
+        onClick();
         await navigate(`/community/${details.post.id}/replies`);
     }
     return (
