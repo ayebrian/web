@@ -67,13 +67,14 @@ export function LogoutDialog({
                         )}
                         {!suggestBindEmail && (
                             <>
-                                <Button
-                                    className="cursor-pointer"
-                                    variant="ghost"
-                                    onClick={onLogout}
-                                >
-                                    {t('cancel')}
-                                </Button>
+                                <Dialog.Close asChild>
+                                    <Button
+                                        className="cursor-pointer"
+                                        variant="ghost"
+                                    >
+                                        {t('cancel')}
+                                    </Button>
+                                </Dialog.Close>
                                 <div className="flex-1" />
                                 <Button
                                     className="cursor-pointer"
