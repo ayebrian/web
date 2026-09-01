@@ -1,4 +1,5 @@
 import {useMemo} from 'react';
+import {Image} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
@@ -30,14 +31,14 @@ export function MarkdownSpan({text}: MarkdownSpanProps) {
                         {children}
                     </span>
                 ),
-                p: ({ children }) => <>{children}</>,
-                h1: ({ children }) => <b>{children}</b>,
-                h2: ({ children }) => <b>{children}</b>,
-                h3: ({ children }) => <b>{children}</b>,
-                h4: ({ children }) => <b>{children}</b>,
-                h5: ({ children }) => <b>{children}</b>,
-                h6: ({ children }) => <b>{children}</b>,
-                img: ({ children }) => <i>{t('image')}</i>,
+                p: ({ children }) => <p>{children}</p>,
+                h1: ({ children }) => <b>{children}<br/></b>,
+                h2: ({ children }) => <b>{children}<br/></b>,
+                h3: ({ children }) => <b>{children}<br/></b>,
+                h4: ({ children }) => <b>{children}<br/></b>,
+                h5: ({ children }) => <b>{children}<br/></b>,
+                h6: ({ children }) => <b>{children}<br/></b>,
+                img: ({ children }) => <Image className="inline h-[1em] w-[1em]" />,
             }}
         >
             {text}
