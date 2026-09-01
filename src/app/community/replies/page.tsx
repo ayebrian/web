@@ -17,6 +17,7 @@ import {
 } from '@tanstack/react-query';
 import {Loader2, MessageCircle, AlertCircle} from 'lucide-react';
 import {useTranslations} from 'use-intl';
+import {useErrorMessage} from '@/network/error-message';
 import React, {useRef, useState, useCallback, useEffect} from 'react';
 import {toast} from 'sonner';
 import {useNavigate, useParams} from 'react-router';
@@ -85,6 +86,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const t = useTranslations('replies');
+    const errorMessage = useErrorMessage();
     const replyPost = communityPosts.usePost(replyTo.post.id).data!;
 
     const upstreamRef = useRef<HTMLDivElement>(null);
@@ -213,7 +215,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             }
         },
         onError: error => {
-            toast.error(error.message ?? t('post_create_error'));
+            toast.error(t('post_create_error'), {
+                description: errorMessage(error),
+            });
         },
     });
 
@@ -248,7 +252,9 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
             }
         },
         onError: error => {
-            toast.error(error.message ?? t('post_create_error'));
+            toast.error(t('post_delete_error'), {
+                description: errorMessage(error),
+            });
         },
     });
 
