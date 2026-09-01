@@ -31,17 +31,21 @@ export function MarkdownSpan({text}: MarkdownSpanProps) {
                         {children}
                     </span>
                 ),
-                p: ({ children }) => <p>{children}</p>,
-                h1: ({ children }) => <b>{children}<br/></b>,
-                h2: ({ children }) => <b>{children}<br/></b>,
-                h3: ({ children }) => <b>{children}<br/></b>,
-                h4: ({ children }) => <b>{children}<br/></b>,
-                h5: ({ children }) => <b>{children}<br/></b>,
-                h6: ({ children }) => <b>{children}<br/></b>,
-                img: ({ children }) => <Image className="inline h-[1em] w-[1em]" />,
+                p: ({ children }) => <>{children}<Br/></>,
+                h1: ({ children }) => <><b>{children}</b><Br/></>,
+                h2: ({ children }) => <><b>{children}</b><Br/></>,
+                h3: ({ children }) => <><b>{children}</b><Br/></>,
+                h4: ({ children }) => <><b>{children}</b><Br/></>,
+                h5: ({ children }) => <><b>{children}</b><Br/></>,
+                h6: ({ children }) => <><b>{children}</b><Br/></>,
+                img: ({ children }) => <><Image className="inline h-[1em] w-[1em]" /><Br /></>,
             }}
         >
             {text}
         </ReactMarkdown>
     );
+}
+
+function Br() {
+    return <br className="last:hidden" />
 }
