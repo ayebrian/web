@@ -37,6 +37,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                     retryDelay: 1_000,
                     refetchOnWindowFocus: true,
                     refetchOnReconnect: true,
+                    refetchOnMount: true,
                     staleTime: 1_000,
                     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
                 },

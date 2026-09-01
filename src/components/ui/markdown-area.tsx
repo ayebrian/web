@@ -45,6 +45,16 @@ function MarkdownArea(
                         </a>
                     ),
                     blockquote: ({children}) => <blockquote className="text-sm">{children}</blockquote>,
+                    ol: ({children}) => <ol className="list-decimal list-inside">
+                        {children}
+                    </ol>,
+                    ul: ({children}) => <ul className={cn(
+                        "list-disc list-inside marker:content-['•']",
+                        "[&_li]:before:inline-block",
+                        "[&_li]:before:pr-2",
+                    )}>
+                        {children}
+                    </ul>,
                 }}
             >
                 {text}
