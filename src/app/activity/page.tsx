@@ -231,8 +231,8 @@ function ActivityCard({id}: ActivityCardProps) {
     return (
         <div
             className={cn(
-                'rounded-xl border border-border cursor-pointer',
-                details.isRead ? 'bg-card' : 'bg-accent',
+                'rounded-xl cursor-pointer border border-border',
+                details.isRead ? 'bg-card' : 'bg-primary/10',
             )}
         >
             {content}
