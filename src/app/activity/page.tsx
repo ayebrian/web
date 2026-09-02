@@ -1,10 +1,11 @@
 import {useMutation} from '@tanstack/react-query';
+import {useVirtualizer} from '@tanstack/react-virtual';
 import {activity} from '@/services/activity';
 import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -24,14 +25,9 @@ export function ActivityPage() {
     const t = useTranslations('activity');
     const errorMessage = useErrorMessage();
     const app = useAppContext();
+    const [parent, setParent] = useState<Element | null>(null);
 
     const activityQuery = useInfiniteQuery(activity.listOptions(app));
-
-    const loadMore = () => {
-        if (activityQuery.hasNextPage && !activityQuery.isFetchingNextPage) {
-            void activityQuery.fetchNextPage();
-        }
-    };
 
     let content;
 
@@ -74,27 +70,23 @@ export function ActivityPage() {
                 </div>
             );
         } else {
-            content = <ActivityList activity={activity} />;
+            content = (
+                <ActivityList
+                    onFetch={() => void activityQuery.fetchNextPage()}
+                    hasNext={activityQuery.hasNextPage}
+                    parent={parent}
+                    activity={activity}
+                />
+            );
         }
     }
 
     return (
-        <div className="flex flex-col h-full items-center w-full max-w-2xl mx-auto p-4 gap-4">
+        <div
+            ref={setParent}
+            className="h-full items-center w-full max-w-2xl mx-auto p-4 gap-4 overflow-y-auto scrollbar-none"
+        >
             {content}
-            <div hidden={!activityQuery.hasNextPage}>
-                <Button
-                    variant="ghost"
-                    className="text-accent-foreground hover:cursor-pointer"
-                    onClick={loadMore}
-                    disabled={activityQuery.isFetchingNextPage}
-                >
-                    {activityQuery.isFetchingNextPage ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        t('load-more')
-                    )}
-                </Button>
-            </div>
         </div>
     );
 }
@@ -102,10 +94,13 @@ export function ActivityPage() {
 type TimeGroup = 'today' | 'yesterday' | 'older';
 
 interface ActivityListProps {
+    parent: Element | null;
     activity: ActivityDetails[];
+    hasNext: boolean;
+    onFetch: () => void;
 }
 
-function ActivityList({activity}: ActivityListProps) {
+function ActivityList({activity, parent, onFetch, hasNext}: ActivityListProps) {
     const app = useAppContext();
 
     useEffect(() => {
@@ -152,17 +147,64 @@ function ActivityList({activity}: ActivityListProps) {
         return group;
     });
 
-    activity = Object.values(timeGroups).flatMap(list => list ?? []);
+    const flattened = Object.entries(timeGroups).flatMap(
+        ([timeGroup, activity]) => {
+            return [
+                {
+                    key: timeGroup,
+                    Render: () => (
+                        <TimeGroupHeading timeGroup={timeGroup as TimeGroup} />
+                    ),
+                },
+                ...activity.map(details => {
+                    return {
+                        key: details.id.toString(),
+                        Render: () => <ActivityCard id={details.id} />,
+                    };
+                }),
+            ];
+        },
+    );
+    flattened.push({
+        key: 'loader',
+        Render: () => <Loader onAppear={onFetch} hasNext={hasNext} />,
+    });
+
+    const virtualizer = useVirtualizer({
+        count: flattened.length,
+        getItemKey: index => flattened[index].key,
+        getScrollElement: () => parent,
+        estimateSize: () => 100,
+        overscan: 5,
+    });
+
     return (
-        <div className="w-full flex flex-col gap-2">
-            {Object.entries(timeGroups).map(([timeGroup, activity]) => (
-                <div key={timeGroup} className="flex flex-col gap-2">
-                    <TimeGroupHeading timeGroup={timeGroup as TimeGroup} />
-                    {activity.map(details => (
-                        <ActivityCard key={details.id} id={details.id} />
-                    ))}
-                </div>
-            ))}
+        <div
+            style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+            }}
+        >
+            {virtualizer.getVirtualItems().map(item => {
+                return (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transform: `translateY(${item.start}px)`,
+                            width: '100%',
+                        }}
+                    >
+                        {flattened[item.index].Render()}
+                        <div className="h-2" />
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -282,6 +324,25 @@ function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
                 {formatTimeAgo(t, details.instant)}
             </span>
         </div>
+    );
+}
+
+interface LoaderProps {
+    hasNext: boolean;
+    onAppear: () => void;
+}
+
+function Loader({hasNext, onAppear}: LoaderProps) {
+    useEffect(() => {
+        onAppear();
+    }, []);
+    return (
+        <Loader2
+            className={cn(
+                'h-4 w-4 animate-spin mx-auto',
+                hasNext ? '' : 'hidden',
+            )}
+        />
     );
 }
 

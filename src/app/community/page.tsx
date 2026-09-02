@@ -1,8 +1,8 @@
+import {useVirtualizer} from '@tanstack/react-virtual';
 import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
-import {useNavigate} from 'react-router';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-query';
 import {Loader2, AlertCircle, SquarePen, Newspaper, Trash} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {useCallback, useMemo, useRef, useEffect} from 'react';
+import React, {useCallback, useMemo, useRef, useEffect} from 'react';
 import {toast} from 'sonner';
 import {newPost} from '@/services/new-post-service';
 import {StyledAvatar} from '@/components/styled-avatar';
@@ -27,7 +27,6 @@ export function CommunityPage() {
     const errorMessage = useErrorMessage();
     const backend = useBackend();
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
     const app = useAppContext();
 
     const [newPostText, setNewPostText] = newPost.useText();
@@ -70,12 +69,6 @@ export function CommunityPage() {
         };
     }, [postsQuery.data]);
 
-    const loadMore = () => {
-        if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
-            void postsQuery.fetchNextPage();
-        }
-    };
-
     const createPostMutation = useMutation({
         mutationFn: async (text: string) => {
             const result = await backend.communityPost({text});
@@ -95,16 +88,13 @@ export function CommunityPage() {
                 },
                 upstream: [],
             });
+            await queryClient.invalidateQueries({
+                queryKey: ['communityPosts'],
+            });
             return details;
         },
-        onSuccess: details => {
-            void (async () => {
-                setNewPostText('');
-                void queryClient.invalidateQueries({
-                    queryKey: ['communityPosts'],
-                });
-                void navigate(`/community/${details.id}/replies`);
-            })();
+        onSuccess: () => {
+            setNewPostText('');
         },
         onError: error => {
             toast.error(t('post_create_error'), {
@@ -118,54 +108,153 @@ export function CommunityPage() {
         await createPostMutation.mutateAsync(newPostText);
     }, [newPostText, createPostMutation]);
 
+    const posts = useMemo(() => {
+        const pages = postsQuery.data?.pages ?? [];
+        return pages.flatMap(p => p.data);
+    }, [postsQuery.data]);
+
+    const elements = [
+        {
+            key: 'create-post',
+            Render: () => (
+                <CreatePostCard
+                    text={newPostText}
+                    onTextChange={setNewPostText}
+                    onSubmit={handleCreatePost}
+                    isSubmitting={createPostMutation.isPending}
+                />
+            ),
+        },
+    ];
+
+    elements.push(
+        ...posts.map(post => {
+            return {
+                key: post.id.toString(),
+                Render: () => (
+                    <CommunityPostCard
+                        postId={post.id}
+                        minimizeToolbar={false}
+                        minimizeText={true}
+                    />
+                ),
+            };
+        }),
+    );
+
+    elements.push({
+        key: 'loader',
+        Render: () => (
+            <Loader
+                hasNext={postsQuery.hasNextPage}
+                onAppear={() => void postsQuery.fetchNextPage()}
+            />
+        ),
+    });
+
+    const parentRef = useRef(null);
+
+    const virtualizer = useVirtualizer({
+        count: elements.length,
+        getItemKey: index => elements[index].key,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 200,
+        overscan: 3,
+    });
+
+    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (
+        item,
+        _delta,
+        instance,
+    ) => item.start < (instance.scrollOffset ?? 0);
+
     let content;
 
     if (postsQuery.isPending) {
         content = (
-            <div className="flex h-full w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-            </div>
+            <>
+                <CreatePostCard
+                    text={newPostText}
+                    onTextChange={setNewPostText}
+                    onSubmit={handleCreatePost}
+                    isSubmitting={createPostMutation.isPending}
+                />
+                <div className="flex h-full w-full items-center justify-center">
+                    <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+                </div>
+            </>
         );
     } else if (postsQuery.isError) {
         content = (
-            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
-                <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
-                <p className="text-center">{errorMessage(postsQuery.error)}</p>
-                <Button
-                    variant="outline"
-                    className="mt-2"
-                    onClick={() => void postsQuery.refetch()}
-                >
-                    {t('retry')}
-                </Button>
-            </div>
+            <>
+                <CreatePostCard
+                    text={newPostText}
+                    onTextChange={setNewPostText}
+                    onSubmit={handleCreatePost}
+                    isSubmitting={createPostMutation.isPending}
+                />
+                <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+                    <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
+                    <p className="text-center">
+                        {errorMessage(postsQuery.error)}
+                    </p>
+                    <Button
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() => void postsQuery.refetch()}
+                    >
+                        {t('retry')}
+                    </Button>
+                </div>
+            </>
         );
     } else {
-        const pages = postsQuery.data?.pages ?? [];
-        const posts = pages.flatMap(p => p.data);
-
         if (posts.length === 0) {
             content = (
-                <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
-                    <Newspaper className="w-12 h-12 text-muted-foreground" />
-                    <p className="text-base font-semibold text-foreground">
-                        {t('empty_title')}
-                    </p>
-                    <p className="max-w-xs text-sm text-muted-foreground">
-                        {t('empty_desc')}
-                    </p>
-                </div>
+                <>
+                    <CreatePostCard
+                        text={newPostText}
+                        onTextChange={setNewPostText}
+                        onSubmit={handleCreatePost}
+                        isSubmitting={createPostMutation.isPending}
+                    />
+                    <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
+                        <Newspaper className="w-12 h-12 text-muted-foreground" />
+                        <p className="text-base font-semibold text-foreground">
+                            {t('empty_title')}
+                        </p>
+                        <p className="max-w-xs text-sm text-muted-foreground">
+                            {t('empty_desc')}
+                        </p>
+                    </div>
+                </>
             );
         } else {
             content = (
-                <div className="w-full flex flex-col gap-4">
-                    {posts.map(post => (
-                        <CommunityPostCard
-                            key={post.id}
-                            postId={post.id}
-                            minimizeToolbar={false}
-                            minimizeText={true}
-                        />
+                <div
+                    className="shrink-0"
+                    style={{
+                        minHeight: `${virtualizer.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative',
+                    }}
+                >
+                    {virtualizer.getVirtualItems().map(item => (
+                        <div
+                            key={item.key}
+                            ref={virtualizer.measureElement}
+                            data-index={item.index}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                transform: `translateY(${item.start}px)`,
+                                width: '100%',
+                            }}
+                        >
+                            {elements[item.index].Render()}
+                            <div className="h-4" />
+                        </div>
                     ))}
                 </div>
             );
@@ -173,28 +262,11 @@ export function CommunityPage() {
     }
 
     return (
-        <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-4 py-4 gap-4">
-            <CreatePostCard
-                text={newPostText}
-                onTextChange={setNewPostText}
-                onSubmit={handleCreatePost}
-                isSubmitting={createPostMutation.isPending}
-            />
+        <div
+            ref={parentRef}
+            className="flex flex-col items-center w-full h-full max-w-2xl mx-auto px-4 py-4 gap-4 overflow-y-auto scrollbar-none"
+        >
             {content}
-            <div hidden={!postsQuery.hasNextPage}>
-                <Button
-                    variant="ghost"
-                    className="text-accent-foreground hover:cursor-pointer"
-                    onClick={loadMore}
-                    disabled={postsQuery.isFetchingNextPage}
-                >
-                    {postsQuery.isFetchingNextPage ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        t('load-more')
-                    )}
-                </Button>
-            </div>
         </div>
     );
 }
@@ -284,5 +356,24 @@ function CreatePostCard({
                 </div>
             </div>
         </div>
+    );
+}
+
+interface LoaderProps {
+    hasNext: boolean;
+    onAppear: () => void;
+}
+
+function Loader({hasNext, onAppear}: LoaderProps) {
+    useEffect(() => {
+        onAppear();
+    }, []);
+    return (
+        <Loader2
+            className={cn(
+                'h-4 w-4 animate-spin mx-auto',
+                hasNext ? '' : 'hidden',
+            )}
+        />
     );
 }

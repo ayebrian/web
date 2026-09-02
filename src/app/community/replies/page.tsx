@@ -275,7 +275,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 <div className="flex flex-col gap-2">
                     {replyTo.upstream.map(post => (
                         <CommunityPostCard
-                            key={post.id}
+                            key={`${replyTo.post.id}-${post.id}`}
                             postId={post.id}
                             minimizeToolbar={true}
                         />
@@ -314,7 +314,7 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
                 </p>
                 {posts.map(post => (
                     <CommunityPostCard
-                        key={post.id}
+                        key={`${replyTo.post.id}-${post.id}`}
                         postId={post.id}
                         minimizeToolbar={false}
                         minimizeText={true}

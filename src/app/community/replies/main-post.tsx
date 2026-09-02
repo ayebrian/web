@@ -213,7 +213,7 @@ function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
     }
 
     return (
-        <div className="bg-card rounded-xl border border-border p-4 cursor-pointer">
+        <div className="bg-card rounded-xl border border-border p-4">
             <div className="flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10 cursor-pointer"
