@@ -173,7 +173,7 @@ export default function UserPage() {
 
     useEffect(() => {
         if (userId === selfId) {
-            void navigate('/profile');
+            void navigate('/profile', {replace: true});
         }
     }, [userId, selfId]);
 
