@@ -70,7 +70,7 @@ export function LogoutDialog({
                                 <Button
                                     className="cursor-pointer"
                                     variant="ghost"
-                                    onClick={onLogout}
+                                    onClick={() => onOpenChange(false)}
                                 >
                                     {t('cancel')}
                                 </Button>

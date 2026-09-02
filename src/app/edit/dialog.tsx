@@ -123,7 +123,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                 user: {
                     ...self.user,
                     ...validated,
-                    ...avatar,
+                    avatar,
                 },
             });
         } else {
