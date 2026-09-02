@@ -88,16 +88,13 @@ export function CommunityPage() {
                 },
                 upstream: [],
             });
+            await queryClient.invalidateQueries({
+                queryKey: ['communityPosts'],
+            });
             return details;
         },
         onSuccess: details => {
-            void (async () => {
-                setNewPostText('');
-                void queryClient.invalidateQueries({
-                    queryKey: ['communityPosts'],
-                });
-                void navigate(`/community/${details.id}/replies`);
-            })();
+            setNewPostText('');
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
