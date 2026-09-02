@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Image} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import ReactMarkdown from 'react-markdown';
@@ -18,7 +18,7 @@ export interface MarkdownSpanProps {
     text: string;
 }
 
-export function MarkdownSpan({text}: MarkdownSpanProps) {
+function MarkdownSpanComponent({text}: MarkdownSpanProps) {
     const t = useTranslations('markdown');
 
     return (
@@ -59,3 +59,5 @@ export function MarkdownSpan({text}: MarkdownSpanProps) {
 function Br() {
     return <br className="last:hidden" />
 }
+
+export const MarkdownSpan = React.memo(MarkdownSpanComponent);

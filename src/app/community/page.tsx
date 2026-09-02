@@ -3,7 +3,6 @@ import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
-import {useNavigate} from 'react-router';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
@@ -15,7 +14,13 @@ import {
 } from '@tanstack/react-query';
 import {Loader2, AlertCircle, SquarePen, Newspaper, Trash} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import React, {useCallback, useMemo, useRef, useEffect} from 'react';
+import React, {
+    ReactElement,
+    useCallback,
+    useMemo,
+    useRef,
+    useEffect,
+} from 'react';
 import {toast} from 'sonner';
 import {newPost} from '@/services/new-post-service';
 import {StyledAvatar} from '@/components/styled-avatar';
@@ -26,7 +31,6 @@ export function CommunityPage() {
     const t = useTranslations('community');
     const backend = useBackend();
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
     const app = useAppContext();
 
     const [newPostText, setNewPostText] = newPost.useText();
@@ -93,7 +97,7 @@ export function CommunityPage() {
             });
             return details;
         },
-        onSuccess: details => {
+        onSuccess: () => {
             setNewPostText('');
         },
         onError: error => {
@@ -111,10 +115,10 @@ export function CommunityPage() {
         return pages.flatMap(p => p.data);
     }, [postsQuery.data]);
 
-    const elements = [
+    const items = [
         {
             key: 'create-post',
-            Render: () => (
+            Component: (
                 <CreatePostCard
                     text={newPostText}
                     onTextChange={setNewPostText}
@@ -125,11 +129,11 @@ export function CommunityPage() {
         },
     ];
 
-    elements.push(
+    items.push(
         ...posts.map(post => {
             return {
                 key: post.id.toString(),
-                Render: () => (
+                Component: (
                     <CommunityPostCard
                         postId={post.id}
                         minimizeToolbar={false}
@@ -140,31 +144,14 @@ export function CommunityPage() {
         }),
     );
 
-    elements.push({
-        key: 'loader',
-        Render: () => (
-            <Loader
-                hasNext={postsQuery.hasNextPage}
-                onAppear={() => void postsQuery.fetchNextPage()}
-            />
-        ),
-    });
-
-    const parentRef = useRef(null);
-
-    const virtualizer = useVirtualizer({
-        count: elements.length,
-        getItemKey: index => elements[index].key,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 200,
-        overscan: 3,
-    });
-
-    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (
-        item,
-        _delta,
-        instance,
-    ) => item.start < (instance.scrollOffset ?? 0);
+    if (postsQuery.hasNextPage) {
+        items.push({
+            key: 'loader',
+            Component: (
+                <Loader onAppear={() => void postsQuery.fetchNextPage()} />
+            ),
+        });
+    }
 
     let content;
 
@@ -228,42 +215,12 @@ export function CommunityPage() {
                 </>
             );
         } else {
-            content = (
-                <div
-                    className="shrink-0"
-                    style={{
-                        minHeight: `${virtualizer.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative',
-                    }}
-                >
-                    {virtualizer.getVirtualItems().map(item => (
-                        <div
-                            key={item.key}
-                            ref={virtualizer.measureElement}
-                            data-index={item.index}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                transform: `translateY(${item.start}px)`,
-                                width: '100%',
-                            }}
-                        >
-                            {elements[item.index].Render()}
-                            <div className="h-4" />
-                        </div>
-                    ))}
-                </div>
-            );
+            content = <List items={items} />;
         }
     }
 
     return (
-        <div
-            ref={parentRef}
-            className="flex flex-col items-center w-full h-full max-w-2xl mx-auto px-4 py-4 gap-4 overflow-y-auto scrollbar-none"
-        >
+        <div className="flex flex-col items-center w-full h-full max-w-2xl mx-auto gap-4">
             {content}
         </div>
     );
@@ -358,20 +315,67 @@ function CreatePostCard({
 }
 
 interface LoaderProps {
-    hasNext: boolean;
     onAppear: () => void;
 }
 
-function Loader({hasNext, onAppear}: LoaderProps) {
+function Loader({onAppear}: LoaderProps) {
     useEffect(() => {
         onAppear();
     }, []);
+    return <Loader2 className="h-4 w-4 animate-spin mx-auto" />;
+}
+
+interface Item {
+    key: string;
+    Component: ReactElement;
+}
+
+interface ListProps {
+    items: Item[];
+}
+
+function List({items}: ListProps) {
+    const parentRef = useRef(null);
+
+    const virtualizer = useVirtualizer({
+        count: items.length,
+        getItemKey: index => items[index].key,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 1000,
+        overscan: 10,
+    });
+
     return (
-        <Loader2
-            className={cn(
-                'h-4 w-4 animate-spin mx-auto',
-                hasNext ? '' : 'hidden',
-            )}
-        />
+        <div
+            ref={parentRef}
+            className="w-full h-full px-4 overflow-y-auto scrollbar-none"
+        >
+            <div
+                className="my-4"
+                style={{
+                    width: '100%',
+                    height: `${virtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                }}
+            >
+                {virtualizer.getVirtualItems().map(item => (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transform: `translateY(${item.start}px)`,
+                            width: '100%',
+                        }}
+                    >
+                        {items[item.index].Component}
+                        <div className="h-4" />
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }
