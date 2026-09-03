@@ -232,6 +232,7 @@ export function CommunityPage() {
 
 interface CreatePostCardProps {
     text: string;
+    className?: string;
     onTextChange: (text: string) => void;
     onSubmit: () => Promise<void>;
     isSubmitting: boolean;
@@ -239,6 +240,7 @@ interface CreatePostCardProps {
 
 function CreatePostCard({
     text,
+    className,
     onTextChange,
     onSubmit,
     isSubmitting,
@@ -268,7 +270,10 @@ function CreatePostCard({
     }, [text]);
 
     return (
-        <div className="w-full bg-card rounded-xl border border-border p-4">
+        <div className={cn(
+            "w-full bg-card rounded-xl border border-border p-4",
+            className,
+        )}>
             <div className="w-full flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
