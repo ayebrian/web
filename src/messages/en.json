@@ -39,7 +39,7 @@
         "show-more": "Show more",
         "friends": {
             "title": "Friends",
-            "see_all": "All friends",
+            "see-all": "All friends",
             "no_friends": "Ask someone for an invite link to start connecting",
             "no_description": "No profile note yet."
         },

@@ -349,7 +349,7 @@ function List({items}: ListProps) {
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 1000,
-        overscan: 10,
+        overscan: 30,
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {

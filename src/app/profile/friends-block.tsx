@@ -1,17 +1,26 @@
-import {UserDetails} from '@/types/user-details';
-import {useTranslations} from 'use-intl';
-import {Link} from 'react-router';
-import {useState} from 'react';
 import {FriendCard} from './friend-card';
-import {AllFriendsList} from '@/app/profile/all-friends-list';
+import {useNavigationType, NavigationType} from 'react-router';
+import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
+import {AllFriendsList} from './all-friends-list';
+import {Link} from 'react-router';
+import {useTranslations} from 'use-intl';
+import {useState, ReactElement, useRef, useMemo} from 'react';
+import {UserDetails} from '@/types/user-details';
+import {Separator} from '@/components/ui/separator';
 
 export function FriendsBlock({friends}: {friends: UserDetails[]}) {
     const t = useTranslations('profile');
     const [showAll, setShowAll] = useState(false);
 
+    const items = friends.map(friend => ({
+        key: friend.id.toString(),
+        Component: <FriendCard friend={friend} />,
+    }));
+
     return (
         <>
-            <div className="flex flex-col gap-2">
+            <Separator className="my-4" />
+            <div className="w-full flex flex-col gap-2">
                 <p className="flex flex-row gap-2 mb-2">
                     <span className="flex-1 text-sm font-semibold uppercase text-foreground">
                         {t('friends.title')}
@@ -22,15 +31,10 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                         hidden={friends.length < 1}
                         onClick={() => setShowAll(true)}
                     >
-                        {t('friends.see_all')}
+                        {t('friends.see-all')}
                     </Link>
                 </p>
-                <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none">
-                    {friends.map(friend => (
-                        <FriendCard key={friend.id} friend={friend} />
-                    ))}
-                    <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>
-                </div>
+                <List items={items} />
             </div>
             <AllFriendsList
                 friends={friends}
@@ -38,5 +42,84 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                 setOpen={setShowAll}
             />
         </>
+    );
+}
+
+interface Item {
+    key: string;
+    Component: ReactElement;
+}
+
+interface ListProps {
+    items: Item[];
+}
+
+interface ScrollState {
+    initialOffset: number;
+    initialMeasurementsCache: VirtualItem[];
+}
+
+function List({items}: ListProps) {
+    const parentRef = useRef(null);
+
+    const navigationType = useNavigationType();
+    const saved = useMemo(() => {
+        if (navigationType !== NavigationType.Pop) {
+            return null;
+        }
+        return JSON.parse(
+            sessionStorage.getItem('activity.scroll') ?? 'null',
+        ) as ScrollState;
+    }, [navigationType]);
+
+    const virtualizer = useVirtualizer({
+        count: items.length,
+        horizontal: true,
+        getItemKey: index => items[index].key,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 1000,
+        overscan: 0,
+        initialOffset: saved?.initialOffset,
+        initialMeasurementsCache: saved?.initialMeasurementsCache,
+        onChange: virtualizer => {
+            sessionStorage.setItem(
+                'activity.scroll',
+                JSON.stringify({
+                    initialOffset: virtualizer.scrollOffset,
+                    initialMeasurementsCache: virtualizer.measurementsCache,
+                }),
+            );
+        },
+    });
+
+    return (
+        <div
+            ref={parentRef}
+            className="w-full pb-4 overflow-x-auto scrollbar-none"
+        >
+            <div
+                style={{
+                    width: `${virtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                }}
+            >
+                {virtualizer.getVirtualItems().map(item => (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        className="me-2"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transform: `translateX(${item.start}px)`,
+                        }}
+                    >
+                        {items[item.index].Component}
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }
