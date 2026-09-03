@@ -1,4 +1,4 @@
-import {Ellipsis, Trash} from 'lucide-react';
+import {Ellipsis, Trash, Pen} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {useState} from 'react';
 import {
@@ -11,11 +11,16 @@ import {
 import {ConfirmationDialog} from '@/components/confirmation-dialog';
 
 export interface MainPostMenuProps {
+    onEdit: () => void;
     onDelete: () => void;
     showDelete: boolean;
 }
 
-export function MainPostMenu({onDelete, showDelete}: MainPostMenuProps) {
+export function MainPostMenu({
+    onDelete,
+    onEdit,
+    showDelete,
+}: MainPostMenuProps) {
     const t = useTranslations('replies');
     const [isDeletePostOpen, setDeletePostOpen] = useState(false);
 
@@ -31,6 +36,10 @@ export function MainPostMenu({onDelete, showDelete}: MainPostMenuProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={onEdit}>
+                            <Pen className="size-4" />
+                            {t('edit')}
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                             variant="destructive"
                             onClick={() => setDeletePostOpen(true)}

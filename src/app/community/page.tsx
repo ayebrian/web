@@ -1,4 +1,5 @@
-import {useVirtualizer} from '@tanstack/react-virtual';
+import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
+import {useNavigationType, NavigationType} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
@@ -334,8 +335,23 @@ interface ListProps {
     items: Item[];
 }
 
+interface ScrollState {
+    initialOffset: number;
+    initialMeasurementsCache: VirtualItem[];
+}
+
 function List({items}: ListProps) {
     const parentRef = useRef(null);
+
+    const navigationType = useNavigationType();
+    const saved = useMemo(() => {
+        if (navigationType !== NavigationType.Pop) {
+            return null;
+        }
+        return JSON.parse(
+            sessionStorage.getItem('activity.scroll') ?? 'null',
+        ) as ScrollState;
+    }, [navigationType]);
 
     const virtualizer = useVirtualizer({
         count: items.length,
@@ -343,6 +359,17 @@ function List({items}: ListProps) {
         getScrollElement: () => parentRef.current,
         estimateSize: () => 1000,
         overscan: 10,
+        initialOffset: saved?.initialOffset,
+        initialMeasurementsCache: saved?.initialMeasurementsCache,
+        onChange: virtualizer => {
+            sessionStorage.setItem(
+                'activity.scroll',
+                JSON.stringify({
+                    initialOffset: virtualizer.scrollOffset,
+                    initialMeasurementsCache: virtualizer.measurementsCache,
+                }),
+            );
+        },
     });
 
     return (

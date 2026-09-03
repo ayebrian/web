@@ -1,11 +1,12 @@
 import {useMutation} from '@tanstack/react-query';
-import {useVirtualizer} from '@tanstack/react-virtual';
+import {useNavigationType, NavigationType} from 'react-router';
+import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
 import {activity} from '@/services/activity';
 import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
-import {useEffect, ReactElement, useRef} from 'react';
+import {useEffect, ReactElement, useRef, useMemo} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -78,7 +79,7 @@ export function ActivityPage() {
     }
 
     return (
-        <div className="h-full items-center w-full max-w-2xl mx-auto p-4 gap-4 overflow-y-auto scrollbar-none">
+        <div className="h-full items-center w-full max-w-2xl mx-auto gap-4">
             {content}
         </div>
     );
@@ -325,8 +326,23 @@ interface ListProps {
     items: Item[];
 }
 
+interface ScrollState {
+    initialOffset: number;
+    initialMeasurementsCache: VirtualItem[];
+}
+
 function List({items}: ListProps) {
     const parentRef = useRef(null);
+
+    const navigationType = useNavigationType();
+    const saved = useMemo(() => {
+        if (navigationType !== NavigationType.Pop) {
+            return null;
+        }
+        return JSON.parse(
+            sessionStorage.getItem('activity.scroll') ?? 'null',
+        ) as ScrollState;
+    }, [navigationType]);
 
     const virtualizer = useVirtualizer({
         count: items.length,
@@ -334,14 +350,26 @@ function List({items}: ListProps) {
         getScrollElement: () => parentRef.current,
         estimateSize: () => 1000,
         overscan: 10,
+        initialOffset: saved?.initialOffset,
+        initialMeasurementsCache: saved?.initialMeasurementsCache,
+        onChange: virtualizer => {
+            sessionStorage.setItem(
+                'activity.scroll',
+                JSON.stringify({
+                    initialOffset: virtualizer.scrollOffset,
+                    initialMeasurementsCache: virtualizer.measurementsCache,
+                }),
+            );
+        },
     });
 
     return (
         <div
             ref={parentRef}
-            className="w-full h-full overflow-y-auto scrollbar-none"
+            className="w-full h-full overflow-y-auto scrollbar-none px-4"
         >
             <div
+                className="my-4"
                 style={{
                     width: '100%',
                     height: `${virtualizer.getTotalSize()}px`,

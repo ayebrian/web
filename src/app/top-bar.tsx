@@ -1,4 +1,5 @@
 import {ReactNode} from 'react';
+import {Link} from 'react-router';
 import {cn} from '@/lib/utils';
 
 export function TopBar(): ReactNode {
@@ -12,7 +13,7 @@ export function TopBar(): ReactNode {
                     'items-center',
                 )}
             >
-                <a className="h-full" href="/">
+                <Link className="h-full" to="/">
                     <img
                         className="dark:hidden h-full"
                         src="/banner-light.svg"
@@ -21,7 +22,7 @@ export function TopBar(): ReactNode {
                         className="hidden dark:block h-full"
                         src="/banner-dark.svg"
                     />
-                </a>
+                </Link>
             </div>
             <div className="w-full h-px bg-border" />
         </div>

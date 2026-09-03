@@ -222,6 +222,7 @@
         "no-replies-desc": "Be the first to discuss this!",
         "load-more": "Load more",
         "replies": "Replies",
+        "edit": "Edit",
         "delete": {
             "trigger": "Delete",
             "title": "Confirm action",

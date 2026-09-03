@@ -27,7 +27,7 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                         {t('see-all')}
                     </Link>
                 </p>
-                <div className="flex gap-2 overflow-x-auto pb-4">
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-4">
                     {friends.map(friend => (
                         <FriendCard key={friend.id} friend={friend} />
                     ))}

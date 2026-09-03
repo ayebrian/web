@@ -237,6 +237,7 @@ function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
                         <div className="flex-1" />
                         <MainPostMenu
                             onDelete={onDelete}
+                            onEdit={() => {}}
                             showDelete={isAuthor}
                         />
                     </div>
