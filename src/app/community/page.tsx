@@ -160,6 +160,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
+                    className="p-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -174,6 +175,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
+                    className="p-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -199,6 +201,7 @@ export function CommunityPage() {
             content = (
                 <>
                     <CreatePostCard
+                        className="p-4"
                         text={newPostText}
                         onTextChange={setNewPostText}
                         onSubmit={handleCreatePost}
