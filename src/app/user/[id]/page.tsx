@@ -104,7 +104,7 @@ function ProfileHeader({
     );
 
     return (
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full px-4 pt-4">
             <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4">
                 <StyledAvatar
                     avatarClassName="w-20 h-20 sm:w-24 sm:h-24 ring-2 ring-background shadow-sm"
@@ -244,26 +244,20 @@ export default function UserPage() {
         );
     } else {
         content = (
-            <div className="flex flex-col gap-2 pb-12">
+            <div className="flex flex-col gap-2 pb-12 p-8 gap-8 w-full">
                 <ProfileHeader
                     userDetails={userQuery.data.user}
                     onDecline={declineFriend}
                     onRequest={requestFriend}
                 />
                 <Separator />
-
-                <div className="flex flex-col md:flex-row gap-8">
-                    <div className="flex-1 flex flex-col gap-8 p-8 min-w-0">
-                        <InterestsBlock
-                            interests={userQuery.data.user.interests}
-                        />
-                        {userQuery.data.commonFriends!.length > 0 && (
-                            <FriendsBlock
-                                friends={userQuery.data.commonFriends!}
-                            />
-                        )}
-                    </div>
-                </div>
+                <InterestsBlock interests={userQuery.data.user.interests} />
+                {userQuery.data.commonFriends!.length > 0 && (
+                    <>
+                        <Separator />
+                        <FriendsBlock friends={userQuery.data.commonFriends!} />
+                    </>
+                )}
             </div>
         );
     }

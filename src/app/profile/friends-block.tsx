@@ -6,7 +6,6 @@ import {Link} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {useState, ReactElement, useRef, useMemo} from 'react';
 import {UserDetails} from '@/types/user-details';
-import {Separator} from '@/components/ui/separator';
 
 export function FriendsBlock({friends}: {friends: UserDetails[]}) {
     const t = useTranslations('profile');
@@ -19,7 +18,6 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
 
     return (
         <>
-            <Separator className="my-4" />
             <div className="w-full flex flex-col gap-2">
                 <p className="flex flex-row gap-2 mb-2">
                     <span className="flex-1 text-sm font-semibold uppercase text-foreground">
@@ -77,11 +75,12 @@ function List({items}: ListProps) {
         horizontal: true,
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => 1000,
-        overscan: 0,
+        estimateSize: () => 100,
+        overscan: 10,
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
+            if (virtualizer.isScrolling) return;
             sessionStorage.setItem(
                 'activity.scroll',
                 JSON.stringify({
@@ -92,15 +91,24 @@ function List({items}: ListProps) {
         },
     });
 
+    const virtualItems = virtualizer.getVirtualItems();
+    const start = virtualItems[0]?.start ?? 0;
+    const end = virtualItems[virtualItems.length - 1]?.end ?? 0;
+    const paddingLeft = start;
+    const paddingRight = virtualizer.getTotalSize() - end;
+
     return (
         <div
             ref={parentRef}
             className="w-full pb-4 overflow-x-auto scrollbar-none"
         >
             <div
+                ref={parentRef}
+                className="flex flex-row"
                 style={{
                     width: `${virtualizer.getTotalSize()}px`,
-                    position: 'relative',
+                    paddingLeft: `${paddingLeft}px`,
+                    paddingRight: `${paddingRight}px`,
                 }}
             >
                 {virtualizer.getVirtualItems().map(item => (
@@ -108,13 +116,7 @@ function List({items}: ListProps) {
                         key={item.key}
                         ref={virtualizer.measureElement}
                         data-index={item.index}
-                        className="me-2"
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            transform: `translateX(${item.start}px)`,
-                        }}
+                        className="pe-2"
                     >
                         {items[item.index].Component}
                     </div>

@@ -353,6 +353,7 @@ function List({items}: ListProps) {
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
+            if (virtualizer.isScrolling) return;
             sessionStorage.setItem(
                 'activity.scroll',
                 JSON.stringify({

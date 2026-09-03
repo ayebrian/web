@@ -6,7 +6,6 @@ import {Link} from 'react-router';
 import {useTranslations} from 'use-intl';
 import {useState, ReactElement, useRef, useMemo} from 'react';
 import {UserDetails} from '@/types/user-details';
-import {Separator} from '@/components/ui/separator';
 
 export function FriendsBlock({friends}: {friends: UserDetails[]}) {
     const t = useTranslations('profile.common-friends');
@@ -19,7 +18,6 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
 
     return (
         <>
-            <Separator className="my-4" />
             <div className="w-full flex flex-col gap-2">
                 <p className="flex flex-row gap-2 mb-2">
                     <span className="flex-1 text-sm font-semibold uppercase text-foreground">
@@ -82,6 +80,7 @@ function List({items}: ListProps) {
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
+            if (virtualizer.isScrolling) return;
             sessionStorage.setItem(
                 'activity.scroll',
                 JSON.stringify({
@@ -101,7 +100,7 @@ function List({items}: ListProps) {
     return (
         <div
             ref={parentRef}
-            className="w-full pb-4 overflow-x-auto overflow-x-auto"
+            className="w-full pb-4 overflow-x-auto scrollbar-none"
         >
             <div
                 ref={parentRef}
@@ -117,7 +116,7 @@ function List({items}: ListProps) {
                         key={item.key}
                         ref={virtualizer.measureElement}
                         data-index={item.index}
-                        className="me-2"
+                        className="pe-2"
                     >
                         {items[item.index].Component}
                     </div>
