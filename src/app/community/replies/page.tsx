@@ -118,11 +118,6 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
         const post = postRef.current;
         const scrollable = scrollableRef.current;
         if (post && scrollable && replyTo.replies.data.length === 0) {
-            console.log(
-                'scrollable',
-                scrollable.getBoundingClientRect().height,
-            );
-            console.log('post', post.getBoundingClientRect().height);
             const fits =
                 scrollable.getBoundingClientRect().height >=
                 post.getBoundingClientRect().height;

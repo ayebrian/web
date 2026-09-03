@@ -170,7 +170,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
-                    className="m-4"
+                    className="my-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -185,7 +185,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
-                    className="m-4"
+                    className="my-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -211,7 +211,7 @@ export function CommunityPage() {
             content = (
                 <>
                     <CreatePostCard
-                        className="m-4"
+                        className="my-4"
                         text={newPostText}
                         onTextChange={setNewPostText}
                         onSubmit={handleCreatePost}
@@ -240,7 +240,7 @@ export function CommunityPage() {
     }
 
     return (
-        <div className="flex flex-col items-center w-full h-full max-w-2xl mx-auto gap-4">
+        <div className="flex flex-col items-center w-full h-full max-w-2xl mx-auto gap-4 px-4">
             {content}
         </div>
     );
@@ -423,7 +423,7 @@ function List({virtualizer, parentRef, items}: ListProps) {
     return (
         <div
             ref={parentRef}
-            className="w-full h-full px-4 overflow-y-auto scrollbar-none"
+            className="w-full h-full overflow-y-auto scrollbar-none"
         >
             <div
                 className="my-4"
