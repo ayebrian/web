@@ -1,32 +1,28 @@
 import {Button} from '@/components/ui/button';
+import {toast} from 'sonner';
+import {CommunityPostDescriptor} from '@/network/friendly-client';
+import {communityPosts} from '@/services/community-posts-service';
+import {forceUnwrap} from '@/network/result';
+import {CommunityDetailsResponse} from '@/network/friendly-client';
+import {useMutation} from '@tanstack/react-query';
 import {MainPostMenu} from '@/app/community/replies/main-post-menu';
-import {Send, Loader2} from 'lucide-react';
+import {Send, Loader2, Pen, X} from 'lucide-react';
 import {cn} from '@/lib/utils';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
 import {Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import {
-    CommunityPostDetails,
-    CommunityPostDetailsPlain,
-} from '@/network/friendly-client';
+import {CommunityPostDetailsPlain} from '@/network/friendly-client';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
-import {RefObject, useEffect, useMemo} from 'react';
+import {RefObject, useEffect, useRef, useState, useMemo} from 'react';
 
 interface MainPostCardProps {
-    post: CommunityPostDetails;
-    inputRef: RefObject<HTMLTextAreaElement | null>;
-    text: string;
-    onEmoji: (value: string) => void;
-    onTextChange: (text: string) => void;
-    onSubmit: () => void;
-    isSubmitting: boolean;
-    onDelete: () => void;
-    isDeleting: boolean;
+    details: CommunityDetailsResponse;
+    postRef: RefObject<HTMLDivElement | null>;
 }
 
 const emojis = [
@@ -46,23 +42,83 @@ const emojis = [
     '🫡',
 ];
 
-export function MainPostCard({
-    post,
-    text,
-    inputRef,
-    onEmoji,
-    onTextChange,
-    onSubmit,
-    isSubmitting,
-    onDelete,
-    isDeleting,
-}: MainPostCardProps) {
+type InputAction = 'send' | 'edit';
+
+export function MainPostCard({details, postRef}: MainPostCardProps) {
+    const app = useAppContext();
+
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+    const createTextBackup = useRef('');
+    const [text, setText] = useState('');
+    const [action, setAction] = useState<InputAction>('send');
+
+    const textTooLong = text.length > 4096;
+    const showTextLength = text.length > 4000;
+
+    const self = users.useSelf(app);
+
+    const deleteMutation = useDeleteMutation({details});
+
+    const createMutation = useCreateMutation({
+        details,
+        onSuccess: () => setText(''),
+    });
+
+    const editMutation = useEditMutation({
+        details,
+        onSuccess: stopEditing,
+    });
+
+    const isSubmitting = createMutation.isPending || editMutation.isPending;
+    const forbidSubmit = isSubmitting || !text.trim() || textTooLong;
+
+    function startEditing() {
+        if (isSubmitting) return;
+        inputRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest',
+        });
+        createTextBackup.current = text;
+        setAction('edit');
+        if (details.post.type !== 'plain') {
+            throw new Error('Can only edit plain posts');
+        }
+        setText(details.post.text);
+    }
+
+    function stopEditing() {
+        setAction('send');
+        setText(createTextBackup.current);
+    }
+
+    function handleSubmit(text: string) {
+        if (forbidSubmit) return;
+        switch (action) {
+            case 'send':
+                createMutation.mutate({
+                    text,
+                    redirect: true,
+                });
+                break;
+            case 'edit':
+                editMutation.mutate(text);
+                break;
+            default:
+                action satisfies never;
+        }
+    }
+
+    function onDelete() {
+        if (isSubmitting) return;
+        deleteMutation.mutate();
+    }
+
     function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
         if (isSubmitting) return;
         if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
             event.preventDefault();
-            if (!event.currentTarget.value.trim()) return;
-            void onSubmit();
+            handleSubmit(event.currentTarget.value.trim());
         }
     }
 
@@ -75,27 +131,28 @@ export function MainPostCard({
     }, [text]);
 
     const t = useTranslations('replies');
-    const app = useAppContext();
-    const selfQuery = users.useSelf(app);
-    const selfAvatarUrl = useMemo(
+
+    const selfAvatar = useMemo(
         () =>
-            selfQuery.data?.user?.avatar
-                ? createFileLink(selfQuery.data.user.avatar)
+            self.data?.user?.avatar
+                ? createFileLink(self.data.user.avatar)
                 : '',
-        [selfQuery],
+        [self],
     );
 
     let card;
-    if (isDeleting) {
+    if (deleteMutation.isPending) {
         card = <MainPostCardLoading />;
     } else
-        switch (post.type) {
+        switch (details.post.type) {
             case 'plain':
                 card = (
                     <MainPostCardPlain
-                        post={post}
+                        post={details.post}
+                        action={action}
                         onDelete={onDelete}
-                        isAuthor={selfQuery.data?.user?.id === post.owner.id}
+                        onEdit={startEditing}
+                        isAuthor={self.data?.user?.id === details.post.owner.id}
                     />
                 );
                 break;
@@ -105,48 +162,84 @@ export function MainPostCard({
         }
 
     return (
-        <div>
+        <div className="scroll-m-30" ref={postRef}>
             {card}
             <div className="h-2" />
             <div className="flex bg-card rounded-xl border border-border flex-row gap-2 px-2 py-1">
                 <StyledAvatar
                     avatarClassName="mt-1 w-8 h-8"
-                    src={selfAvatarUrl}
-                    nickname={selfQuery.data?.user?.nickname ?? ''}
+                    src={selfAvatar}
+                    nickname={self.data?.user?.nickname ?? ''}
                 />
-                <textarea
-                    ref={inputRef}
-                    className={cn(
-                        'w-full content-center',
-                        'text-sm outline-none resize-none',
-                        'scroll-m-60',
-                    )}
-                    id="reply"
-                    value={text}
-                    onKeyDown={onKeyDown}
-                    onChange={e => onTextChange(e.target.value)}
-                    placeholder={t('reply-placeholder')}
-                />
+                <div className="w-full flex flex-col">
+                    <textarea
+                        ref={inputRef}
+                        className={cn(
+                            'w-full content-center',
+                            'text-sm outline-none resize-none',
+                            'scroll-m-60',
+                        )}
+                        id="reply"
+                        value={text}
+                        onKeyDown={onKeyDown}
+                        onChange={e => setText(e.target.value)}
+                        placeholder={t('reply-placeholder')}
+                    />
+                    <div className="w-full flex">
+                        {textTooLong ? (
+                            <div className="text-destructive text-xs mb-2">
+                                {t('too-long')}
+                            </div>
+                        ) : undefined}
+                        <div className="flex-1" />
+                        {showTextLength ? (
+                            <div
+                                className={cn(
+                                    'text-xs mb-2',
+                                    textTooLong ? 'text-destructive' : '',
+                                )}
+                            >
+                                {text.length} / 4096
+                            </div>
+                        ) : undefined}
+                    </div>
+                </div>
                 <Button
                     className="mt-1 w-8 h-8"
-                    onClick={() => void onSubmit()}
-                    disabled={!text.trim() || isSubmitting}
+                    onClick={stopEditing}
+                    variant="ghost"
+                >
+                    {action === 'edit' ? <X /> : undefined}
+                </Button>
+                <Button
+                    className="mt-1 w-8 h-8"
+                    onClick={() => handleSubmit(text)}
+                    disabled={forbidSubmit}
                 >
                     {isSubmitting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
+                    ) : action === 'send' ? (
                         <Send />
+                    ) : (
+                        <Pen />
                     )}
                 </Button>
             </div>
             <div className="h-2" />
-            <div className="flex gap-1 overflow-x-auto scrollbar-none">
+            <div
+                className={cn(
+                    'flex gap-1 overflow-x-auto scrollbar-none',
+                    action === 'edit'
+                        ? 'pointer-events-none opacity-50 select-none'
+                        : '',
+                )}
+            >
                 {emojis.map((emoji, index) => (
                     <Emoji
                         key={index}
                         emoji={emoji}
                         disabled={isSubmitting}
-                        onClick={() => onEmoji(emoji)}
+                        onClick={() => createMutation.mutate({text: emoji})}
                     />
                 ))}
             </div>
@@ -190,11 +283,19 @@ function MainPostCardLoading() {
 
 export interface MainPostCardPlainProps {
     post: CommunityPostDetailsPlain;
+    action: InputAction;
     onDelete: () => void;
+    onEdit: () => void;
     isAuthor: boolean;
 }
 
-function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
+function MainPostCardPlain({
+    post,
+    action,
+    onDelete,
+    onEdit,
+    isAuthor,
+}: MainPostCardPlainProps) {
     const t = useTranslations('post');
     const navigate = useNavigate();
     const storage = useFriendlyStorage();
@@ -214,7 +315,14 @@ function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
     }
 
     return (
-        <div className="bg-card rounded-xl border border-border p-4">
+        <div
+            className={cn(
+                'bg-card rounded-xl border border-border p-4',
+                action === 'edit'
+                    ? 'pointer-events-none opacity-50 select-none'
+                    : '',
+            )}
+        >
             <div className="flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10 cursor-pointer"
@@ -233,11 +341,12 @@ function MainPostCardPlain({post, onDelete, isAuthor}: MainPostCardPlainProps) {
                         <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(t, postTime)}
+                            {post.edited ? ' ' + t('edited') : undefined}
                         </span>
                         <div className="flex-1" />
                         <MainPostMenu
                             onDelete={onDelete}
-                            onEdit={() => {}}
+                            onEdit={onEdit}
                             showDelete={isAuthor}
                         />
                     </div>
@@ -289,4 +398,143 @@ function isMobile(): boolean {
         return !!navigator.userAgentData.mobile;
     }
     return false;
+}
+
+interface UseDeleteMutationProps {
+    details: CommunityDetailsResponse;
+}
+
+function useDeleteMutation({details}: UseDeleteMutationProps) {
+    const app = useAppContext();
+    const navigate = useNavigate();
+    const t = useTranslations('replies');
+
+    async function navigateReplies(descriptor: CommunityPostDescriptor) {
+        await navigate(`/community/${descriptor.id}/replies`);
+    }
+
+    return useMutation({
+        mutationKey: ['communityDelete', details.post.id],
+        mutationFn: async () => {
+            const result = await app.backend.communityDelete({
+                id: details.post.id,
+            });
+            forceUnwrap(result);
+            if (details.replies.data.length === 0) {
+                if (details.upstream.length === 0) {
+                    await communityPosts.prefetchList(app, {staleTime: 0});
+                    await navigate('/community');
+                } else {
+                    const lastUpstream =
+                        details.upstream[details.upstream.length - 1];
+                    await app.queryClient.prefetchInfiniteQuery({
+                        ...communityPosts.repliesOptions(app, lastUpstream),
+                        staleTime: 0,
+                    });
+                    await navigateReplies({...lastUpstream});
+                }
+            } else {
+                await communityPosts.setPost(app, {
+                    type: 'deleted',
+                    id: details.post.id,
+                    accessHash: details.post.accessHash,
+                    instant: details.post.instant,
+                    replyPreviews: details.post.replyPreviews,
+                });
+            }
+        },
+        onError: error => {
+            toast.error(error.message ?? t('post_create_error'));
+        },
+    });
+}
+
+interface UseCreateMutationProps {
+    details: CommunityDetailsResponse;
+    onSuccess: () => void;
+}
+
+function useCreateMutation({details, onSuccess}: UseCreateMutationProps) {
+    const app = useAppContext();
+    const navigate = useNavigate();
+    const t = useTranslations('replies');
+
+    async function navigateReplies(descriptor: CommunityPostDescriptor) {
+        await navigate(`/community/${descriptor.id}/replies`);
+    }
+
+    return useMutation({
+        mutationFn: async (props: {text: string; redirect?: boolean}) => {
+            const post = {
+                replyTo: {
+                    id: details.post.id,
+                    accessHash: details.post.accessHash,
+                },
+                text: props.text,
+            };
+            const result = await app.backend.communityPost(post);
+            const response = {
+                post: {
+                    type: 'plain',
+                    ...post,
+                    ...forceUnwrap(result),
+                    replyPreviews: [],
+                    instant: new Date().toISOString(),
+                    owner: (await users.ensureSelf(app)).user,
+                    edited: false,
+                },
+                replies: {data: [], nextId: null},
+                upstream: [...details.upstream, details.post],
+            } satisfies CommunityDetailsResponse;
+            await communityPosts.setDetails(app, response);
+            if (props.redirect) {
+                void app.queryClient.invalidateQueries({
+                    queryKey: ['communityReplies', details.post.id],
+                });
+                await navigateReplies(response.post);
+                onSuccess();
+            } else {
+                await app.queryClient.prefetchQuery({
+                    queryKey: ['communityReplies', details.post.id],
+                });
+            }
+        },
+        onError: error => {
+            toast.error(error.message ?? t('post_create_error'));
+        },
+    });
+}
+
+interface UseCreateMutationProps {
+    details: CommunityDetailsResponse;
+    onSuccess: () => void;
+}
+
+function useEditMutation({details, onSuccess}: UseCreateMutationProps) {
+    const app = useAppContext();
+    const t = useTranslations('replies');
+
+    return useMutation({
+        mutationFn: async (text: string) => {
+            if (details.post.type !== 'plain') {
+                throw new Error('Can only edit plain posts');
+            }
+
+            forceUnwrap(
+                await app.backend.communityEdit(details.post.id, {
+                    text: {value: text},
+                }),
+            );
+            await communityPosts.setDetails(app, {
+                ...details,
+                post: {
+                    ...details.post,
+                    text,
+                    edited: true,
+                },
+            });
+        },
+        onSuccess,
+        onError: () => toast.error(t('unknown_error')),
+    });
 }

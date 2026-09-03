@@ -1,4 +1,8 @@
-import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
+import {
+    useVirtualizer,
+    VirtualItem,
+    Virtualizer,
+} from '@tanstack/react-virtual';
 import {useNavigationType, NavigationType} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
@@ -84,6 +88,7 @@ export function CommunityPage() {
                 owner: (await users.ensureSelf(app)).user,
                 instant: new Date().toISOString(),
                 replyPreviews: [],
+                edited: false,
             };
             await communityPosts.setDetails(app, {
                 post: details,
@@ -100,15 +105,16 @@ export function CommunityPage() {
         },
         onSuccess: () => {
             setNewPostText('');
+            virtualizer.scrollToOffset(0);
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
         },
     });
 
-    const handleCreatePost = useCallback(async () => {
+    const handleCreatePost = useCallback(() => {
         if (!newPostText.trim()) return;
-        await createPostMutation.mutateAsync(newPostText);
+        createPostMutation.mutate(newPostText);
     }, [newPostText, createPostMutation]);
 
     const posts = useMemo(() => {
@@ -130,9 +136,12 @@ export function CommunityPage() {
         },
     ];
 
+    const parentRef = useRef<HTMLDivElement | null>(null);
+
     items.push(
         ...posts.map(post => {
             return {
+                isPost: true,
                 key: post.id.toString(),
                 Component: (
                     <CommunityPostCard
@@ -154,13 +163,14 @@ export function CommunityPage() {
         });
     }
 
+    const virtualizer = useListVirtualizer({items, parentRef});
     let content;
 
     if (postsQuery.isPending) {
         content = (
             <>
                 <CreatePostCard
-                    className="p-4"
+                    className="m-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -175,7 +185,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
-                    className="p-4"
+                    className="m-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -201,7 +211,7 @@ export function CommunityPage() {
             content = (
                 <>
                     <CreatePostCard
-                        className="p-4"
+                        className="m-4"
                         text={newPostText}
                         onTextChange={setNewPostText}
                         onSubmit={handleCreatePost}
@@ -219,7 +229,13 @@ export function CommunityPage() {
                 </>
             );
         } else {
-            content = <List items={items} />;
+            content = (
+                <List
+                    virtualizer={virtualizer}
+                    items={items}
+                    parentRef={parentRef}
+                />
+            );
         }
     }
 
@@ -234,7 +250,7 @@ interface CreatePostCardProps {
     text: string;
     className?: string;
     onTextChange: (text: string) => void;
-    onSubmit: () => Promise<void>;
+    onSubmit: () => void;
     isSubmitting: boolean;
 }
 
@@ -253,6 +269,10 @@ function CreatePostCard({
         queryFn: async () => forceUnwrap(await backend.getUserDetails2()),
     });
 
+    const textTooLong = text.length > 4096;
+    const showTextLength = text.length > 4000;
+    const forbidSend = isSubmitting || !text.trim() || textTooLong;
+
     const avatarUrl = useMemo(
         () =>
             userQuery.data?.user?.avatar
@@ -270,10 +290,12 @@ function CreatePostCard({
     }, [text]);
 
     return (
-        <div className={cn(
-            "w-full bg-card rounded-xl border border-border p-4",
-            className,
-        )}>
+        <div
+            className={cn(
+                'w-full bg-card rounded-xl border border-border p-4',
+                className,
+            )}
+        >
             <div className="w-full flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
@@ -292,6 +314,16 @@ function CreatePostCard({
                         placeholder={t('placeholder')}
                     />
                     <div className="w-full flex items-center justify-end gap-1">
+                        {showTextLength ? (
+                            <div
+                                className={cn(
+                                    'text-xs mb-2',
+                                    textTooLong ? 'text-destructive' : '',
+                                )}
+                            >
+                                {text.length} / 4096
+                            </div>
+                        ) : undefined}
                         {text.length > 0 && (
                             <Button
                                 onClick={() => onTextChange('')}
@@ -304,8 +336,8 @@ function CreatePostCard({
                             </Button>
                         )}
                         <Button
-                            onClick={() => void onSubmit()}
-                            disabled={!text.trim() || isSubmitting}
+                            onClick={() => forbidSend || onSubmit()}
+                            disabled={forbidSend}
                         >
                             {isSubmitting ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -339,18 +371,17 @@ interface Item {
     Component: ReactElement;
 }
 
-interface ListProps {
-    items: Item[];
-}
-
 interface ScrollState {
     initialOffset: number;
     initialMeasurementsCache: VirtualItem[];
 }
 
-function List({items}: ListProps) {
-    const parentRef = useRef(null);
+interface ListVirtualizerProps {
+    items: Item[];
+    parentRef: React.RefObject<HTMLDivElement | null>;
+}
 
+function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
     const navigationType = useNavigationType();
     const saved = useMemo(() => {
         if (navigationType !== NavigationType.Pop) {
@@ -361,7 +392,7 @@ function List({items}: ListProps) {
         ) as ScrollState;
     }, [navigationType]);
 
-    const virtualizer = useVirtualizer({
+    return useVirtualizer({
         count: items.length,
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
@@ -380,7 +411,15 @@ function List({items}: ListProps) {
             );
         },
     });
+}
 
+interface ListProps {
+    virtualizer: Virtualizer<HTMLDivElement, Element>;
+    parentRef: React.RefObject<HTMLDivElement | null>;
+    items: Item[];
+}
+
+function List({virtualizer, parentRef, items}: ListProps) {
     return (
         <div
             ref={parentRef}

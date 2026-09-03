@@ -32,9 +32,11 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                         {t('friends.see-all')}
                     </Link>
                 </p>
-                {friends.length > 0
-                    ? <List items={items} />
-                    : <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>}
+                {friends.length > 0 ? (
+                    <List items={items} />
+                ) : (
+                    <p hidden={friends.length > 0}>{t('friends.no_friends')}</p>
+                )}
             </div>
             <AllFriendsList
                 friends={friends}

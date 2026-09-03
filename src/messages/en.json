@@ -211,7 +211,8 @@
         "days_ago": "{count, plural, one {# day} other {# days}} ago",
         "reply": "Reply",
         "show-less": "Show less",
-        "show-more": "Show more"
+        "show-more": "Show more",
+        "edited": "(edited)"
     },
     "replies": {
         "reply-placeholder": "Type your reply...",
@@ -231,7 +232,8 @@
             "cancel": "Cancel"
         },
         "go-back": "Go back",
-        "upstream": "Upstream"
+        "upstream": "Upstream",
+        "too-long": "Post can't be longer than 4096 chars"
     },
     "chat": {
         "title": "Work in progress...",

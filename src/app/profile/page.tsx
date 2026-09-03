@@ -36,7 +36,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const [openQR, setOpenQR] = useState(false);
 
     return (
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full px-4 pt-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full">
             {userDetails && (
                 <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}

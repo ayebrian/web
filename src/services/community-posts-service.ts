@@ -65,6 +65,25 @@ function listOptions(app: AppContext) {
     });
 }
 
+function repliesOptions(app: AppContext, descriptor: CommunityPostDescriptor) {
+    return infiniteQueryOptions({
+        queryKey: ['communityReplies', descriptor.id],
+        queryFn: async ({pageParam}: {pageParam: string | null}) => {
+            const result = forceUnwrap(
+                await app.backend.communityReplies({
+                    id: descriptor.id,
+                    accessHash: descriptor.accessHash,
+                    cursorId: pageParam,
+                }),
+            );
+            await Promise.all(result.data.map(post => setPost(app, post)));
+            return result;
+        },
+        initialPageParam: null,
+        getNextPageParam: lastPage => lastPage.nextId,
+    });
+}
+
 function saveDescriptor(
     app: AppContext,
     descriptor: CommunityPostDescriptor,
@@ -136,6 +155,7 @@ function prefetchList(
 
 export const communityPosts = {
     listOptions,
+    repliesOptions,
     saveDescriptor,
     setDetails,
     setPost,
