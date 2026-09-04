@@ -97,6 +97,7 @@ function CommunityPostCardPlain({
                         <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(t, postTime)}
+                            {post.edited ? ' ' + t('edited') : undefined}
                         </span>
                     </div>
                     <MarkdownArea

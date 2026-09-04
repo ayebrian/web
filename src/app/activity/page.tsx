@@ -1,11 +1,12 @@
 import {useMutation} from '@tanstack/react-query';
-import {useVirtualizer} from '@tanstack/react-virtual';
+import {useNavigationType, NavigationType} from 'react-router';
+import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
 import {activity} from '@/services/activity';
 import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
-import {useEffect, useState} from 'react';
+import {useEffect, ReactElement, useRef, useMemo} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -25,7 +26,6 @@ export function ActivityPage() {
     const t = useTranslations('activity');
     const errorMessage = useErrorMessage();
     const app = useAppContext();
-    const [parent, setParent] = useState<Element | null>(null);
 
     const activityQuery = useInfiniteQuery(activity.listOptions(app));
 
@@ -74,7 +74,6 @@ export function ActivityPage() {
                 <ActivityList
                     onFetch={() => void activityQuery.fetchNextPage()}
                     hasNext={activityQuery.hasNextPage}
-                    parent={parent}
                     activity={activity}
                 />
             );
@@ -82,10 +81,7 @@ export function ActivityPage() {
     }
 
     return (
-        <div
-            ref={setParent}
-            className="h-full items-center w-full max-w-2xl mx-auto p-4 gap-4 overflow-y-auto scrollbar-none"
-        >
+        <div className="h-full items-center w-full max-w-2xl mx-auto gap-4">
             {content}
         </div>
     );
@@ -94,13 +90,12 @@ export function ActivityPage() {
 type TimeGroup = 'today' | 'yesterday' | 'older';
 
 interface ActivityListProps {
-    parent: Element | null;
     activity: ActivityDetails[];
     hasNext: boolean;
     onFetch: () => void;
 }
 
-function ActivityList({activity, parent, onFetch, hasNext}: ActivityListProps) {
+function ActivityList({activity, onFetch, hasNext}: ActivityListProps) {
     const app = useAppContext();
 
     useEffect(() => {
@@ -147,66 +142,33 @@ function ActivityList({activity, parent, onFetch, hasNext}: ActivityListProps) {
         return group;
     });
 
-    const flattened = Object.entries(timeGroups).flatMap(
+    const items = Object.entries(timeGroups).flatMap(
         ([timeGroup, activity]) => {
             return [
                 {
                     key: timeGroup,
-                    Render: () => (
+                    Component: (
                         <TimeGroupHeading timeGroup={timeGroup as TimeGroup} />
                     ),
                 },
                 ...activity.map(details => {
                     return {
                         key: details.id.toString(),
-                        Render: () => <ActivityCard id={details.id} />,
+                        Component: <ActivityCard id={details.id} />,
                     };
                 }),
             ];
         },
     );
-    flattened.push({
-        key: 'loader',
-        Render: () => <Loader onAppear={onFetch} hasNext={hasNext} />,
-    });
 
-    const virtualizer = useVirtualizer({
-        count: flattened.length,
-        getItemKey: index => flattened[index].key,
-        getScrollElement: () => parent,
-        estimateSize: () => 100,
-        overscan: 5,
-    });
+    if (hasNext) {
+        items.push({
+            key: 'loader',
+            Component: <Loader onAppear={onFetch} />,
+        });
+    }
 
-    return (
-        <div
-            style={{
-                height: `${virtualizer.getTotalSize()}px`,
-                width: '100%',
-                position: 'relative',
-            }}
-        >
-            {virtualizer.getVirtualItems().map(item => {
-                return (
-                    <div
-                        key={item.key}
-                        ref={virtualizer.measureElement}
-                        data-index={item.index}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            transform: `translateY(${item.start}px)`,
-                            width: '100%',
-                        }}
-                    >
-                        {flattened[item.index].Render()}
-                        <div className="h-2" />
-                    </div>
-                );
-            })}
-        </div>
-    );
+    return <List items={items} />;
 }
 
 interface TimeGroupHeadingProps {
@@ -328,22 +290,14 @@ function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
 }
 
 interface LoaderProps {
-    hasNext: boolean;
     onAppear: () => void;
 }
 
-function Loader({hasNext, onAppear}: LoaderProps) {
+function Loader({onAppear}: LoaderProps) {
     useEffect(() => {
         onAppear();
     }, []);
-    return (
-        <Loader2
-            className={cn(
-                'h-4 w-4 animate-spin mx-auto',
-                hasNext ? '' : 'hidden',
-            )}
-        />
-    );
+    return <Loader2 className="h-4 w-4 animate-spin mx-auto" />;
 }
 
 function formatTimeAgo(
@@ -363,4 +317,86 @@ function formatTimeAgo(
     if (diffHours < 24) return t('hours_ago', {count: diffHours});
     if (diffDays < 7) return t('days_ago', {count: diffDays});
     return date.toLocaleDateString();
+}
+
+interface Item {
+    key: string;
+    Component: ReactElement;
+}
+
+interface ListProps {
+    items: Item[];
+}
+
+interface ScrollState {
+    initialOffset: number;
+    initialMeasurementsCache: VirtualItem[];
+}
+
+function List({items}: ListProps) {
+    const parentRef = useRef(null);
+
+    const navigationType = useNavigationType();
+    const saved = useMemo(() => {
+        if (navigationType !== NavigationType.Pop) {
+            return null;
+        }
+        return JSON.parse(
+            sessionStorage.getItem('activity.scroll') ?? 'null',
+        ) as ScrollState;
+    }, [navigationType]);
+
+    const virtualizer = useVirtualizer({
+        count: items.length,
+        getItemKey: index => items[index].key,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 1000,
+        overscan: 30,
+        initialOffset: saved?.initialOffset,
+        initialMeasurementsCache: saved?.initialMeasurementsCache,
+        onChange: virtualizer => {
+            if (virtualizer.isScrolling) return;
+            sessionStorage.setItem(
+                'activity.scroll',
+                JSON.stringify({
+                    initialOffset: virtualizer.scrollOffset,
+                    initialMeasurementsCache: virtualizer.measurementsCache,
+                }),
+            );
+        },
+    });
+
+    return (
+        <div
+            ref={parentRef}
+            className="w-full h-full overflow-y-auto scrollbar-none px-4"
+        >
+            <div
+                className="my-4"
+                style={{
+                    width: '100%',
+                    height: `${virtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                }}
+            >
+                {virtualizer.getVirtualItems().map(item => (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transform: `translateY(${item.start}px)`,
+                            width: '100%',
+                        }}
+                    >
+                        {items[item.index].Component}
+                        <div className="h-2" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }

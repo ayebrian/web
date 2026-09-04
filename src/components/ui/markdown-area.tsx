@@ -18,7 +18,7 @@ interface MarkdownAreaProps {
     ref?: React.Ref<HTMLDivElement>;
 }
 
-function MarkdownArea(
+function MarkdownAreaComponent(
     {text, className, ref}: MarkdownAreaProps,
 ) {
     return (
@@ -63,4 +63,4 @@ function MarkdownArea(
     );
 }
 
-export {MarkdownArea};
+export const MarkdownArea = React.memo(MarkdownAreaComponent);

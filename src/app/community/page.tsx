@@ -1,4 +1,9 @@
-import {useVirtualizer} from '@tanstack/react-virtual';
+import {
+    useVirtualizer,
+    VirtualItem,
+    Virtualizer,
+} from '@tanstack/react-virtual';
+import {useNavigationType, NavigationType} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
@@ -14,7 +19,13 @@ import {
 } from '@tanstack/react-query';
 import {Loader2, AlertCircle, SquarePen, Newspaper, Trash} from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import React, {useCallback, useMemo, useRef, useEffect} from 'react';
+import React, {
+    ReactElement,
+    useCallback,
+    useMemo,
+    useRef,
+    useEffect,
+} from 'react';
 import {toast} from 'sonner';
 import {newPost} from '@/services/new-post-service';
 import {StyledAvatar} from '@/components/styled-avatar';
@@ -79,6 +90,7 @@ export function CommunityPage() {
                 owner: (await users.ensureSelf(app)).user,
                 instant: new Date().toISOString(),
                 replyPreviews: [],
+                edited: false,
             };
             await communityPosts.setDetails(app, {
                 post: details,
@@ -95,6 +107,7 @@ export function CommunityPage() {
         },
         onSuccess: () => {
             setNewPostText('');
+            virtualizer.scrollToOffset(0);
         },
         onError: error => {
             toast.error(t('post_create_error'), {
@@ -103,9 +116,9 @@ export function CommunityPage() {
         },
     });
 
-    const handleCreatePost = useCallback(async () => {
+    const handleCreatePost = useCallback(() => {
         if (!newPostText.trim()) return;
-        await createPostMutation.mutateAsync(newPostText);
+        createPostMutation.mutate(newPostText);
     }, [newPostText, createPostMutation]);
 
     const posts = useMemo(() => {
@@ -113,10 +126,10 @@ export function CommunityPage() {
         return pages.flatMap(p => p.data);
     }, [postsQuery.data]);
 
-    const elements = [
+    const items = [
         {
             key: 'create-post',
-            Render: () => (
+            Component: (
                 <CreatePostCard
                     text={newPostText}
                     onTextChange={setNewPostText}
@@ -127,11 +140,14 @@ export function CommunityPage() {
         },
     ];
 
-    elements.push(
+    const parentRef = useRef<HTMLDivElement | null>(null);
+
+    items.push(
         ...posts.map(post => {
             return {
+                isPost: true,
                 key: post.id.toString(),
-                Render: () => (
+                Component: (
                     <CommunityPostCard
                         postId={post.id}
                         minimizeToolbar={false}
@@ -142,38 +158,23 @@ export function CommunityPage() {
         }),
     );
 
-    elements.push({
-        key: 'loader',
-        Render: () => (
-            <Loader
-                hasNext={postsQuery.hasNextPage}
-                onAppear={() => void postsQuery.fetchNextPage()}
-            />
-        ),
-    });
+    if (postsQuery.hasNextPage) {
+        items.push({
+            key: 'loader',
+            Component: (
+                <Loader onAppear={() => void postsQuery.fetchNextPage()} />
+            ),
+        });
+    }
 
-    const parentRef = useRef(null);
-
-    const virtualizer = useVirtualizer({
-        count: elements.length,
-        getItemKey: index => elements[index].key,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 200,
-        overscan: 3,
-    });
-
-    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (
-        item,
-        _delta,
-        instance,
-    ) => item.start < (instance.scrollOffset ?? 0);
-
+    const virtualizer = useListVirtualizer({items, parentRef});
     let content;
 
     if (postsQuery.isPending) {
         content = (
             <>
                 <CreatePostCard
+                    className="my-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -188,6 +189,7 @@ export function CommunityPage() {
         content = (
             <>
                 <CreatePostCard
+                    className="my-4"
                     text={newPostText}
                     onTextChange={setNewPostText}
                     onSubmit={handleCreatePost}
@@ -213,6 +215,7 @@ export function CommunityPage() {
             content = (
                 <>
                     <CreatePostCard
+                        className="my-4"
                         text={newPostText}
                         onTextChange={setNewPostText}
                         onSubmit={handleCreatePost}
@@ -231,41 +234,17 @@ export function CommunityPage() {
             );
         } else {
             content = (
-                <div
-                    className="shrink-0"
-                    style={{
-                        minHeight: `${virtualizer.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative',
-                    }}
-                >
-                    {virtualizer.getVirtualItems().map(item => (
-                        <div
-                            key={item.key}
-                            ref={virtualizer.measureElement}
-                            data-index={item.index}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                transform: `translateY(${item.start}px)`,
-                                width: '100%',
-                            }}
-                        >
-                            {elements[item.index].Render()}
-                            <div className="h-4" />
-                        </div>
-                    ))}
-                </div>
+                <List
+                    virtualizer={virtualizer}
+                    items={items}
+                    parentRef={parentRef}
+                />
             );
         }
     }
 
     return (
-        <div
-            ref={parentRef}
-            className="flex flex-col items-center w-full h-full max-w-2xl mx-auto px-4 py-4 gap-4 overflow-y-auto scrollbar-none"
-        >
+        <div className="flex flex-col items-center w-full h-full max-w-2xl mx-auto gap-4 px-4">
             {content}
         </div>
     );
@@ -273,13 +252,15 @@ export function CommunityPage() {
 
 interface CreatePostCardProps {
     text: string;
+    className?: string;
     onTextChange: (text: string) => void;
-    onSubmit: () => Promise<void>;
+    onSubmit: () => void;
     isSubmitting: boolean;
 }
 
 function CreatePostCard({
     text,
+    className,
     onTextChange,
     onSubmit,
     isSubmitting,
@@ -291,6 +272,10 @@ function CreatePostCard({
         queryKey: ['userDetails'],
         queryFn: async () => forceUnwrap(await backend.getUserDetails2()),
     });
+
+    const textTooLong = text.length > 4096;
+    const showTextLength = text.length > 4000;
+    const forbidSend = isSubmitting || !text.trim() || textTooLong;
 
     const avatarUrl = useMemo(
         () =>
@@ -309,7 +294,12 @@ function CreatePostCard({
     }, [text]);
 
     return (
-        <div className="w-full bg-card rounded-xl border border-border p-4">
+        <div
+            className={cn(
+                'w-full bg-card rounded-xl border border-border p-4',
+                className,
+            )}
+        >
             <div className="w-full flex gap-3">
                 <StyledAvatar
                     avatarClassName="w-10 h-10"
@@ -328,6 +318,16 @@ function CreatePostCard({
                         placeholder={t('placeholder')}
                     />
                     <div className="w-full flex items-center justify-end gap-1">
+                        {showTextLength ? (
+                            <div
+                                className={cn(
+                                    'text-xs mb-2',
+                                    textTooLong ? 'text-destructive' : '',
+                                )}
+                            >
+                                {text.length} / 4096
+                            </div>
+                        ) : undefined}
                         {text.length > 0 && (
                             <Button
                                 onClick={() => onTextChange('')}
@@ -340,8 +340,8 @@ function CreatePostCard({
                             </Button>
                         )}
                         <Button
-                            onClick={() => void onSubmit()}
-                            disabled={!text.trim() || isSubmitting}
+                            onClick={() => forbidSend || onSubmit()}
+                            disabled={forbidSend}
                         >
                             {isSubmitting ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -360,20 +360,101 @@ function CreatePostCard({
 }
 
 interface LoaderProps {
-    hasNext: boolean;
     onAppear: () => void;
 }
 
-function Loader({hasNext, onAppear}: LoaderProps) {
+function Loader({onAppear}: LoaderProps) {
     useEffect(() => {
         onAppear();
     }, []);
+    return <Loader2 className="h-4 w-4 animate-spin mx-auto" />;
+}
+
+interface Item {
+    key: string;
+    Component: ReactElement;
+}
+
+interface ScrollState {
+    initialOffset: number;
+    initialMeasurementsCache: VirtualItem[];
+}
+
+interface ListVirtualizerProps {
+    items: Item[];
+    parentRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
+    const navigationType = useNavigationType();
+    const saved = useMemo(() => {
+        if (navigationType !== NavigationType.Pop) {
+            return null;
+        }
+        return JSON.parse(
+            sessionStorage.getItem('activity.scroll') ?? 'null',
+        ) as ScrollState;
+    }, [navigationType]);
+
+    return useVirtualizer({
+        count: items.length,
+        getItemKey: index => items[index].key,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 1000,
+        overscan: 10,
+        initialOffset: saved?.initialOffset,
+        initialMeasurementsCache: saved?.initialMeasurementsCache,
+        onChange: virtualizer => {
+            if (virtualizer.isScrolling) return;
+            sessionStorage.setItem(
+                'activity.scroll',
+                JSON.stringify({
+                    initialOffset: virtualizer.scrollOffset,
+                    initialMeasurementsCache: virtualizer.measurementsCache,
+                }),
+            );
+        },
+    });
+}
+
+interface ListProps {
+    virtualizer: Virtualizer<HTMLDivElement, Element>;
+    parentRef: React.RefObject<HTMLDivElement | null>;
+    items: Item[];
+}
+
+function List({virtualizer, parentRef, items}: ListProps) {
     return (
-        <Loader2
-            className={cn(
-                'h-4 w-4 animate-spin mx-auto',
-                hasNext ? '' : 'hidden',
-            )}
-        />
+        <div
+            ref={parentRef}
+            className="w-full h-full overflow-y-auto scrollbar-none"
+        >
+            <div
+                className="my-4"
+                style={{
+                    width: '100%',
+                    height: `${virtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                }}
+            >
+                {virtualizer.getVirtualItems().map(item => (
+                    <div
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transform: `translateY(${item.start}px)`,
+                            width: '100%',
+                        }}
+                    >
+                        {items[item.index].Component}
+                        <div className="h-4" />
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }

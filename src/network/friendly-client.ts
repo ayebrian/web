@@ -72,6 +72,10 @@ export interface FriendlyClient {
     communityDelete(
         request: CommunityDeleteRequest,
     ): Promise<Result<void, NetworkError>>;
+    communityEdit(
+        id: CommunityPostId,
+        request: CommunityEditRequest,
+    ): Promise<Result<void, NetworkError>>;
     activityList(
         request: ActivityListRequest,
     ): Promise<Result<ActivityListResponse, NetworkError>>;
@@ -397,6 +401,17 @@ export class FriendlyClientImpl implements FriendlyClient {
         );
     }
 
+    communityEdit(
+        id: CommunityPostId,
+        request: CommunityEditRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.safeRequest(
+            this.client
+                .post(`/community/${id}/edit`, request)
+                .then(() => undefined),
+        );
+    }
+
     activityList({
         cursorId,
     }: ActivityListRequest): Promise<
@@ -568,6 +583,10 @@ export interface CommunityDeleteRequest {
     id: number;
 }
 
+export interface CommunityEditRequest {
+    text: EditField<string>;
+}
+
 export interface ActivityListRequest {
     cursorId: string | null;
 }
@@ -604,6 +623,7 @@ export interface CommunityPostDetailsPlain {
     replyPreviews: UserDetails[];
     text: string;
     owner: UserDetails;
+    edited: boolean;
 }
 
 export interface CommunityPostDetailsDeleted {

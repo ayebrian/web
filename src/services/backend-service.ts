@@ -14,12 +14,14 @@ import {
     CommunityDetailsRequest,
     CommunityDetailsResponse,
     CommunityDeleteRequest,
+    CommunityEditRequest,
     ActivityListRequest,
     ActivityListResponse,
     ActivityReadRequest,
     NetworkDetailsResponse,
     SendFriendRequest,
     CommunityPostDescriptor,
+    CommunityPostId,
 } from '@/network/friendly-client';
 import {NetworkError} from '@/network/errors';
 import {err, ok, Result} from '@/network/result';
@@ -172,6 +174,13 @@ export class BackendService {
         request: CommunityDeleteRequest,
     ): Promise<Result<void, NetworkError>> {
         return this.client.communityDelete(request);
+    }
+
+    communityEdit(
+        id: CommunityPostId,
+        request: CommunityEditRequest,
+    ): Promise<Result<void, NetworkError>> {
+        return this.client.communityEdit(id, request);
     }
 
     async activityList(

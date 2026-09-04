@@ -28,7 +28,7 @@ export function FriendCard({friend}: {friend: UserDetails}) {
     return (
         <div
             key={friend.id}
-            className="shrink-0 cursor-pointer"
+            className="cursor-pointer"
             onClick={() => void openFriendPage()}
         >
             <div className="flex flex-col items-center bg-card hover:bg-accent rounded-xl border border-border p-4 shadow-sm transition-colors h-45 w-36">

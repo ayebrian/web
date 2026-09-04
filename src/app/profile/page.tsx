@@ -36,7 +36,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
     const [openQR, setOpenQR] = useState(false);
 
     return (
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full">
             {userDetails && (
                 <EditProfileDialog open={openEdit} setOpen={setOpenEdit} />
             )}
@@ -170,15 +170,12 @@ export function ProfilePage() {
         );
     } else {
         content = (
-            <div className="flex flex-col gap-2 pb-12">
+            <div className="flex flex-col gap-2 pb-12 p-4 sm:p-8 gap-8 w-full">
                 <ProfileHeader logOut={logOut} />
                 <Separator />
-
-                <div className="flex flex-1 flex-col gap-8 p-8 min-w-0">
-                    <InterestsBlock interests={user?.user?.interests ?? []} />
-                    <Separator className="my-4" />
-                    <FriendsBlock friends={friends} />
-                </div>
+                <InterestsBlock interests={user?.user?.interests ?? []} />
+                <Separator />
+                <FriendsBlock friends={friends} />
             </div>
         );
     }
