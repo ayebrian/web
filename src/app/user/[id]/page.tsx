@@ -244,7 +244,7 @@ export default function UserPage() {
         );
     } else {
         content = (
-            <div className="flex flex-col gap-2 pb-12 p-8 gap-8 w-full">
+            <div className="flex flex-col gap-2 pb-12 p-4 sm:p-8 gap-8 w-full">
                 <ProfileHeader
                     userDetails={userQuery.data.user}
                     onDecline={declineFriend}
