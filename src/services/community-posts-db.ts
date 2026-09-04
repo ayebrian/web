@@ -35,7 +35,7 @@ export class CommunityPostsDB {
         });
     }
 
-    async save(pair: CommunityPostDescriptor): Promise<void> {
+    async save(pairs: CommunityPostDescriptor[]): Promise<void> {
         if (typeof window === 'undefined') {
             return Promise.reject(
                 new Error('IndexedDB is only available in the browser.'),
@@ -46,13 +46,19 @@ export class CommunityPostsDB {
         return new Promise((resolve, reject) => {
             const transaction = db.transaction(STORE_NAME, 'readwrite');
             const store = transaction.objectStore(STORE_NAME);
-            const request = store.put(pair);
 
-            request.onsuccess = () => resolve();
-            request.onerror = () =>
+            for (const pair of pairs) {
+                store.put(pair);
+            }
+
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () =>
                 reject(
-                    request.error ?? new Error('Failed to save a post pair.'),
+                    transaction.error ??
+                        new Error('Failed to save a post pair.'),
                 );
+            transaction.onabort = () =>
+                reject(new Error('Transaction aborted'));
         });
     }
 

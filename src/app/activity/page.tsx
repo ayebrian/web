@@ -209,10 +209,12 @@ function ActivityCard({id}: ActivityCardProps) {
     const readMutation = useMutation({
         mutationKey: ['activityRead', id],
         mutationFn: async () => {
-            await activity.setDetails(app, {
-                ...details,
-                isRead: true,
-            });
+            await activity.setDetails(app, [
+                {
+                    ...details,
+                    isRead: true,
+                },
+            ]);
             forceUnwrap(await app.backend.activityRead({id}));
         },
     });

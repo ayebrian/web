@@ -1,4 +1,5 @@
 import {AppContext} from '@/app.context';
+import {CommunityPostDetails} from '@/network/friendly-client';
 import {Resource} from '@/network/resource';
 import {forceUnwrap} from '@/network/result';
 import {
@@ -17,19 +18,9 @@ function listOptions(app: AppContext) {
             const result = forceUnwrap(
                 await app.backend.activityList({cursorId: pageParam}),
             );
-            await Promise.all(
-                result.data.map(activity => setDetails(app, activity)),
-            );
-            await Promise.all(
-                result.data
-                    .filter(activity => activity.type === 'reply')
-                    .map(activity =>
-                        communityPosts.setPost(app, {
-                            type: 'plain',
-                            ...activity.post,
-                        }),
-                    ),
-            );
+            const start = performance.now();
+            await setDetails(app, result.data);
+            console.log(`Saved activity list in ${performance.now() - start}`);
             return result;
         },
         initialPageParam: null as string | null,
@@ -47,18 +38,17 @@ function detailsOptions(id: ActivityId) {
     });
 }
 
-async function setDetails(app: AppContext, value: ActivityDetails) {
-    switch (value.type) {
-        case 'reply':
-            await communityPosts.setPost(app, {
-                type: 'plain',
-                ...value.post,
-            });
-            break;
-        default:
-            value satisfies never;
+async function setDetails(app: AppContext, values: ActivityDetails[]) {
+    const replies = values
+        .filter(value => value.type === 'reply')
+        .map(
+            value =>
+                ({type: 'plain', ...value.post}) satisfies CommunityPostDetails,
+        );
+    await communityPosts.setPosts(app, replies);
+    for (const value of values) {
+        app.queryClient.setQueryData(detailsOptions(value.id).queryKey, value);
     }
-    app.queryClient.setQueryData(detailsOptions(value.id).queryKey, value);
 }
 
 function useDetails(id: ActivityId): Resource<ActivityDetails> {

@@ -139,10 +139,6 @@ function ReplyContent({id, replyTo}: ReplyContentProps) {
 
     const postsQuery = useInfiniteQuery({
         ...communityPosts.repliesOptions(app, replyTo.post),
-        initialData: {
-            pages: [replyTo.replies],
-            pageParams: [null],
-        },
     });
 
     const pages = postsQuery.data?.pages ?? [];

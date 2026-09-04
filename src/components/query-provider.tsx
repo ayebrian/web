@@ -15,9 +15,31 @@ import {ReactNode} from 'react';
  * @see https://github.com/TanStack/query/discussions/3198#discussion-3801221
  */
 export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
+    const throttle = 1000;
+
+    let lastSavedMillis = 0;
+    let timeout: number | undefined;
+
+    function persistClient(client: PersistedClient) {
+        if (timeout !== undefined) {
+            clearTimeout(timeout);
+        }
+        const millis = Date.now();
+        if (millis - lastSavedMillis > throttle) {
+            void set(idbValidKey, client);
+            lastSavedMillis = millis;
+        } else {
+            const haveToWait = throttle - (millis - lastSavedMillis);
+            timeout = window.setTimeout(
+                () => persistClient(client),
+                haveToWait,
+            );
+        }
+    }
+
     return {
         persistClient: async (client: PersistedClient) => {
-            await set(idbValidKey, client);
+            persistClient(client);
         },
         restoreClient: async () => {
             return await get<PersistedClient>(idbValidKey);

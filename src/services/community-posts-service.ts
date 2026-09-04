@@ -31,13 +31,24 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
             const result = forceUnwrap(
                 await app.backend.communityDetails(descriptor),
             );
-            await setPost(app, result.post);
-            await Promise.all(
-                result.replies.data.map(reply => setPost(app, reply)),
+            await setPosts(app, [result.post]);
+            const cachedReplies = app.queryClient.getQueryData(
+                repliesOptions(app, result.post).queryKey,
             );
-            await Promise.all(
-                result.upstream.map(upstream => setPost(app, upstream)),
-            );
+            if (
+                JSON.stringify(cachedReplies?.pages?.[0]?.data) !==
+                JSON.stringify(result.replies.data)
+            ) {
+                app.queryClient.setQueryData(
+                    repliesOptions(app, result.post).queryKey,
+                    {
+                        pages: [result.replies],
+                        pageParams: [null],
+                    },
+                );
+            }
+            await setPosts(app, result.replies.data);
+            await setPosts(app, result.upstream);
             return result;
         },
     });
@@ -50,13 +61,12 @@ function listOptions(app: AppContext) {
             const result = forceUnwrap(
                 await app.backend.communityList({cursorId: pageParam}),
             );
-            await Promise.all(
-                result.data.map(post =>
-                    communityPosts.setPost(app, {
-                        type: 'plain',
-                        ...post,
-                    }),
-                ),
+            await setPosts(
+                app,
+                result.data.map(post => ({
+                    type: 'plain',
+                    ...post,
+                })),
             );
             return result;
         },
@@ -76,7 +86,7 @@ function repliesOptions(app: AppContext, descriptor: CommunityPostDescriptor) {
                     cursorId: pageParam,
                 }),
             );
-            await Promise.all(result.data.map(post => setPost(app, post)));
+            await setPosts(app, result.data);
             return result;
         },
         initialPageParam: null,
@@ -84,24 +94,31 @@ function repliesOptions(app: AppContext, descriptor: CommunityPostDescriptor) {
     });
 }
 
-function saveDescriptor(
+function saveDescriptors(
     app: AppContext,
-    descriptor: CommunityPostDescriptor,
+    descriptors: CommunityPostDescriptor[],
 ): Promise<void> {
-    return app.storage.communityPosts.save(descriptor);
+    return app.storage.communityPosts.save(descriptors);
 }
 
-async function setDetails(app: AppContext, value: CommunityDetailsResponse) {
-    app.queryClient.setQueryData(
-        postDetailsOptions(app, value.post.id).queryKey,
-        value,
+async function setDetails(app: AppContext, values: CommunityDetailsResponse[]) {
+    for (const value of values) {
+        app.queryClient.setQueryData(
+            postDetailsOptions(app, value.post.id).queryKey,
+            value,
+        );
+    }
+    await setPosts(
+        app,
+        values.map(value => value.post),
     );
-    await setPost(app, value.post);
 }
 
-async function setPost(app: AppContext, value: CommunityPostDetails) {
-    await app.storage.communityPosts.save(value);
-    app.queryClient.setQueryData(postOptions(value.id).queryKey, value);
+async function setPosts(app: AppContext, values: CommunityPostDetails[]) {
+    await app.storage.communityPosts.save(values);
+    for (const value of values) {
+        app.queryClient.setQueryData(postOptions(value.id).queryKey, value);
+    }
 }
 
 function useDetails(
@@ -156,9 +173,9 @@ function prefetchList(
 export const communityPosts = {
     listOptions,
     repliesOptions,
-    saveDescriptor,
+    saveDescriptors,
     setDetails,
-    setPost,
+    setPosts,
     useDetails,
     usePost,
     invalidateDetails,

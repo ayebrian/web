@@ -46,13 +46,12 @@ export function CommunityPage() {
             const result = forceUnwrap(
                 await backend.communityList({cursorId: pageParam}),
             );
-            await Promise.all(
-                result.data.map(post =>
-                    communityPosts.setPost(app, {
-                        type: 'plain',
-                        ...post,
-                    }),
-                ),
+            await communityPosts.setPosts(
+                app,
+                result.data.map(post => ({
+                    type: 'plain',
+                    ...post,
+                })),
             );
             return result;
         },
@@ -90,14 +89,16 @@ export function CommunityPage() {
                 replyPreviews: [],
                 edited: false,
             };
-            await communityPosts.setDetails(app, {
-                post: details,
-                replies: {
-                    data: [],
-                    nextId: null,
+            await communityPosts.setDetails(app, [
+                {
+                    post: details,
+                    replies: {
+                        data: [],
+                        nextId: null,
+                    },
+                    upstream: [],
                 },
-                upstream: [],
-            });
+            ]);
             await queryClient.invalidateQueries({
                 queryKey: ['communityPosts'],
             });

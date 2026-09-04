@@ -434,13 +434,15 @@ function useDeleteMutation({details}: UseDeleteMutationProps) {
                     await navigateReplies({...lastUpstream});
                 }
             } else {
-                await communityPosts.setPost(app, {
-                    type: 'deleted',
-                    id: details.post.id,
-                    accessHash: details.post.accessHash,
-                    instant: details.post.instant,
-                    replyPreviews: details.post.replyPreviews,
-                });
+                await communityPosts.setPosts(app, [
+                    {
+                        type: 'deleted',
+                        id: details.post.id,
+                        accessHash: details.post.accessHash,
+                        instant: details.post.instant,
+                        replyPreviews: details.post.replyPreviews,
+                    },
+                ]);
             }
         },
         onError: error => {
@@ -486,7 +488,7 @@ function useCreateMutation({details, onSuccess}: UseCreateMutationProps) {
                 replies: {data: [], nextId: null},
                 upstream: [...details.upstream, details.post],
             } satisfies CommunityDetailsResponse;
-            await communityPosts.setDetails(app, response);
+            await communityPosts.setDetails(app, [response]);
             if (props.redirect) {
                 void app.queryClient.invalidateQueries({
                     queryKey: ['communityReplies', details.post.id],
@@ -525,14 +527,16 @@ function useEditMutation({details, onSuccess}: UseCreateMutationProps) {
                     text: {value: text},
                 }),
             );
-            await communityPosts.setDetails(app, {
-                ...details,
-                post: {
-                    ...details.post,
-                    text,
-                    edited: true,
+            await communityPosts.setDetails(app, [
+                {
+                    ...details,
+                    post: {
+                        ...details.post,
+                        text,
+                        edited: true,
+                    },
                 },
-            });
+            ]);
         },
         onSuccess,
         onError: () => toast.error(t('unknown_error')),
