@@ -162,7 +162,7 @@ export function MainPostCard({details, postRef}: MainPostCardProps) {
         }
 
     return (
-        <div className="scroll-m-30" ref={postRef}>
+        <div className="scroll-m-40" ref={postRef}>
             {card}
             <div className="h-2" />
             <div className="flex bg-card rounded-xl border border-border flex-row gap-2 px-2 py-1">
