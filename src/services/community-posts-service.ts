@@ -32,6 +32,8 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
                 await app.backend.communityDetails(descriptor),
             );
             await setPosts(app, [result.post]);
+            await communityPosts.setPosts(app, result.replies.data);
+            await communityPosts.setPosts(app, result.upstream);
             const cachedReplies = app.queryClient.getQueryData(
                 repliesOptions(app, result.post).queryKey,
             );
