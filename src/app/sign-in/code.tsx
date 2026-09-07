@@ -90,6 +90,7 @@ function CodeDialogContent({email}: CodeDialogProps): ReactNode {
             } else {
                 toast.error(t('error-connection'));
             }
+            setLoading(false);
             return;
         }
         authService.save(app, result.data);

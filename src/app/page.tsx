@@ -52,6 +52,9 @@ export function AuthorizedGuard() {
             void navigate('/blocking-qr');
         }
     }, [session.status, navigate]);
+    if (session.status !== 'authed') {
+        return;
+    }
     return <Outlet />;
 }
 
@@ -64,5 +67,8 @@ export function UnauthorizedGuard() {
             return void navigate('/');
         }
     }, [session.status, navigate]);
+    if (session.status === 'authed') {
+        return;
+    }
     return <Outlet />;
 }

@@ -62,6 +62,7 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
                 } else {
                     toast.error(t('error-connection'));
                 }
+                setLoading(false);
                 return;
             }
             const self = users.self(app).data!;
@@ -81,9 +82,9 @@ function EmailDialogContent({setOpen, email}: EmailDialogProps): ReactNode {
     return (
         <div
             className="
-        rounded-xl bg-popover
-        shadow-xl
-        "
+            rounded-xl bg-popover
+            shadow-xl
+            "
         >
             <div className="relative flex items-center mt-1 mx-1">
                 <Dialog.Title className="w-full text-base font-semibold text-center pt-2">
