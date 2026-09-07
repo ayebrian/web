@@ -4,7 +4,7 @@ import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
 import {AllFriendsList} from './all-friends-list';
 import {Link} from 'react-router';
 import {useTranslations} from 'use-intl';
-import {useState, ReactElement, useRef, useMemo} from 'react';
+import {useEffect, useState, ReactElement, useRef, useMemo} from 'react';
 import {UserDetails} from '@/types/user-details';
 
 export function FriendsBlock({friends}: {friends: UserDetails[]}) {
@@ -76,7 +76,7 @@ function List({items}: ListProps) {
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 100,
-        overscan: 10,
+        overscan: useOverscanAnimation(10),
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
@@ -124,4 +124,16 @@ function List({items}: ListProps) {
             </div>
         </div>
     );
+}
+
+function useOverscanAnimation(target: number): number {
+    const [overscan, setOverscan] = useState(0);
+    useEffect(() => {
+        if (overscan >= target) return;
+        const callback = requestIdleCallback(() => {
+            setOverscan(value => value + 1);
+        });
+        return () => cancelIdleCallback(callback);
+    }, [overscan]);
+    return overscan;
 }

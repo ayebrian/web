@@ -25,6 +25,7 @@ import React, {
     useMemo,
     useRef,
     useEffect,
+    useState,
 } from 'react';
 import {toast} from 'sonner';
 import {newPost} from '@/services/new-post-service';
@@ -399,7 +400,7 @@ function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 1000,
-        overscan: 10,
+        overscan: useOverscanAnimation(10),
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
@@ -413,6 +414,19 @@ function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
             );
         },
     });
+}
+
+function useOverscanAnimation(target: number): number {
+    const [overscan, setOverscan] = useState(0);
+    useEffect(() => {
+        if (overscan >= target) return;
+        const callback = requestIdleCallback(() => {
+            console.log('Idle!');
+            setOverscan(value => value + 1);
+        });
+        return () => cancelIdleCallback(callback);
+    }, [overscan]);
+    return overscan;
 }
 
 interface ListProps {

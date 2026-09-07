@@ -6,7 +6,7 @@ import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
-import {useEffect, ReactElement, useRef, useMemo} from 'react';
+import {useState, useEffect, ReactElement, useRef, useMemo} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
@@ -347,7 +347,7 @@ function List({items}: ListProps) {
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 1000,
-        overscan: 30,
+        overscan: useOverscanAnimation(30),
         initialOffset: saved?.initialOffset,
         initialMeasurementsCache: saved?.initialMeasurementsCache,
         onChange: virtualizer => {
@@ -396,4 +396,16 @@ function List({items}: ListProps) {
             </div>
         </div>
     );
+}
+
+function useOverscanAnimation(target: number): number {
+    const [overscan, setOverscan] = useState(0);
+    useEffect(() => {
+        if (overscan >= target) return;
+        const callback = requestIdleCallback(() => {
+            setOverscan(value => value + 1);
+        });
+        return () => cancelIdleCallback(callback);
+    }, [overscan]);
+    return overscan;
 }

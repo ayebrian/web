@@ -3,7 +3,7 @@ import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
-import {MarkdownHooks} from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import {cn} from '@/lib/utils';
 
 const linkClass = cn(
@@ -30,7 +30,7 @@ function MarkdownAreaComponent(
                 "break-words space-y-[1em] leading-5",
                 className,
             )}>
-            <MarkdownHooks
+            <ReactMarkdown
                 remarkPlugins={[remarkBreaks, remarkGfm]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize]}
                 components={{
@@ -58,7 +58,7 @@ function MarkdownAreaComponent(
                 }}
             >
                 {text}
-            </MarkdownHooks>
+            </ReactMarkdown>
         </div>
     );
 }
