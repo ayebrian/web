@@ -509,7 +509,7 @@ function useCreateMutation({
                 await navigateReplies(response.post);
                 onSuccess();
             } else {
-                await app.queryClient.prefetchQuery({
+                await app.queryClient.invalidateQueries({
                     queryKey: ['communityReplies', details.post.id],
                 });
             }
