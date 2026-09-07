@@ -7,7 +7,12 @@ import {useTranslations} from 'use-intl';
 import {useEffect, useState, ReactElement, useRef, useMemo} from 'react';
 import {UserDetails} from '@/types/user-details';
 
-export function FriendsBlock({friends}: {friends: UserDetails[]}) {
+export interface FriendsBlockProps {
+    friends: UserDetails[];
+    id: number;
+}
+
+export function FriendsBlock({friends, id}: FriendsBlockProps) {
     const t = useTranslations('profile.common-friends');
     const [showAll, setShowAll] = useState(false);
 
@@ -32,7 +37,7 @@ export function FriendsBlock({friends}: {friends: UserDetails[]}) {
                         {t('see-all')}
                     </Link>
                 </p>
-                <List items={items} />
+                <List items={items} id={id} />
             </div>
             <AllFriendsList
                 friends={friends}
@@ -50,6 +55,7 @@ interface Item {
 
 interface ListProps {
     items: Item[];
+    id: number;
 }
 
 interface ScrollState {
@@ -57,7 +63,7 @@ interface ScrollState {
     initialMeasurementsCache: VirtualItem[];
 }
 
-function List({items}: ListProps) {
+function List({items, id}: ListProps) {
     const parentRef = useRef(null);
 
     const navigationType = useNavigationType();
@@ -66,7 +72,7 @@ function List({items}: ListProps) {
             return null;
         }
         return JSON.parse(
-            sessionStorage.getItem('activity.scroll') ?? 'null',
+            sessionStorage.getItem(`user.${id}.scroll`) ?? 'null',
         ) as ScrollState;
     }, [navigationType]);
 
@@ -82,7 +88,7 @@ function List({items}: ListProps) {
         onChange: virtualizer => {
             if (virtualizer.isScrolling) return;
             sessionStorage.setItem(
-                'activity.scroll',
+                `user.${id}.scroll`,
                 JSON.stringify({
                     initialOffset: virtualizer.scrollOffset,
                     initialMeasurementsCache: virtualizer.measurementsCache,

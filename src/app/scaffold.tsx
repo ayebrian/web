@@ -40,7 +40,7 @@ export function Scaffold({children}: ScaffoldProps): ReactNode {
     return (
         <div className="flex flex-col h-dvh w-dvw bg-background">
             <TopBar {...topBar} />
-            <div className="flex-1 h-full flex min-h-0">
+            <div className="flex-1 flex min-h-0">
                 {showMenu && (
                     <>
                         <div

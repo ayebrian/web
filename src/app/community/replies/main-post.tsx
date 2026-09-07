@@ -58,7 +58,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
 
     const self = users.useSelf(app);
 
-    const deleteMutation = useDeleteMutation({details, popDepth});
+    const deleteMutation = useDeleteMutation({details, popDepth: popDepth - 1});
 
     const createMutation = useCreateMutation({
         details,
@@ -475,7 +475,6 @@ function useCreateMutation({
     async function navigateReplies(descriptor: CommunityPostDescriptor) {
         await navigate(`/community/${descriptor.id}/replies`, {
             state: {popDepth} as unknown,
-            replace: true,
         });
     }
 

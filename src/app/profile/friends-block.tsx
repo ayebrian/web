@@ -70,7 +70,7 @@ function List({items}: ListProps) {
             return null;
         }
         return JSON.parse(
-            sessionStorage.getItem('activity.scroll') ?? 'null',
+            sessionStorage.getItem('profile.scroll') ?? 'null',
         ) as ScrollState;
     }, [navigationType]);
 
@@ -86,7 +86,7 @@ function List({items}: ListProps) {
         onChange: virtualizer => {
             if (virtualizer.isScrolling) return;
             sessionStorage.setItem(
-                'activity.scroll',
+                'profile.scroll',
                 JSON.stringify({
                     initialOffset: virtualizer.scrollOffset,
                     initialMeasurementsCache: virtualizer.measurementsCache,

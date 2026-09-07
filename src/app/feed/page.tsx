@@ -6,7 +6,7 @@ import {users} from '@/services/users-service';
 import {Button} from '@/components/ui/button';
 import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
-import {Activity, BookUser, Loader2} from 'lucide-react';
+import {Activity, BookUser, Loader2, X, Check, Heart} from 'lucide-react';
 import {useCallback, useState} from 'react';
 import {useTranslations} from 'use-intl';
 import {EditProfileDialog} from '@/app/edit/dialog';
@@ -146,21 +146,51 @@ export default function FeedPage() {
     }
 
     return (
-        <div className="w-full min-h-full sm:p-4 flex flex-col justify-center items-center">
+        <div className={cn('w-full h-full flex flex-row justify-center')}>
             <div
                 className={cn(
-                    'min-h-full w-full shrink-0 sm:w-90 md:w-110',
-                    'sm:rounded-2xl bg-card',
-                    'transition-[width] duration-300 ease-in-out',
+                    'h-full flex overflow-y-auto scrollbar-none sm:py-4',
                 )}
             >
-                {selectedCard && (
-                    <FeedDialog
-                        selectedCard={selectedCard}
-                        loading={loading}
-                        handleReview={direction => void handleReview(direction)}
-                    />
-                )}
+                <div
+                    className={cn(
+                        'my-auto',
+                        'w-full shrink-0 sm:w-90 md:w-100',
+                        'sm:rounded-2xl sm:border sm:border-border bg-card',
+                        'transition-[width] duration-300 ease-in-out',
+                    )}
+                >
+                    {selectedCard && (
+                        <FeedDialog
+                            selectedCard={selectedCard}
+                            loading={loading}
+                            handleReview={direction =>
+                                void handleReview(direction)
+                            }
+                        />
+                    )}
+                </div>
+            </div>
+            <div className="sm:flex flex-col hidden ms-4 self-center gap-2">
+                <Button
+                    className="h-15 w-15 cursor-pointer rounded-full"
+                    disabled={loading}
+                    onClick={() => void handleReview('right')}
+                >
+                    {selectedCard.isRequest ? (
+                        <Check className="h-8 w-8" />
+                    ) : (
+                        <Heart className="h-8 w-8" />
+                    )}
+                </Button>
+                <Button
+                    variant="outline"
+                    className="h-15 w-15 cursor-pointer rounded-full"
+                    disabled={loading}
+                    onClick={() => void handleReview('left')}
+                >
+                    <X className="h-8 w-8" />
+                </Button>
             </div>
             <SuggestEmailBindingDialog
                 status={emailSuggestionStatus}
