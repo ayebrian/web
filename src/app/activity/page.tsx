@@ -362,6 +362,12 @@ function List({items}: ListProps) {
         },
     });
 
+    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (
+        item,
+        _delta,
+        instance,
+    ) => item.start < (instance.scrollOffset ?? 0);
+
     return (
         <div
             ref={parentRef}

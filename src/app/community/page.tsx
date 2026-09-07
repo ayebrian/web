@@ -387,7 +387,7 @@ function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
         ) as ScrollState;
     }, [navigationType]);
 
-    return useVirtualizer({
+    const virtualizer = useVirtualizer({
         count: items.length,
         getItemKey: index => items[index].key,
         getScrollElement: () => parentRef.current,
@@ -406,6 +406,14 @@ function useListVirtualizer({items, parentRef}: ListVirtualizerProps) {
             );
         },
     });
+
+    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (
+        item,
+        _delta,
+        instance,
+    ) => item.start < (instance.scrollOffset ?? 0);
+
+    return virtualizer;
 }
 
 function useOverscanAnimation(target: number): number {
