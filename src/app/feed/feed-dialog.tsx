@@ -117,11 +117,11 @@ export function FeedDialog({
                             : undefined
                     }
                     nickname={selectedCard.details.nickname}
-                    avatarImageClassName="object-cover w-full h-full sm:rounded-tl-xl sm:rounded-tr-xl"
+                    avatarImageClassName="object-cover w-full h-full sm:rounded-tl-2xl sm:rounded-tr-2xl"
                     fallbackClassName={cn(
                         'text-6xl font-semibold',
                         'w-full h-full flex items-center justify-center',
-                        'rounded-none sm:rounded-tl-xl sm:rounded-tr-xl',
+                        'rounded-none sm:rounded-tl-2xl sm:rounded-tr-2xl',
                         'bg-muted',
                     )}
                 />
