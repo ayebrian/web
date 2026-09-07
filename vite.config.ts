@@ -60,6 +60,9 @@ function appVersionPlugin(): Plugin {
 }
 
 export default defineConfig({
+    build: {
+        sourcemap: true,
+    },
     plugins: [
         react(),
         appVersionPlugin(),
