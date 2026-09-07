@@ -52,6 +52,10 @@ const router = createBrowserRouter([
                 Component: DevPage,
             },
             {
+                path: 'redirect/:deeplink',
+                Component: DeeplinkPage,
+            },
+            {
                 element: <UnauthorizedGuard />,
                 children: [
                     {
@@ -86,10 +90,6 @@ const router = createBrowserRouter([
                     {
                         path: 'user/:id',
                         Component: UserPage,
-                    },
-                    {
-                        path: 'redirect/:deeplink',
-                        Component: DeeplinkPage,
                     },
                     {
                         path: 'community',

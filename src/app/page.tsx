@@ -1,4 +1,5 @@
-import {useEffect, useState} from 'react';
+import {useLayoutEffect, useEffect, useState} from 'react';
+import {SessionStatus} from '@/components/session-provider';
 import {useNavigate, useLocation} from 'react-router';
 import {Outlet} from 'react-router';
 import {useSession} from '@/components/session-provider';
@@ -44,31 +45,43 @@ export function AuthorizedGuard() {
     const navigate = useNavigate();
     const session = useSession();
     const blockingQR = useBlockingQR();
-    useEffect(() => {
+    const [initialStatus, setInitialStatus] = useState<SessionStatus>();
+
+    useLayoutEffect(() => {
         if (session.status === 'loading') return;
+        if (initialStatus !== undefined) return;
+        setInitialStatus(session.status);
         if (session.status === 'guest') {
             void navigate('/sign-up');
         } else if (blockingQR.shouldBlock) {
             void navigate('/blocking-qr');
         }
-    }, [session.status, navigate]);
-    if (session.status !== 'authed') {
-        return;
+    }, [navigate, session.status, initialStatus, blockingQR.shouldBlock]);
+
+    if (initialStatus === 'authed') {
+        return <Outlet />;
     }
-    return <Outlet />;
+
+    return null;
 }
 
 export function UnauthorizedGuard() {
     const navigate = useNavigate();
     const session = useSession();
-    useEffect(() => {
+    const [initialStatus, setInitialStatus] = useState<SessionStatus>();
+
+    useLayoutEffect(() => {
         if (session.status === 'loading') return;
+        if (initialStatus !== undefined) return;
+        setInitialStatus(session.status);
         if (session.status === 'authed') {
-            return void navigate('/');
+            void navigate('/');
         }
-    }, [session.status, navigate]);
-    if (session.status === 'authed') {
-        return;
+    }, [session.status, navigate, initialStatus]);
+
+    if (initialStatus === 'guest') {
+        return <Outlet />;
     }
-    return <Outlet />;
+
+    return null;
 }

@@ -20,7 +20,7 @@ function use(app: AppContext) {
     const session = useSession();
     useEffect(() => {
         if (session.status !== 'authed') return;
-        void app.queryClient.prefetchQuery(selfOptions(app));
+        void app.queryClient.invalidateQueries(selfOptions(app));
     }, [session.status]);
 }
 

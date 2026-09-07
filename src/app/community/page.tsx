@@ -212,7 +212,7 @@ export function CommunityPage() {
     } else {
         if (posts.length === 0) {
             content = (
-                <>
+                <div className="h-full w-full max-w-2xl">
                     <CreatePostCard
                         className="my-4"
                         text={newPostText}
@@ -229,7 +229,7 @@ export function CommunityPage() {
                             {t('empty_desc')}
                         </p>
                     </div>
-                </>
+                </div>
             );
         } else {
             content = (
