@@ -53,15 +53,15 @@ export function MenuRail() {
                     <Button
                         variant="ghost"
                         className={cn(
-                            'cursor-pointer justify-start w-full',
+                            'cursor-pointer justify-start w-full max-lg:justify-center',
                             pathname === item.path &&
                                 'bg-accent text-accent-foreground dark:bg-accent/50',
                         )}
                     >
-                        {item.icon}{' '}
+                        {item.icon}
                         <p className="hidden lg:block">
                             {t(item.title as Parameters<typeof t>[0])}
-                        </p>{' '}
+                        </p>
                         <Badge
                             hidden={!item.releaseTag}
                             variant="secondary"
