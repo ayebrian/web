@@ -1,6 +1,13 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {useNavigate} from 'react-router';
-import {useState, ReactNode, createContext, useContext, useMemo} from 'react';
+import {
+    useEffect,
+    useState,
+    ReactNode,
+    createContext,
+    useContext,
+    useMemo,
+} from 'react';
 import {toast} from 'sonner';
 import {Link, HatGlasses} from 'lucide-react';
 import {useBackend} from '@/backend.context';
@@ -28,6 +35,12 @@ export function BlockingQR(): ReactNode {
     const backend = useBackend();
     const session = useSession();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!controller.shouldBlock) {
+            void navigate('/');
+        }
+    }, [controller.shouldBlock]);
 
     async function onJoin() {
         setLinkError(null);

@@ -365,7 +365,7 @@ function List({items}: ListProps) {
     return (
         <div
             ref={parentRef}
-            className={'w-full h-full overflow-y-auto scrollbar-none px-4'}
+            className="w-full h-full overflow-y-auto scrollbar-none px-4"
         >
             <div
                 className="my-4"
