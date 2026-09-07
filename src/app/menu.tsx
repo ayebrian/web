@@ -62,7 +62,11 @@ export function MenuRail() {
                         <p className="hidden lg:block">
                             {t(item.title as Parameters<typeof t>[0])}
                         </p>{' '}
-                        <Badge hidden={!item.releaseTag} variant="secondary">
+                        <Badge
+                            hidden={!item.releaseTag}
+                            variant="secondary"
+                            className="max-lg:hidden"
+                        >
                             {item.releaseTag}
                         </Badge>
                     </Button>
