@@ -42,7 +42,10 @@ export function FeedDialog({
     return (
         <div
             key={selectedCard.details.id}
-            className="flex flex-col animate-fade-in"
+            className={cn(
+                'w-full h-full sm:h-fit',
+                'flex flex-col animate-fade-in',
+            )}
         >
             <div className="relative w-full aspect-square overflow-hidden">
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center gap-2">

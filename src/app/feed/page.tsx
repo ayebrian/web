@@ -149,7 +149,7 @@ export default function FeedPage() {
         <div className={cn('w-full h-full flex flex-row justify-center')}>
             <div
                 className={cn(
-                    'h-full flex overflow-y-auto scrollbar-none sm:py-4',
+                    'h-full w-full sm:w-fit flex overflow-y-auto scrollbar-none sm:py-4',
                 )}
             >
                 <div
@@ -157,7 +157,6 @@ export default function FeedPage() {
                         'my-auto',
                         'w-full shrink-0 sm:w-90 md:w-100',
                         'sm:rounded-2xl sm:border sm:border-border bg-card',
-                        'transition-[width] duration-300 ease-in-out',
                     )}
                 >
                     {selectedCard && (
