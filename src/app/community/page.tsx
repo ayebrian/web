@@ -284,14 +284,6 @@ function CreatePostCard({
         [userQuery],
     );
 
-    useEffect(() => {
-        const post = postRef.current;
-        if (post) {
-            post.style.height = 'auto';
-            post.style.height = `${post.scrollHeight}px`;
-        }
-    }, [text]);
-
     return (
         <div
             className={cn(
@@ -310,7 +302,7 @@ function CreatePostCard({
                         ref={postRef}
                         className={cn(
                             'w-full mt-2',
-                            'outline-none resize-none',
+                            'outline-none resize-none field-sizing-content',
                         )}
                         value={text}
                         onChange={e => onTextChange(e.target.value)}
@@ -320,7 +312,7 @@ function CreatePostCard({
                         {showTextLength ? (
                             <div
                                 className={cn(
-                                    'text-xs mb-2',
+                                    'text-xs',
                                     textTooLong ? 'text-destructive' : '',
                                 )}
                             >

@@ -4,6 +4,7 @@ import {CommunityPostDescriptor} from '@/network/friendly-client';
 import {communityPosts} from '@/services/community-posts-service';
 import {forceUnwrap} from '@/network/result';
 import {CommunityDetailsResponse} from '@/network/friendly-client';
+import {newPost} from '@/services/new-post-service';
 import {useMutation} from '@tanstack/react-query';
 import {MainPostMenu} from '@/app/community/replies/main-post-menu';
 import {Send, Loader2, Pen, X} from 'lucide-react';
@@ -18,7 +19,7 @@ import {createFileLink} from '@/lib/utils';
 import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
-import {RefObject, useEffect, useRef, useState, useMemo} from 'react';
+import {RefObject, useRef, useState, useMemo} from 'react';
 
 interface MainPostCardProps {
     details: CommunityDetailsResponse;
@@ -50,7 +51,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
 
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const createTextBackup = useRef('');
-    const [text, setText] = useState('');
+    const [text, setText] = newPost.useReplyText();
     const [action, setAction] = useState<InputAction>('send');
 
     const textTooLong = text.length > 4096;
@@ -124,14 +125,6 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
         }
     }
 
-    useEffect(() => {
-        const reply = inputRef.current;
-        if (reply) {
-            reply.style.height = 'auto';
-            reply.style.height = `${reply.scrollHeight}px`;
-        }
-    }, [text]);
-
     const t = useTranslations('replies');
 
     const selfAvatar = useMemo(
@@ -173,13 +166,13 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                     src={selfAvatar}
                     nickname={self.data?.user?.nickname ?? ''}
                 />
-                <div className="w-full flex flex-col">
+                <div className="flex-1 min-w-0 flex flex-col">
                     <textarea
                         ref={inputRef}
                         className={cn(
-                            'w-full content-center',
+                            'min-h-10 w-full content-center',
                             'text-sm outline-none resize-none',
-                            'scroll-m-60',
+                            'scroll-m-60 field-sizing-content',
                         )}
                         id="reply"
                         value={text}
@@ -206,13 +199,15 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                         ) : undefined}
                     </div>
                 </div>
-                <Button
-                    className="mt-1 w-8 h-8"
-                    onClick={stopEditing}
-                    variant="ghost"
-                >
-                    {action === 'edit' ? <X /> : undefined}
-                </Button>
+                {action === 'edit' ? (
+                    <Button
+                        className="mt-1 w-8 h-8"
+                        onClick={stopEditing}
+                        variant="ghost"
+                    >
+                        <X />
+                    </Button>
+                ) : undefined}
                 <Button
                     className="mt-1 w-8 h-8"
                     onClick={() => handleSubmit(text)}
