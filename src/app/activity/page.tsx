@@ -402,10 +402,10 @@ function useOverscanAnimation(target: number): number {
     const [overscan, setOverscan] = useState(0);
     useEffect(() => {
         if (overscan >= target) return;
-        const callback = requestIdleCallback(() => {
+        const callback = window.setTimeout(() => {
             setOverscan(value => value + 1);
-        });
-        return () => cancelIdleCallback(callback);
+        }, 100);
+        return () => window.clearTimeout(callback);
     }, [overscan]);
     return overscan;
 }
