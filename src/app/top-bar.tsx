@@ -27,7 +27,7 @@ export function useTopBarContext(): TopBarContext {
 
 export function TopBar({closeButton}: TopBarContext): ReactNode {
     return (
-        <div className={cn('w-full h-16', 'flex flex-col items-center')}>
+        <div className="w-full h-16 flex flex-col items-center">
             <div
                 className={cn(
                     'flex p-4',

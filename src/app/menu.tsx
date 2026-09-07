@@ -105,7 +105,7 @@ export function MenuBar() {
     const {pathname} = useLocation();
 
     return (
-        <div className="grid grid-cols-5 gap-2 p-2 w-full max-w-md mx-auto">
+        <div className="grid grid-cols-5 gap-2 p-2 w-full max-w-md mx-auto pb-safe">
             {MENUBAR_ITEMS.map(item => (
                 <Link key={item.path} to={item.path} className="min-w-0 w-full">
                     <Button
