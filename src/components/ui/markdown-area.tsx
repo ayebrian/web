@@ -61,20 +61,21 @@ function MarkdownAreaComponent(
                     )}>
                         {children}
                     </ul>,
+                    table: ({children}) => (
+                        <div className="overflow-x-auto scrollbar-none">
+                            <table>
+                                {children}
+                            </table>
+                        </div>
+                    ),
                     code: ({children, className, node, ...rest}) => {
                         const match = /language-(\w+)/.exec(className || '')
-                        return match ? (
-                          <SyntaxHighlighter
-                            language={match[1]}
-                            style={codeStyle}
-                          >
-                              {String(children).replace(/\n$/, '')}
-                          </SyntaxHighlighter>
-                        ) : (
-                          <code {...rest} className={className}>
-                            {children}
-                          </code>
-                        )
+                        return <SyntaxHighlighter
+                            className="overflow-x-auto scrollbar-none"
+                            language={match?.[1]}
+                            style={codeStyle}>
+                        {String(children)}
+                        </SyntaxHighlighter>
                     }
                 }}
             >
