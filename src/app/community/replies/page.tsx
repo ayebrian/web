@@ -67,13 +67,13 @@ export function RepliesPage() {
 
     if (replyTo.cache === 'empty') {
         content = (
-            <div className="flex h-[50vh] w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     } else if (replyTo.cache !== 'ok') {
         content = (
-            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+            <div className="flex flex-col h-full gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
                 <p className="text-center">{t('unknown_error')}</p>
                 <Button
@@ -92,32 +92,29 @@ export function RepliesPage() {
             <ReplyContent
                 id={idInt}
                 replyTo={replyTo.data!}
-                popDepth={popDepth + 1}
+                popDepth={popDepth}
             />
         );
     }
 
     return (
-        <div
-            className={cn(
-                'flex flex-row h-full justify-center px-4',
-                'md:ps-14 md:px-0 md:pe-2',
-            )}
-        >
-            <div key={idInt} className="flex flex-col w-full h-full max-w-2xl">
-                {content}
+        <div key={idInt} className="relative px-4 flex flex-col w-full h-full">
+            {content}
+            <div className="absolute flex justify-center top-0 left-0 right-0">
+                <div className="w-full max-w-2xl ms-4 pe-14" />
+                <Button
+                    className={cn(
+                        'sticky top-2',
+                        'h-10 w-10 mt-2 mx-2',
+                        'cursor-pointer',
+                        'hidden md:block',
+                    )}
+                    onClick={navigateUp}
+                    variant="ghost"
+                >
+                    <X className="w-full h-full" />
+                </Button>
             </div>
-            <Button
-                className={cn(
-                    'h-10 w-10 mt-2 ms-2',
-                    'cursor-pointer',
-                    'hidden md:block',
-                )}
-                onClick={navigateUp}
-                variant="ghost"
-            >
-                <X className="w-full h-full" />
-            </Button>
         </div>
     );
 }
@@ -270,28 +267,32 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
     return (
         <div
             ref={scrollableRef}
-            className="h-full w-full py-4 overflow-y-auto scrollbar-none"
+            className="relative h-full w-full py-4 overflow-y-auto scrollbar-none"
         >
-            {upstream}
-            <MainPostCard
-                postRef={postRef}
-                details={replyTo}
-                popDepth={popDepth}
-            />
-            {replies}
-            <div hidden={!postsQuery.hasNextPage}>
-                <Button
-                    variant="ghost"
-                    className="text-accent-foreground hover:cursor-pointer"
-                    onClick={loadMore}
-                    disabled={postsQuery.isFetchingNextPage}
-                >
-                    {postsQuery.isFetchingNextPage ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        t('load-more')
-                    )}
-                </Button>
+            <div className="w-full md:pe-10">
+                <div className="mx-auto h-full w-full max-w-2xl">
+                    {upstream}
+                    <MainPostCard
+                        postRef={postRef}
+                        details={replyTo}
+                        popDepth={popDepth}
+                    />
+                    {replies}
+                    <div hidden={!postsQuery.hasNextPage}>
+                        <Button
+                            variant="ghost"
+                            className="text-accent-foreground hover:cursor-pointer"
+                            onClick={loadMore}
+                            disabled={postsQuery.isFetchingNextPage}
+                        >
+                            {postsQuery.isFetchingNextPage ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                t('load-more')
+                            )}
+                        </Button>
+                    </div>
+                </div>
             </div>
         </div>
     );
