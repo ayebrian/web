@@ -32,10 +32,12 @@ export function FeedDialog({
     const [showAllFriends, setShowAllFriends] = useState(false);
 
     async function routeToUser(friend: UserDetails) {
-        await storage.userAccessHashes.save({
-            id: friend.id,
-            accessHash: friend.accessHash,
-        });
+        await storage.userAccessHashes.save([
+            {
+                id: friend.id,
+                accessHash: friend.accessHash,
+            },
+        ]);
         await navigate(`/user/${friend.id}`);
     }
 

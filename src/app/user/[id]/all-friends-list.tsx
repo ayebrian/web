@@ -57,10 +57,12 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     const navigate = useNavigate();
 
     const openFriendPage = async (friend: UserDetails) => {
-        await storage.userAccessHashes.save({
-            id: friend.id,
-            accessHash: friend.accessHash,
-        });
+        await storage.userAccessHashes.save([
+            {
+                id: friend.id,
+                accessHash: friend.accessHash,
+            },
+        ]);
         await navigate(`/user/${friend.id}`);
     };
 

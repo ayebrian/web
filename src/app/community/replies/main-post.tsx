@@ -304,10 +304,12 @@ function MainPostCardPlain({
 
     async function navigateProfile(event: React.MouseEvent) {
         event.stopPropagation();
-        await storage.userAccessHashes.save({
-            id: post.owner.id,
-            accessHash: post.owner.accessHash,
-        });
+        await storage.userAccessHashes.save([
+            {
+                id: post.owner.id,
+                accessHash: post.owner.accessHash,
+            },
+        ]);
         await navigate(`/user/${post.owner.id}`);
     }
 
