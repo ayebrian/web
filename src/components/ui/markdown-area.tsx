@@ -6,7 +6,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import ReactMarkdown from 'react-markdown';
 import {useTheme} from '@/components/theme-provider';
 import {cn} from '@/lib/utils';
-import {PrismLight as SyntaxHighlighter} from 'react-syntax-highlighter'
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {oneLight} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import {oneDark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 
