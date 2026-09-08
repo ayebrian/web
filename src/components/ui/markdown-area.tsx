@@ -1,10 +1,14 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useEffect, useState} from 'react';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import ReactMarkdown from 'react-markdown';
+import {useTheme} from '@/components/theme-provider';
 import {cn} from '@/lib/utils';
+import {PrismLight as SyntaxHighlighter} from 'react-syntax-highlighter'
+import {oneLight} from 'react-syntax-highlighter/dist/esm/styles/prism'
+import {oneDark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 const linkClass = cn(
     'font-medium text-primary underline underline-offset-4',
@@ -21,12 +25,14 @@ interface MarkdownAreaProps {
 function MarkdownAreaComponent(
     {text, className, ref}: MarkdownAreaProps,
 ) {
+    const codeStyle = useCodeStyle();
+
     return (
         <div
             ref={ref}
             className={cn(
                 "w-full max-w-full min-w-0 ",
-                "overflow-x-auto overflow-y-hidden",
+                "overflow-x-auto overflow-y-hidden scrollbar-none",
                 "break-words space-y-[1em] leading-5",
                 className,
             )}>
@@ -55,12 +61,58 @@ function MarkdownAreaComponent(
                     )}>
                         {children}
                     </ul>,
+                    code: ({children, className, node, ...rest}) => {
+                        const match = /language-(\w+)/.exec(className || '')
+                        return match ? (
+                          <SyntaxHighlighter
+                            language={match[1]}
+                            style={codeStyle}
+                          >
+                              {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code {...rest} className={className}>
+                            {children}
+                          </code>
+                        )
+                    }
                 }}
             >
                 {text}
             </ReactMarkdown>
         </div>
     );
+}
+
+function useCodeStyle() {
+    const theme = useTheme().theme;
+    const [codeStyle, setCodeStyle] = useState(oneLight);
+
+    useEffect(() => {
+        switch (theme) {
+        case 'light':
+            setCodeStyle(oneLight);
+            return () => {};
+        case 'dark':
+            setCodeStyle(oneDark);
+            return () => {};
+        case 'system':
+            const mediaQuery = window.matchMedia(
+                '(prefers-color-scheme: dark)',
+            );
+            const handleChange = () => {
+                setCodeStyle(
+                    window.matchMedia('(prefers-color-scheme: dark)')
+                        .matches ? oneDark : oneLight,
+                );
+            };
+            handleChange();
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+        }
+    }, [theme]);
+
+    return codeStyle;
 }
 
 export const MarkdownArea = React.memo(MarkdownAreaComponent);
