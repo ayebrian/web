@@ -89,6 +89,25 @@
         @apply bg-muted p-1 my-1 text-muted-foreground rounded-sm;
         @apply border-s-muted-foreground border-s-4 border-1;
     }
+
+    table,
+    th,
+    td {
+        @apply border;
+    }
+
+    th {
+        @apply bg-muted;
+    }
+
+    th,
+    td {
+        @apply p-1;
+    }
+
+    table tr:nth-child(even) {
+        @apply bg-muted;
+    }
 }
 
 /* Dark theme that works before React.js generates page
