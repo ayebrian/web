@@ -92,7 +92,7 @@ export function RepliesPage() {
             <ReplyContent
                 id={idInt}
                 replyTo={replyTo.data!}
-                popDepth={popDepth}
+                popDepth={popDepth + 1}
             />
         );
     }
@@ -104,7 +104,6 @@ export function RepliesPage() {
                 <div className="w-full max-w-2xl ms-4 pe-14" />
                 <Button
                     className={cn(
-                        'sticky top-2',
                         'h-10 w-10 mt-2 mx-2',
                         'cursor-pointer',
                         'hidden md:block',
