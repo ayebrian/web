@@ -194,7 +194,7 @@ export function CommunityPage() {
                     onSubmit={handleCreatePost}
                     isSubmitting={createPostMutation.isPending}
                 />
-                <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+                <div className="flex flex-col h-full gap-4 w-full items-center justify-center">
                     <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
                     <p className="text-center">
                         {postsQuery.error?.message ?? t('unknown_error')}
@@ -220,7 +220,7 @@ export function CommunityPage() {
                         onSubmit={handleCreatePost}
                         isSubmitting={createPostMutation.isPending}
                     />
-                    <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center px-6 text-center">
+                    <div className="flex flex-col h-full gap-4 w-full items-center justify-center px-6 text-center">
                         <Newspaper className="w-12 h-12 text-muted-foreground" />
                         <p className="text-base font-semibold text-foreground">
                             {t('empty_title')}

@@ -118,7 +118,7 @@ function CommunityPostCardPlain({
                     <MarkdownArea
                         className={cn(
                             'text-foreground transition-all duration-300 ease-in-out',
-                            minimizeText && 'line-clamp-10',
+                            minimizeText && 'line-clamp-10 max-h-[50vh]',
                         )}
                         text={post.text}
                     />
