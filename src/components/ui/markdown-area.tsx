@@ -71,9 +71,20 @@ function MarkdownAreaComponent(
                     code: ({children, className, node, ...rest}) => {
                         const match = /language-(\w+)/.exec(className || '')
                         return <SyntaxHighlighter
-                            className="overflow-x-auto scrollbar-none"
+                            className="overflow-x-auto scrollbar-none text-xs"
                             language={match?.[1]}
-                            style={codeStyle}>
+                            style={codeStyle}
+                            wrapLongLines={true}
+                            customStyle={{
+                                backgroundColor: 'var(--color-muted)',
+                                padding: 8,
+                            }}
+                            lineProps={{
+                                style: {
+                                    display: 'block',
+                                    padding: 0,
+                                },
+                            }}>
                         {String(children)}
                         </SyntaxHighlighter>
                     }

@@ -171,7 +171,7 @@ export function CommunityPage() {
 
     if (postsQuery.isPending) {
         content = (
-            <div className="h-full w-full max-w-2xl">
+            <div className="h-full w-full flex flex-col max-w-2xl">
                 <CreatePostCard
                     className="my-4"
                     text={newPostText}
@@ -179,14 +179,14 @@ export function CommunityPage() {
                     onSubmit={handleCreatePost}
                     isSubmitting={createPostMutation.isPending}
                 />
-                <div className="flex h-full w-full items-center justify-center">
+                <div className="flex flex-1 w-full items-center justify-center">
                     <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
                 </div>
             </div>
         );
     } else if (postsQuery.isError) {
         content = (
-            <div className="h-full w-full max-w-2xl">
+            <div className="h-full w-full flex flex-col max-w-2xl">
                 <CreatePostCard
                     className="my-4"
                     text={newPostText}
@@ -194,7 +194,7 @@ export function CommunityPage() {
                     onSubmit={handleCreatePost}
                     isSubmitting={createPostMutation.isPending}
                 />
-                <div className="flex flex-col h-full gap-4 w-full items-center justify-center">
+                <div className="flex flex-col flex-1 gap-4 w-full items-center justify-center">
                     <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
                     <p className="text-center">
                         {postsQuery.error?.message ?? t('unknown_error')}
@@ -212,7 +212,7 @@ export function CommunityPage() {
     } else {
         if (posts.length === 0) {
             content = (
-                <div className="h-full w-full max-w-2xl">
+                <div className="h-full w-full flex flex-col max-w-2xl">
                     <CreatePostCard
                         className="my-4"
                         text={newPostText}
@@ -220,7 +220,7 @@ export function CommunityPage() {
                         onSubmit={handleCreatePost}
                         isSubmitting={createPostMutation.isPending}
                     />
-                    <div className="flex flex-col h-full gap-4 w-full items-center justify-center px-6 text-center">
+                    <div className="flex flex-col flex-1 gap-4 w-full items-center justify-center px-6 text-center">
                         <Newspaper className="w-12 h-12 text-muted-foreground" />
                         <p className="text-base font-semibold text-foreground">
                             {t('empty_title')}

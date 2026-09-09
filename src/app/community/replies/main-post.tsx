@@ -50,12 +50,21 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
     const app = useAppContext();
 
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const createTextBackup = useRef('');
     const [text, setText] = newPost.useReplyText();
+    const [editText, setEditText] = useState('');
     const [action, setAction] = useState<InputAction>('send');
 
-    const textTooLong = text.length > 4096;
-    const showTextLength = text.length > 4000;
+    const displayText = action === 'send' ? text : editText;
+    function setDisplayText(value: string) {
+        if (action === 'send') {
+            setText(value);
+        } else {
+            setEditText(value);
+        }
+    }
+
+    const textTooLong = displayText.length > 4096;
+    const showTextLength = displayText.length > 4000;
 
     const self = users.useSelf(app);
 
@@ -64,7 +73,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
     const createMutation = useCreateMutation({
         details,
         popDepth,
-        onSuccess: () => setText(''),
+        onSuccess: () => setDisplayText(''),
     });
 
     const editMutation = useEditMutation({
@@ -73,7 +82,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
     });
 
     const isSubmitting = createMutation.isPending || editMutation.isPending;
-    const forbidSubmit = isSubmitting || !text.trim() || textTooLong;
+    const forbidSubmit = isSubmitting || !displayText.trim() || textTooLong;
 
     function startEditing() {
         if (isSubmitting) return;
@@ -82,17 +91,16 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
             block: 'start',
             inline: 'nearest',
         });
-        createTextBackup.current = text;
         setAction('edit');
         if (details.post.type !== 'plain') {
             throw new Error('Can only edit plain posts');
         }
-        setText(details.post.text);
+        setEditText(details.post.text);
     }
 
     function stopEditing() {
+        setEditText('');
         setAction('send');
-        setText(createTextBackup.current);
     }
 
     function handleSubmit(text: string) {
@@ -175,9 +183,9 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                             'scroll-m-60 field-sizing-content',
                         )}
                         id="reply"
-                        value={text}
+                        value={displayText}
                         onKeyDown={onKeyDown}
-                        onChange={e => setText(e.target.value)}
+                        onChange={e => setDisplayText(e.target.value)}
                         placeholder={t('reply-placeholder')}
                     />
                     <div className="w-full flex">
@@ -194,7 +202,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                                     textTooLong ? 'text-destructive' : '',
                                 )}
                             >
-                                {text.length} / 4096
+                                {displayText.length} / 4096
                             </div>
                         ) : undefined}
                     </div>
@@ -210,7 +218,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                 ) : undefined}
                 <Button
                     className="mt-1 w-8 h-8"
-                    onClick={() => handleSubmit(text)}
+                    onClick={() => handleSubmit(displayText)}
                     disabled={forbidSubmit}
                 >
                     {isSubmitting ? (
