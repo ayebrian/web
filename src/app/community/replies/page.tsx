@@ -100,7 +100,7 @@ export function RepliesPage() {
     return (
         <div key={idInt} className="relative px-4 flex flex-col w-full h-full">
             {content}
-            <div className="absolute flex justify-center top-0 left-0 right-0">
+            <div className="absolute flex justify-center top-0 left-0 right-0 pointer-events-none">
                 <div className="w-full max-w-2xl ms-4 pe-14" />
                 <Button
                     className={cn(

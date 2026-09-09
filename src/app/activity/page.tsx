@@ -29,13 +29,13 @@ export function ActivityPage() {
 
     if (activityQuery.isPending) {
         return (
-            <div className="flex h-[50vh] w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     } else if (activityQuery.isError) {
         return (
-            <div className="flex flex-col h-[50vh] gap-4 w-full items-center justify-center">
+            <div className="flex flex-col h-full gap-4 w-full items-center justify-center">
                 <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
                 <p className="text-center">
                     {activityQuery.error?.message ?? t('unknown-error')}
