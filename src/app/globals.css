@@ -108,6 +108,10 @@
     table tr:nth-child(even) {
         @apply bg-muted;
     }
+
+    table {
+        @apply text-xs;
+    }
 }
 
 /* Dark theme that works before React.js generates page
