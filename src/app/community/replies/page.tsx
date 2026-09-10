@@ -107,6 +107,7 @@ export function RepliesPage() {
                         'h-10 w-10 mt-2 mx-2',
                         'cursor-pointer',
                         'hidden md:block',
+                        'pointer-events-auto',
                     )}
                     onClick={navigateUp}
                     variant="ghost"

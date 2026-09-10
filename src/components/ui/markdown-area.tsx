@@ -31,7 +31,7 @@ function MarkdownAreaComponent(
         <div
             ref={ref}
             className={cn(
-                "w-full max-w-full min-w-0 ",
+                "w-full min-w-0",
                 "overflow-x-auto overflow-y-hidden scrollbar-none",
                 "break-words space-y-[1em] leading-5",
                 className,
@@ -54,13 +54,20 @@ function MarkdownAreaComponent(
                     ol: ({children}) => <ol className="list-decimal list-inside">
                         {children}
                     </ol>,
-                    ul: ({children}) => <ul className={cn(
-                        "list-disc list-inside marker:content-['•']",
-                        "[&_li]:before:inline-block",
-                        "[&_li]:before:pr-2",
-                    )}>
-                        {children}
-                    </ul>,
+                    ul: ({children}) =>
+                        <ul className={cn(
+                            "list-disc list-inside marker:content-['•']",
+                        )}>
+                            {children}
+                        </ul>,
+                    li: ({children}) => (
+                        <div className="grid grid-cols-[min-content_1fr]">
+                            <li className="list-item" />
+                            <div className="w-full ps-1 space-y-[1em] break-words overflow-x-hidden">
+                                {children}
+                            </div>
+                        </div>
+                    ),
                     table: ({children}) => (
                         <div className="overflow-x-auto scrollbar-none">
                             <table>
