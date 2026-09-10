@@ -5,6 +5,7 @@ import {
     getToken,
     onMessage,
     MessagePayload,
+    isSupported,
 } from 'firebase/messaging';
 
 // Erm... Actually, these are not private
@@ -18,12 +19,16 @@ const firebaseConfig = {
     measurementId: 'G-R5K08P6EBR',
 };
 
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+const firebaseApp = initializeApp(firebaseConfig);
 
 const swiped = Number(localStorage.getItem('feed-swipes') ?? '0');
 
-export function main(app: AppContext) {
+export async function main(app: AppContext) {
+    if (!(await isSupported())) return;
+
+    const messaging = getMessaging(firebaseApp);
+    onMessage(messaging, message => void postMessage(message));
+
     if (
         swiped > 20 ||
         localStorage.getItem('request-notifications') === 'true'
@@ -103,4 +108,3 @@ async function postMessage(payload: MessagePayload) {
     );
     registration?.active?.postMessage(payload);
 }
-onMessage(messaging, message => void postMessage(message));
