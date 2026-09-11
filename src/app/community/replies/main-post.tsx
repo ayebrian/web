@@ -151,7 +151,7 @@ export function MainPostCard({
 
     let card;
     if (deleteMutation.isPending) {
-        card = <MainPostCardLoading />;
+        card = <MainPostCardLoading first={first} />;
     } else
         switch (details.post.type) {
             case 'plain':
@@ -292,9 +292,19 @@ function Emoji({emoji, onClick, disabled}: EmojiProps) {
     );
 }
 
-function MainPostCardLoading() {
+interface MainPostCardLoading {
+    first: boolean;
+}
+
+function MainPostCardLoading({first}: MainPostCardLoading) {
     return (
-        <div className="bg-card rounded-xl border border-border p-4 cursor-pointer">
+        <div
+            className={cn(
+                'bg-card p-4 cursor-pointer',
+                'border-l border-r border-t border-border',
+                first ? 'rounded-tl-xl rounded-tr-xl' : '',
+            )}
+        >
             <Loader2 className="m-auto animate-spin text-muted-foreground" />
         </div>
     );

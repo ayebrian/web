@@ -372,6 +372,7 @@ function ThreadContent({thread, popDepth}: ThreadContentProps) {
                 className={cn(
                     'bg-card rounded-bl-xl rounded-br-xl',
                     'border-b border-l border-r border-border',
+                    'mb-2',
                 )}
                 postId={thread.at(-1)!.id}
                 minimizeToolbar={false}
