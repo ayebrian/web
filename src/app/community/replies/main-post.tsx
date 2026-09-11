@@ -22,6 +22,7 @@ import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {RefObject, useRef, useState, useMemo} from 'react';
 
 interface MainPostCardProps {
+    first: boolean;
     details: CommunityDetailsResponse;
     postRef: RefObject<HTMLDivElement | null>;
     popDepth: number;
@@ -46,7 +47,12 @@ const emojis = [
 
 type InputAction = 'send' | 'edit';
 
-export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
+export function MainPostCard({
+    first,
+    details,
+    postRef,
+    popDepth,
+}: MainPostCardProps) {
     const app = useAppContext();
 
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -151,6 +157,7 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
             case 'plain':
                 card = (
                     <MainPostCardPlain
+                        first={first}
                         post={details.post}
                         action={action}
                         onDelete={onDelete}
@@ -160,15 +167,20 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                 );
                 break;
             case 'deleted':
-                card = <MainPostCardDeleted />;
+                card = <MainPostCardDeleted first={first} />;
                 break;
         }
 
     return (
         <div className="scroll-m-40" ref={postRef}>
             {card}
-            <div className="h-2" />
-            <div className="flex bg-card rounded-xl border border-border flex-row gap-2 px-2 py-1">
+            <div
+                className={cn(
+                    'flex bg-card flex-row gap-2 px-2 py-1',
+                    'rounded-bl-xl rounded-br-xl',
+                    'border border-border',
+                )}
+            >
                 <StyledAvatar
                     avatarClassName="mt-1 w-8 h-8"
                     src={selfAvatar}
@@ -244,7 +256,9 @@ export function MainPostCard({details, postRef, popDepth}: MainPostCardProps) {
                         key={index}
                         emoji={emoji}
                         disabled={isSubmitting}
-                        onClick={() => createMutation.mutate({text: emoji})}
+                        onClick={() =>
+                            createMutation.mutate({text: emoji, redirect: true})
+                        }
                     />
                 ))}
             </div>
@@ -287,6 +301,7 @@ function MainPostCardLoading() {
 }
 
 export interface MainPostCardPlainProps {
+    first: boolean;
     post: CommunityPostDetailsPlain;
     action: InputAction;
     onDelete: () => void;
@@ -295,6 +310,7 @@ export interface MainPostCardPlainProps {
 }
 
 function MainPostCardPlain({
+    first,
     post,
     action,
     onDelete,
@@ -324,7 +340,9 @@ function MainPostCardPlain({
     return (
         <div
             className={cn(
-                'bg-card rounded-xl border border-border p-4',
+                first ? 'rounded-tl-xl rounded-tr-xl' : '',
+                'border-l border-r border-t border-border',
+                'bg-card p-4',
                 action === 'edit'
                     ? 'pointer-events-none opacity-50 select-none'
                     : '',
@@ -366,10 +384,20 @@ function MainPostCardPlain({
     );
 }
 
-function MainPostCardDeleted() {
+interface MainPostCardDeletedProps {
+    first: boolean;
+}
+
+function MainPostCardDeleted({first}: MainPostCardDeletedProps) {
     const t = useTranslations('post');
     return (
-        <div className="bg-card rounded-xl border border-border p-4 cursor-pointer">
+        <div
+            className={cn(
+                first ? 'rounded-tl-xl rounded-tr-xl' : '',
+                'border-l border-r border-t border-border',
+                'bg-card p-4 cursor-pointer',
+            )}
+        >
             <p className="italic text-foreground truncate cursor-pointer">
                 {t('deleted')}
             </p>

@@ -16,6 +16,7 @@ import {CommunityPostId} from '@/network/friendly-client';
 import {cn} from '@/lib/utils';
 
 export interface CommunityPostCardProps {
+    className?: string;
     postId: CommunityPostId;
     minimizeText?: boolean;
     minimizeToolbar?: boolean;
@@ -32,6 +33,7 @@ export function CommunityPostCard(props: CommunityPostCardProps) {
         case 'plain':
             return (
                 <CommunityPostCardPlain
+                    className={props.className}
                     post={post}
                     minimizeText={props.minimizeText}
                     minimizeToolbar={props.minimizeToolbar}
@@ -41,6 +43,7 @@ export function CommunityPostCard(props: CommunityPostCardProps) {
         case 'deleted':
             return (
                 <CommunityPostCardDeleted
+                    className={props.className}
                     post={post}
                     popDepth={props.popDepth}
                 />
@@ -49,6 +52,7 @@ export function CommunityPostCard(props: CommunityPostCardProps) {
 }
 
 export interface CommunityPostCardPlainProps {
+    className?: string;
     post: CommunityPostDetailsPlain;
     minimizeText?: boolean;
     minimizeToolbar?: boolean;
@@ -56,6 +60,7 @@ export interface CommunityPostCardPlainProps {
 }
 
 function CommunityPostCardPlain({
+    className,
     post,
     minimizeText,
     minimizeToolbar,
@@ -91,7 +96,7 @@ function CommunityPostCardPlain({
 
     return (
         <div
-            className="bg-card rounded-xl border border-border p-4 cursor-pointer"
+            className={cn('p-4 cursor-pointer', className)}
             onClick={() => void navigateReplies()}
         >
             <div className="flex gap-3">
@@ -158,11 +163,13 @@ function CommunityPostCardPlain({
 }
 
 interface CommunityPostCardDeletedProps {
+    className?: string;
     post: CommunityPostDetailsDeleted;
     popDepth: number;
 }
 
 function CommunityPostCardDeleted({
+    className,
     post,
     popDepth,
 }: CommunityPostCardDeletedProps) {
@@ -180,7 +187,10 @@ function CommunityPostCardDeleted({
 
     return (
         <div
-            className="bg-card rounded-xl border border-border p-4 cursor-pointer flex items-center justify-between"
+            className={cn(
+                'p-4 cursor-pointer flex items-center justify-between',
+                className,
+            )}
             onClick={() => void navigateReplies()}
         >
             <p className="italic text-foreground truncate cursor-pointer">

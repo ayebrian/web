@@ -1,4 +1,5 @@
 import {MainPostCard} from '@/app/community/replies/main-post';
+import {CommunityPostDetails} from '@/network/friendly-client';
 import {useLocation} from 'react-router';
 import {useScaffoldContext} from '@/app/scaffold';
 import {cn} from '@/lib/utils';
@@ -141,7 +142,15 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
     useEffect(() => {
         let shouldBreak = false;
         void (async () => {
-            for (const reply of replyTo.replies.data) {
+            const replies = replyTo.replies.data.flatMap(reply => {
+                switch (reply.type) {
+                    case 'single':
+                        return reply.post;
+                    case 'thread':
+                        return reply.thread;
+                }
+            });
+            for (const reply of replies) {
                 if (shouldBreak) break;
                 await communityPosts.prefetchDetails(app, reply.id, {
                     staleTime: Infinity,
@@ -197,7 +206,7 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
     });
 
     const pages = postsQuery.data?.pages ?? [];
-    const posts = pages.flatMap(p => p.data);
+    const replies = pages.flatMap(p => p.data);
 
     const loadMore = () => {
         if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
@@ -205,35 +214,48 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
         }
     };
 
-    let upstream;
-
-    if (replyTo.upstream.length > 0) {
-        upstream = (
-            <>
-                <div className="flex flex-col gap-2">
-                    {replyTo.upstream.map(post => (
-                        <CommunityPostCard
-                            key={`${replyTo.post.id}-${post.id}`}
-                            postId={post.id}
-                            minimizeToolbar={true}
-                            popDepth={popDepth}
-                        />
-                    ))}
-                    <div
-                        ref={upstreamRef}
-                        className="text-sm font-semibold uppercase text-foreground scroll-m-10"
+    const upstreamContent = (
+        <>
+            <div className="flex flex-col">
+                {replyTo.upstream.length > 0 && (
+                    <CommunityPostCard
+                        key={replyTo.upstream[0].id}
+                        className={cn(
+                            'bg-card rounded-tl-xl rounded-tr-xl',
+                            'border-t border-l border-r border-border',
+                        )}
+                        postId={replyTo.upstream[0].id}
+                        minimizeToolbar={true}
+                        popDepth={popDepth}
                     />
-                </div>
-            </>
-        );
-    } else {
-        upstream = null;
-    }
+                )}
+                {replyTo.upstream.length > 1 &&
+                    replyTo.upstream
+                        .slice(1)
+                        .map(post => (
+                            <CommunityPostCard
+                                key={post.id}
+                                className={cn(
+                                    'bg-card',
+                                    'border-t border-l border-r border-border',
+                                )}
+                                postId={post.id}
+                                minimizeToolbar={true}
+                                popDepth={popDepth}
+                            />
+                        ))}
+                <div
+                    ref={upstreamRef}
+                    className="text-sm font-semibold uppercase text-foreground scroll-m-10"
+                />
+            </div>
+        </>
+    );
 
-    let replies;
+    let repliesContent;
 
-    if (posts.length === 0) {
-        replies = (
+    if (replies.length === 0) {
+        repliesContent = (
             <div className="flex flex-col gap-2 mt-6 w-full items-center justify-center px-6 text-center">
                 <MessageCircle className="w-12 h-12 text-muted-foreground" />
                 <p className="text-base font-semibold text-foreground">
@@ -246,20 +268,34 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
             </div>
         );
     } else {
-        replies = (
-            <div className="w-full min-h-[70dvh] flex flex-col gap-4">
-                <p className="text-sm font-semibold uppercase text-foreground">
+        repliesContent = (
+            <div className="w-full min-h-[70dvh] flex flex-col">
+                <p className="text-sm font-semibold uppercase text-foreground pb-4">
                     {t('replies')}
                 </p>
-                {posts.map(post => (
-                    <CommunityPostCard
-                        key={`${replyTo.post.id}-${post.id}`}
-                        postId={post.id}
-                        minimizeToolbar={false}
-                        minimizeText={true}
-                        popDepth={popDepth}
-                    />
-                ))}
+                {replies.map(reply => {
+                    switch (reply.type) {
+                        case 'single':
+                            return (
+                                <CommunityPostCard
+                                    key={reply.post.id}
+                                    className="mb-2 bg-card rounded-xl border border-border"
+                                    postId={reply.post.id}
+                                    minimizeToolbar={false}
+                                    minimizeText={true}
+                                    popDepth={popDepth}
+                                />
+                            );
+                        case 'thread':
+                            return (
+                                <ThreadContent
+                                    key={reply.thread[0].id}
+                                    thread={reply.thread}
+                                    popDepth={popDepth}
+                                />
+                            );
+                    }
+                })}
             </div>
         );
     }
@@ -271,13 +307,14 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
         >
             <div className="w-full md:pe-10">
                 <div className="mx-auto h-full w-full max-w-2xl">
-                    {upstream}
+                    {upstreamContent}
                     <MainPostCard
+                        first={replyTo.upstream.length === 0}
                         postRef={postRef}
                         details={replyTo}
                         popDepth={popDepth}
                     />
-                    {replies}
+                    {repliesContent}
                     <div hidden={!postsQuery.hasNextPage}>
                         <Button
                             variant="ghost"
@@ -295,5 +332,52 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
                 </div>
             </div>
         </div>
+    );
+}
+
+interface ThreadContentProps {
+    thread: CommunityPostDetails[];
+    popDepth: number;
+}
+
+function ThreadContent({thread, popDepth}: ThreadContentProps) {
+    return (
+        <>
+            <CommunityPostCard
+                key={thread[0].id}
+                className={cn(
+                    'bg-card rounded-tl-xl rounded-tr-xl',
+                    'border border-border',
+                )}
+                postId={thread[0].id}
+                minimizeToolbar={true}
+                minimizeText={true}
+                popDepth={popDepth}
+            />
+            {thread.length > 2 &&
+                thread
+                    .slice(1, -1)
+                    .map(post => (
+                        <CommunityPostCard
+                            key={post.id}
+                            className="bg-card border-l border-r border-b border-border"
+                            postId={post.id}
+                            minimizeToolbar={true}
+                            minimizeText={true}
+                            popDepth={popDepth}
+                        />
+                    ))}
+            <CommunityPostCard
+                key={thread.at(-1)!.id}
+                className={cn(
+                    'bg-card rounded-bl-xl rounded-br-xl',
+                    'border-b border-l border-r border-border',
+                )}
+                postId={thread.at(-1)!.id}
+                minimizeToolbar={false}
+                minimizeText={false}
+                popDepth={popDepth}
+            />
+        </>
     );
 }

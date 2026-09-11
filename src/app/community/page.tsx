@@ -147,6 +147,7 @@ export function CommunityPage() {
                 key: post.id.toString(),
                 Component: (
                     <CommunityPostCard
+                        className="bg-card rounded-xl border border-border"
                         postId={post.id}
                         minimizeToolbar={false}
                         minimizeText={true}

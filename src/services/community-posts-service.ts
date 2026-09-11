@@ -29,11 +29,21 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
         queryFn: async () => {
             const descriptor = await app.storage.communityPosts.get(id);
             const result = forceUnwrap(
-                await app.backend.communityDetails(descriptor),
+                await app.backend.communityDetails2(descriptor),
             );
             await setPosts(app, [result.post]);
-            await communityPosts.setPosts(app, result.replies.data);
-            await communityPosts.setPosts(app, result.upstream);
+            await setPosts(
+                app,
+                result.replies.data.flatMap(reply => {
+                    switch (reply.type) {
+                        case 'single':
+                            return reply.post;
+                        case 'thread':
+                            return reply.thread;
+                    }
+                }),
+            );
+            await setPosts(app, result.upstream);
             const cachedReplies = app.queryClient.getQueryData(
                 repliesOptions(app, result.post).queryKey,
             );
@@ -49,8 +59,6 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
                     },
                 );
             }
-            await setPosts(app, result.replies.data);
-            await setPosts(app, result.upstream);
             return result;
         },
     });
@@ -82,13 +90,23 @@ function repliesOptions(app: AppContext, descriptor: CommunityPostDescriptor) {
         queryKey: ['communityReplies', descriptor.id],
         queryFn: async ({pageParam}: {pageParam: string | null}) => {
             const result = forceUnwrap(
-                await app.backend.communityReplies({
+                await app.backend.communityReplies2({
                     id: descriptor.id,
                     accessHash: descriptor.accessHash,
                     cursorId: pageParam,
                 }),
             );
-            await setPosts(app, result.data);
+            await setPosts(
+                app,
+                result.data.flatMap(reply => {
+                    switch (reply.type) {
+                        case 'single':
+                            return reply.post;
+                        case 'thread':
+                            return reply.thread;
+                    }
+                }),
+            );
             return result;
         },
         initialPageParam: null,

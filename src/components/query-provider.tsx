@@ -76,7 +76,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
             client={client}
             persistOptions={{
                 persister,
-                buster: '3',
+                buster: '4',
                 maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             }}
         >
