@@ -1,5 +1,5 @@
 import {QueryClient} from '@tanstack/react-query';
-import {useQueryClient} from '@tanstack/react-query';
+import {useQueryClient, useIsRestoring} from '@tanstack/react-query';
 import {useAppContext} from '@/app.context';
 import {
     PersistQueryClientProvider,
@@ -80,10 +80,13 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                 maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
             }}
         >
-            <PopulateQueryClient />
-            {children}
+            <PopulateQueryClient>{children}</PopulateQueryClient>
         </PersistQueryClientProvider>
     );
+}
+
+interface PopulateQueryClientProps {
+    children: ReactNode;
 }
 
 // WHY?
@@ -94,9 +97,11 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
 // rejected later.
 //
 // This logic lives under QueryClientProvider.ts
-function PopulateQueryClient(): ReactNode {
+function PopulateQueryClient({children}: PopulateQueryClientProps): ReactNode {
     const client = useQueryClient();
     const app = useAppContext();
     app.queryClient = client;
-    return;
+    const isRestoring = useIsRestoring();
+    if (isRestoring) return;
+    return children;
 }

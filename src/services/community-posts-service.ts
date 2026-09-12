@@ -8,8 +8,10 @@ import {forceUnwrap} from '@/network/result';
 import {
     useQuery,
     queryOptions,
+    useInfiniteQuery,
     infiniteQueryOptions,
 } from '@tanstack/react-query';
+import {useState, useEffect} from 'react';
 import {CommunityPostId} from '@/network/friendly-client';
 import {CommunityPostDetails} from '@/network/friendly-client';
 
@@ -64,22 +66,24 @@ function postDetailsOptions(app: AppContext, id: CommunityPostId) {
     });
 }
 
+async function listQueryFn(app: AppContext, pageParam: string | null) {
+    const result = forceUnwrap(
+        await app.backend.communityList({cursorId: pageParam}),
+    );
+    await setPosts(
+        app,
+        result.data.map(post => ({
+            type: 'plain',
+            ...post,
+        })),
+    );
+    return result;
+}
+
 function listOptions(app: AppContext) {
     return infiniteQueryOptions({
         queryKey: ['communityPosts'],
-        queryFn: async ({pageParam}) => {
-            const result = forceUnwrap(
-                await app.backend.communityList({cursorId: pageParam}),
-            );
-            await setPosts(
-                app,
-                result.data.map(post => ({
-                    type: 'plain',
-                    ...post,
-                })),
-            );
-            return result;
-        },
+        queryFn: async ({pageParam}) => listQueryFn(app, pageParam),
         initialPageParam: null as string | null,
         getNextPageParam: lastPage => lastPage.nextId,
     });
@@ -141,6 +145,48 @@ async function setPosts(app: AppContext, values: CommunityPostDetails[]) {
     }
 }
 
+function useCachedQuery(app: AppContext) {
+    const [enabled, setEnabled] = useState(false);
+    const query = useInfiniteQuery({
+        ...listOptions(app),
+        enabled,
+    });
+
+    useEffect(() => {
+        const key = listOptions(app).queryKey;
+        const data = app.queryClient.getQueryData(key);
+        if (!data) {
+            setEnabled(true);
+            return;
+        }
+        const firstId = data.pages[0].data[0]?.id;
+        if (!firstId) {
+            setEnabled(true);
+            return;
+        }
+        let cancelled = false;
+        void (async () => {
+            const firstPage = await app.queryClient.fetchQuery({
+                queryKey: [...key, 'refetch'],
+                queryFn: () => listQueryFn(app, null),
+            });
+            if (cancelled) return;
+            if (firstId !== firstPage.data[0]?.id) {
+                app.queryClient.setQueryData(key, {
+                    pages: [firstPage],
+                    pageParams: [undefined],
+                });
+            }
+            setEnabled(true);
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    return query;
+}
+
 function useDetails(
     app: AppContext,
     id: CommunityPostId,
@@ -196,6 +242,7 @@ export const communityPosts = {
     saveDescriptors,
     setDetails,
     setPosts,
+    useCachedQuery,
     useDetails,
     usePost,
     invalidateDetails,

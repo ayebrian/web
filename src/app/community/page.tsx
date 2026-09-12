@@ -11,12 +11,7 @@ import {communityPosts} from '@/services/community-posts-service';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
-import {
-    useInfiniteQuery,
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from '@tanstack/react-query';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {Loader2, AlertCircle, SquarePen, Newspaper, Trash} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import React, {
@@ -41,24 +36,7 @@ export function CommunityPage() {
 
     const [newPostText, setNewPostText] = newPost.useText();
 
-    const postsQuery = useInfiniteQuery({
-        queryKey: ['communityPosts'],
-        queryFn: async ({pageParam}) => {
-            const result = forceUnwrap(
-                await backend.communityList({cursorId: pageParam}),
-            );
-            await communityPosts.setPosts(
-                app,
-                result.data.map(post => ({
-                    type: 'plain',
-                    ...post,
-                })),
-            );
-            return result;
-        },
-        initialPageParam: null as string | null,
-        getNextPageParam: lastPage => lastPage.nextId,
-    });
+    const postsQuery = communityPosts.useCachedQuery(app);
 
     useEffect(() => {
         if (!postsQuery.data) return;

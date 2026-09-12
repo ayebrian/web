@@ -94,7 +94,12 @@ function MarkdownAreaComponent(
                             }}>
                         {String(children)}
                         </SyntaxHighlighter>
-                    }
+                    },
+                    sub: ({children}) => (
+                        <div className="mb-1">
+                            <sub>{children}</sub>
+                        </div>
+                    ),
                 }}
             >
                 {text}

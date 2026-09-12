@@ -385,9 +385,10 @@ function MainPostCardPlain({
                             showDelete={isAuthor}
                         />
                     </div>
-                    <div className="text-foreground break-words">
-                        <MarkdownArea text={post.text} />
-                    </div>
+                    <MarkdownArea
+                        className="text-foreground break-words"
+                        text={post.text}
+                    />
                 </div>
             </div>
         </div>

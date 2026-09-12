@@ -1,7 +1,7 @@
 import {useMutation} from '@tanstack/react-query';
 import {useNavigationType, NavigationType} from 'react-router';
 import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
-import {activity} from '@/services/activity';
+import {activity} from '@/services/activity-service';
 import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
@@ -12,7 +12,6 @@ import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
-import {useInfiniteQuery} from '@tanstack/react-query';
 import {Loader2, AlertCircle, Inbox, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
 import {
@@ -24,8 +23,7 @@ import {
 export function ActivityPage() {
     const t = useTranslations('activity');
     const app = useAppContext();
-
-    const activityQuery = useInfiniteQuery(activity.listOptions(app));
+    const activityQuery = activity.useCachedQuery(app);
 
     if (activityQuery.isPending) {
         return (
