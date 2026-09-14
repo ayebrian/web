@@ -30,7 +30,7 @@ export function StyledDialogWrapper({
                     className={cn(
                         'z-2 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
                         'w-full max-w-lg max-h-dvh overflow-y-auto',
-                        'px-10',
+                        'p-8 scrollbar-none',
                     )}
                 >
                     <div
