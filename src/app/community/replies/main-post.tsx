@@ -256,9 +256,16 @@ export function MainPostCard({
                         key={index}
                         emoji={emoji}
                         disabled={isSubmitting}
-                        onClick={() =>
-                            createMutation.mutate({text: emoji, redirect: true})
-                        }
+                        onClick={() => {
+                            if (text.trim().length === 0) {
+                                createMutation.mutate({
+                                    text: emoji,
+                                    redirect: true,
+                                });
+                            } else {
+                                setText(text => `${text}${emoji}`);
+                            }
+                        }}
                     />
                 ))}
             </div>
