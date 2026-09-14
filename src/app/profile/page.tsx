@@ -1,4 +1,5 @@
 import {useBlockingQR} from '@/app/blocking-qr/page';
+import {useLocation} from 'react-router';
 import {forceUnwrap} from '@/network/result';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
@@ -23,6 +24,7 @@ import {StyledAvatar} from '@/components/styled-avatar';
 function ProfileHeader({logOut}: {logOut: () => void}) {
     const t = useTranslations('profile');
     const app = useAppContext();
+    const location = useLocation().state as {edit: boolean} | undefined;
     const userDetails = users.self(app).data!.user;
 
     const avatarUrl = useMemo(
@@ -30,7 +32,7 @@ function ProfileHeader({logOut}: {logOut: () => void}) {
         [userDetails],
     );
 
-    const [openEdit, setOpenEdit] = useState(false);
+    const [openEdit, setOpenEdit] = useState(location?.edit ?? false);
     const onEditClick = useCallback(() => setOpenEdit(true), []);
     const [openLogout, setOpenLogout] = useState(false);
     const [openQR, setOpenQR] = useState(false);

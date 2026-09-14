@@ -3,6 +3,7 @@ import {
     VirtualItem,
     Virtualizer,
 } from '@tanstack/react-virtual';
+import {VisitTip} from '@/app/tips/visit-tip';
 import {useNavigationType, NavigationType} from 'react-router';
 import {useBackend} from '@/backend.context';
 import {users} from '@/services/users-service';
@@ -222,9 +223,11 @@ export function CommunityPage() {
     }
 
     return (
-        <div className="flex flex-col items-center w-full h-full px-4">
-            {content}
-        </div>
+        <VisitTip>
+            <div className="flex flex-col items-center w-full h-full px-4">
+                {content}
+            </div>
+        </VisitTip>
     );
 }
 

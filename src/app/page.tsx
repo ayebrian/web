@@ -4,6 +4,8 @@ import {useNavigate, useLocation} from 'react-router';
 import {Outlet} from 'react-router';
 import {useSession} from '@/components/session-provider';
 import {useBlockingQR} from '@/app/blocking-qr/page';
+import {users} from '@/services/users-service';
+import {useAppContext} from '@/app.context';
 import {Loader2} from 'lucide-react';
 
 export function AppPage() {
@@ -13,11 +15,13 @@ export function AppPage() {
     const navigate = useNavigate();
     const session = useSession();
     const location = useLocation();
+    const app = useAppContext();
 
     useEffect(() => {
         if (location.pathname === '/') {
             void navigate('/community');
         }
+        void users.prefetchSelf(app);
     }, []);
 
     useEffect(() => {

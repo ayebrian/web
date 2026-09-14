@@ -38,6 +38,12 @@ function ensureSelf(app: AppContext): Promise<UserDetailsResponse> {
     });
 }
 
+function prefetchSelf(app: AppContext): Promise<void> {
+    return app.queryClient.prefetchQuery({
+        ...selfOptions(app),
+    });
+}
+
 function setSelf(app: AppContext, value?: UserDetailsResponse) {
     app.queryClient.setQueryData(selfOptions(app).queryKey, value);
 }
@@ -52,5 +58,6 @@ export const users = {
     self,
     setSelf,
     ensureSelf,
+    prefetchSelf,
     useSelf,
 };

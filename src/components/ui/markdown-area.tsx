@@ -40,6 +40,9 @@ function MarkdownAreaComponent(
                 remarkPlugins={[remarkBreaks, remarkGfm]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize]}
                 components={{
+                    img: ({ node, ...props }) => (
+                        <img className="rounded-lg" {...props} />
+                    ),
                     a: ({href, children}) => (
                         <a
                             href={href}
@@ -96,9 +99,9 @@ function MarkdownAreaComponent(
                         </SyntaxHighlighter>
                     },
                     sub: ({children}) => (
-                        <div className="mb-1">
+                        <span className="inline-block mb-1">
                             <sub>{children}</sub>
-                        </div>
+                        </span>
                     ),
                 }}
             >

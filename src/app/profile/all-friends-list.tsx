@@ -67,17 +67,8 @@ export function AllFriendsList({friends, open, setOpen}: AllFriendsListProps) {
     };
 
     return (
-        <StyledDialogWrapper
-            open={open}
-            onOpenChange={setOpen}
-            contentClassName="-translate-y-1/2 p-5"
-        >
-            <div
-                className="
-                            rounded-xl bg-popover
-                            shadow-xl
-                            "
-            >
+        <StyledDialogWrapper open={open} onOpenChange={setOpen}>
+            <div>
                 <div className="p-0">
                     <div className="flex flex-col">
                         <div className="relative flex items-center mt-1 mx-1">

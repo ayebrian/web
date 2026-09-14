@@ -1,16 +1,11 @@
-import {useAppContext} from '@/app.context';
 import {FeedQueueResponse} from '@/network/friendly-client';
 import {useQueryClient} from '@tanstack/react-query';
 import {forceUnwrap} from '@/network/result';
-import {users} from '@/services/users-service';
 import {Button} from '@/components/ui/button';
-import {useEmailBindingSuggestion} from '@/lib/email-binding-suggestion';
 import {FeedItem} from '@/network/friendly-client';
 import {Activity, BookUser, Loader2, X, Check, Heart} from 'lucide-react';
 import {useCallback, useState} from 'react';
 import {useTranslations} from 'use-intl';
-import {EditProfileDialog} from '@/app/edit/dialog';
-import {SuggestEmailBindingDialog} from '@/app/suggest-email-binding-dialog';
 import {FeedDialog} from '@/app/feed/feed-dialog';
 import {useBackend} from '@/backend.context';
 import {useQuery} from '@tanstack/react-query';
@@ -49,15 +44,6 @@ export default function FeedPage() {
 
     const [loading, setLoading] = useState(false);
 
-    const app = useAppContext();
-    const self = users.useSelf(app);
-
-    const {
-        status: emailSuggestionStatus,
-        setStatus: setEmailSuggestionStatus,
-        trackSwipe,
-    } = useEmailBindingSuggestion();
-
     const onReview = useCallback(
         async (card: FeedItem, direction: SwipeDirection) => {
             const request = {
@@ -87,10 +73,6 @@ export default function FeedPage() {
         }
 
         setLoading(true);
-
-        if (self.data) {
-            trackSwipe(self.data.user.email);
-        }
 
         try {
             await onReview(selectedCard, direction);
@@ -191,16 +173,6 @@ export default function FeedPage() {
                     <X className="h-8 w-8" />
                 </Button>
             </div>
-            <SuggestEmailBindingDialog
-                status={emailSuggestionStatus}
-                setStatus={setEmailSuggestionStatus}
-            />
-            <EditProfileDialog
-                open={emailSuggestionStatus === 'accepted'}
-                setOpen={isOpen => {
-                    if (!isOpen) setEmailSuggestionStatus('declined');
-                }}
-            />
         </div>
     );
 }

@@ -75,8 +75,8 @@ export function BlockingQR(): ReactNode {
         <>
             <StyledDialogWrapper
                 open={true}
+                popoverBackground={false}
                 preventDefault={true}
-                contentClassName="-translate-y-1/2 p-4"
             >
                 <>
                     <div className="w-full flex justify-center mb-4">
