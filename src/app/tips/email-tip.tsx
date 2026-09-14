@@ -48,12 +48,12 @@ export async function recordShow() {
     await idb.set(COUNTER, counter + 1);
 }
 
-export interface EmailTipContentProps {
+export interface ContentProps {
     show: boolean;
     setShow: (value: boolean) => void;
 }
 
-export function Content({show, setShow}: EmailTipContentProps) {
+export function Content({show, setShow}: ContentProps) {
     const t = useTranslations('email-tip');
     const navigate = useNavigate();
 

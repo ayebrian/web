@@ -3,6 +3,7 @@ import {useAppContext} from '@/app.context';
 import {useState, useEffect} from 'react';
 import * as idb from 'idb-keyval';
 import * as emailTip from '@/app/tips/email-tip';
+import * as notificationsTip from '@/app/tips/notifications-tip';
 
 const VISITS = 'tip-visits';
 const FIRST_VISIT = 'tip-first-visit';
@@ -14,6 +15,7 @@ export interface VisitTipProps {
 export function VisitTip({children}: VisitTipProps) {
     const app = useAppContext();
     const [showEmail, setShowEmail] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     useEffect(() => {
         let cancel = false;
@@ -30,15 +32,20 @@ export function VisitTip({children}: VisitTipProps) {
             }
             if (cancel) return;
 
-            const showEmail = await emailTip.shouldShow({
-                app,
-                visits,
-                firstVisit,
-            });
+            const [showEmail, showNotifications] = await Promise.all([
+                emailTip.shouldShow({app, visits, firstVisit}),
+                notificationsTip.shouldShow({visits, firstVisit}),
+            ]);
             if (cancel) return;
             if (showEmail) {
                 await emailTip.recordShow();
                 setShowEmail(true);
+                return;
+            }
+            if (showNotifications) {
+                await notificationsTip.recordShow();
+                setShowNotifications(true);
+                return;
             }
         })();
         return () => {
@@ -50,6 +57,10 @@ export function VisitTip({children}: VisitTipProps) {
         <>
             {children}
             <emailTip.Content show={showEmail} setShow={setShowEmail} />
+            <notificationsTip.Content
+                show={showNotifications}
+                setShow={setShowNotifications}
+            />
         </>
     );
 }

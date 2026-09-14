@@ -21,29 +21,26 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
-const swiped = Number(localStorage.getItem('feed-swipes') ?? '0');
+export async function main() {
+    const messaging = getMessaging(firebaseApp);
+    onMessage(messaging, message => void postMessage(message));
+}
 
-export async function main(app: AppContext) {
+export async function request(app: AppContext) {
     if (!(await isSupported())) return;
 
     const messaging = getMessaging(firebaseApp);
-    onMessage(messaging, message => void postMessage(message));
 
-    if (
-        swiped > 20 ||
-        localStorage.getItem('request-notifications') === 'true'
-    ) {
-        void window.Notification.requestPermission().then(permission => {
-            if (permission !== 'granted') return;
-            void getToken(messaging, {
-                vapidKey:
-                    'BAEj5IbZiBmuUHKNu1Z3hoM5OHEEETG63Lg7mcxxG-kX5t-r5minZEeZTFC-qlW5vYir7mSt3eruuZbr0WcORX0',
-            }).then(token => {
-                setFirebaseToken(token);
-                void nudge(app);
-            });
+    void window.Notification.requestPermission().then(permission => {
+        if (permission !== 'granted') return;
+        void getToken(messaging, {
+            vapidKey:
+                'BAEj5IbZiBmuUHKNu1Z3hoM5OHEEETG63Lg7mcxxG-kX5t-r5minZEeZTFC-qlW5vYir7mSt3eruuZbr0WcORX0',
+        }).then(token => {
+            setFirebaseToken(token);
+            void nudge(app);
         });
-    }
+    });
 }
 
 /**
