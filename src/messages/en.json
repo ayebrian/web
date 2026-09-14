@@ -89,7 +89,7 @@
     },
     "notifications-tip": {
         "title": "Don't miss on updates!",
-        "description": "If you want to see new messages and events, turn on notifications",
+        "description": "If you want to see new messages and events, turn on notifications. We only send important notifications such as replies and friend requests. No recommendations or ADs",
         "confirm": "Yes",
         "decline": "No"
     },
