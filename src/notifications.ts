@@ -5,7 +5,6 @@ import {
     getToken,
     onMessage,
     MessagePayload,
-    isSupported,
 } from 'firebase/messaging';
 
 // Erm... Actually, these are not private
@@ -26,9 +25,7 @@ export async function main() {
     onMessage(messaging, message => void postMessage(message));
 }
 
-export async function request(app: AppContext) {
-    if (!(await isSupported())) return;
-
+export function request(app: AppContext) {
     const messaging = getMessaging(firebaseApp);
 
     void window.Notification.requestPermission().then(permission => {
