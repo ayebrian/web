@@ -22,7 +22,8 @@ export async function shouldShow({
     visits,
     firstVisit,
 }: ShouldShowProps): Promise<boolean> {
-    if (users.self(app).data?.user?.email) return false;
+    const self = await users.ensureSelf(app);
+    if (self.user.email) return false;
 
     const counter: number = (await idb.get(COUNTER)) ?? 0;
 
