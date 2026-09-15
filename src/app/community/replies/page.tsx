@@ -102,7 +102,7 @@ export function RepliesPage() {
         <div key={idInt} className="relative px-4 flex flex-col w-full h-full">
             {content}
             <div className="absolute flex justify-center top-0 left-0 right-0 pointer-events-none">
-                <div className="w-full max-w-2xl ms-4 pe-14" />
+                <div className="w-full max-w-2xl ms-4 ms-14" />
                 <Button
                     className={cn(
                         'h-10 w-10 mt-2 mx-2',
@@ -305,7 +305,7 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
             ref={scrollableRef}
             className="relative h-full w-full py-4 overflow-y-auto scrollbar-none"
         >
-            <div className="w-full md:pe-10">
+            <div className="w-full px-10">
                 <div className="mx-auto h-full w-full max-w-2xl">
                     {upstreamContent}
                     <MainPostCard

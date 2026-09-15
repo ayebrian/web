@@ -117,6 +117,17 @@ const router = createBrowserRouter([
     },
 ]);
 
+// Fixes already-running browser tabs that try to address deleted assets
+window.addEventListener(
+    'vite:preloadError',
+    event =>
+        void (async () => {
+            event.preventDefault();
+            await new Promise(resolve => setTimeout(resolve, 2_000));
+            window.location.reload();
+        })(),
+);
+
 const start = performance.now();
 
 await authService.initialize(app);
