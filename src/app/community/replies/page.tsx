@@ -305,7 +305,7 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
             ref={scrollableRef}
             className="relative h-full w-full py-4 overflow-y-auto scrollbar-none"
         >
-            <div className="w-full px-10">
+            <div className="w-full md:px-10">
                 <div className="mx-auto h-full w-full max-w-2xl">
                     {upstreamContent}
                     <MainPostCard
