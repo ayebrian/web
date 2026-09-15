@@ -114,7 +114,10 @@ function CommunityPostCardPlain({
                         >
                             {post.owner.nickname}
                         </p>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                        <span
+                            title={postTime.toLocaleString()}
+                            className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap"
+                        >
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(t, postTime)}
                             {post.edited ? ' ' + t('edited') : undefined}
@@ -196,7 +199,10 @@ function CommunityPostCardDeleted({
             <p className="italic text-foreground truncate cursor-pointer">
                 {t('deleted')}
             </p>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+            <span
+                title={postTime.toLocaleString()}
+                className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap"
+            >
                 <Clock className="h-3 w-3" />
                 {formatTimeAgo(t, postTime)}
             </span>

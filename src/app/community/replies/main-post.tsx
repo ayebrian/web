@@ -168,7 +168,12 @@ export function MainPostCard({
                 );
                 break;
             case 'deleted':
-                card = <MainPostCardDeleted first={first} />;
+                card = (
+                    <MainPostCardDeleted
+                        first={first}
+                        instant={details.post.instant}
+                    />
+                );
                 break;
         }
 
@@ -381,7 +386,10 @@ function MainPostCardPlain({
                         >
                             {post.owner.nickname}
                         </p>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                        <span
+                            title={postTime.toLocaleString()}
+                            className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap"
+                        >
                             <Clock className="h-3 w-3" />
                             {formatTimeAgo(t, postTime)}
                             {post.edited ? ' ' + t('edited') : undefined}
@@ -405,21 +413,32 @@ function MainPostCardPlain({
 
 interface MainPostCardDeletedProps {
     first: boolean;
+    instant: string;
 }
 
-function MainPostCardDeleted({first}: MainPostCardDeletedProps) {
+function MainPostCardDeleted({first, instant}: MainPostCardDeletedProps) {
     const t = useTranslations('post');
+    const postTime = new Date(instant);
+
     return (
         <div
             className={cn(
                 first ? 'rounded-tl-xl rounded-tr-xl' : '',
                 'border-l border-r border-t border-border',
-                'bg-card p-4 cursor-pointer',
+                'bg-card',
+                'p-4 cursor-pointer flex items-center justify-between',
             )}
         >
             <p className="italic text-foreground truncate cursor-pointer">
                 {t('deleted')}
             </p>
+            <span
+                title={postTime.toLocaleString()}
+                className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap"
+            >
+                <Clock className="h-3 w-3" />
+                {formatTimeAgo(t, postTime)}
+            </span>
         </div>
     );
 }
