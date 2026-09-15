@@ -351,7 +351,6 @@ function ThreadContent({thread, popDepth}: ThreadContentProps) {
                 )}
                 postId={thread[0].id}
                 minimizeToolbar={true}
-                minimizeText={false}
                 popDepth={popDepth}
             />
             {thread.length > 2 &&
@@ -363,7 +362,6 @@ function ThreadContent({thread, popDepth}: ThreadContentProps) {
                             className="bg-card border-l border-r border-b border-border"
                             postId={post.id}
                             minimizeToolbar={true}
-                            minimizeText={false}
                             popDepth={popDepth}
                         />
                     ))}
@@ -376,7 +374,6 @@ function ThreadContent({thread, popDepth}: ThreadContentProps) {
                 )}
                 postId={thread.at(-1)!.id}
                 minimizeToolbar={false}
-                minimizeText={true}
                 popDepth={popDepth}
             />
         </>
