@@ -117,23 +117,14 @@ const router = createBrowserRouter([
     },
 ]);
 
-// Fixes already-running browser tabs that try to address deleted assets
-//
-// However, this still leaves an important room for improvement.
-//
-// If website was updated and user sees old html file cached by service worker,
-// reload will only help if service worker decides to clear its cache.
-//
-// If user just updated their cache and service worker is not updating anything
-// it will result in infinite loading circle.
-//
-// Idk how to fix that yet.
 window.addEventListener(
     'vite:preloadError',
     event =>
         void (async () => {
             event.preventDefault();
-            await new Promise(resolve => setTimeout(resolve, 2_000));
+            const registration =
+                await navigator.serviceWorker.getRegistration();
+            await registration?.update();
             window.location.reload();
         })(),
 );
