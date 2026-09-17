@@ -252,10 +252,7 @@ function ActivityCard({id}: ActivityCardProps) {
     switch (details.type) {
         case 'reply':
             content = (
-                <ReplyActivityCard
-                    details={details}
-                    beforeClick={handleRead}
-                />
+                <ReplyActivityCard details={details} beforeClick={handleRead} />
             );
             break;
     }
