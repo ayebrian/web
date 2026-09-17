@@ -66,7 +66,7 @@ function MarkdownAreaComponent(
                     li: ({children}) => (
                         <div className="grid grid-cols-[min-content_1fr]">
                             <li className="list-item" />
-                            <div className="w-full ps-1 space-y-[1em] break-words overflow-x-hidden">
+                            <div className="w-full ps-1 space-y-[1em] break-words overflow-hidden">
                                 {children}
                             </div>
                         </div>

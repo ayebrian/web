@@ -209,7 +209,7 @@ function ActivityCard({id}: ActivityCardProps) {
         },
     });
 
-    function handleClick() {
+    function beforeClick() {
         if (readMutation.isPending) return;
         readMutation.mutate();
     }
@@ -219,7 +219,10 @@ function ActivityCard({id}: ActivityCardProps) {
     switch (details.type) {
         case 'reply':
             content = (
-                <ReplyActivityCard details={details} onClick={handleClick} />
+                <ReplyActivityCard
+                    details={details}
+                    beforeClick={beforeClick}
+                />
             );
             break;
     }
@@ -238,10 +241,10 @@ function ActivityCard({id}: ActivityCardProps) {
 
 export interface ReplyActivityCardProps {
     details: ActivityDetailsReply;
-    onClick: () => void;
+    beforeClick: () => void;
 }
 
-function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
+function ReplyActivityCard({details, beforeClick}: ReplyActivityCardProps) {
     const t = useTranslations('activity');
 
     const navigate = useNavigate();
@@ -253,12 +256,12 @@ function ReplyActivityCard({details, onClick}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
     async function navigatePost() {
+        beforeClick();
         await navigate(`/community/${details.post.id}/replies`, {
             state: {
                 popDepth: 1,
             },
         });
-        onClick();
     }
     return (
         <div
