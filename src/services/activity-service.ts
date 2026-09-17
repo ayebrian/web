@@ -93,8 +93,35 @@ async function setDetails(app: AppContext, values: ActivityDetails[]) {
         );
     await communityPosts.setPosts(app, replies);
     for (const value of values) {
-        app.queryClient.setQueryData(detailsOptions(value.id).queryKey, value);
+        app.queryClient.setQueryData(
+            detailsOptions(value.id).queryKey,
+            previous => ({
+                ...value,
+                // A list request started before activityRead may finish after it.
+                isRead: value.isRead || previous?.isRead === true,
+            }),
+        );
     }
+}
+
+async function markRead(app: AppContext, id: ActivityId) {
+    forceUnwrap(await app.backend.activityRead({id}));
+    app.queryClient.setQueryData(detailsOptions(id).queryKey, previous =>
+        previous ? {...previous, isRead: true} : previous,
+    );
+    app.queryClient.setQueryData(listOptions(app).queryKey, previous =>
+        previous
+            ? {
+                  ...previous,
+                  pages: previous.pages.map(page => ({
+                      ...page,
+                      data: page.data.map(item =>
+                          item.id === id ? {...item, isRead: true} : item,
+                      ),
+                  })),
+              }
+            : previous,
+    );
 }
 
 function useDetails(id: ActivityId): Resource<ActivityDetails> {
@@ -107,5 +134,6 @@ export const activity = {
     useCachedQuery,
     detailsOptions,
     setDetails,
+    markRead,
     useDetails,
 };

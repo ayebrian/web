@@ -6,11 +6,17 @@ import {cn} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
-import {useState, useEffect, ReactElement, useRef, useMemo} from 'react';
+import {
+    useState,
+    useEffect,
+    ReactElement,
+    useRef,
+    useMemo,
+    useCallback,
+} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
-import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {Loader2, AlertCircle, Inbox, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -190,29 +196,56 @@ interface ActivityCardProps {
 
 function ActivityCard({id}: ActivityCardProps) {
     const app = useAppContext();
+    const cardRef = useRef<HTMLDivElement>(null);
+    const readPending = useRef(false);
 
     const details = activity.useDetails(id).data;
     if (details === undefined) {
         throw new Error('Activity details must be present after loading');
     }
 
-    const readMutation = useMutation({
+    const {mutate: markRead} = useMutation({
         mutationKey: ['activityRead', id],
-        mutationFn: async () => {
-            await activity.setDetails(app, [
-                {
-                    ...details,
-                    isRead: true,
-                },
-            ]);
-            forceUnwrap(await app.backend.activityRead({id}));
+        mutationFn: () => activity.markRead(app, id),
+        retry: 2,
+        onSettled: () => {
+            readPending.current = false;
         },
     });
 
-    function beforeClick() {
-        if (readMutation.isPending) return;
-        readMutation.mutate();
-    }
+    const isRead = details.isRead;
+    const handleRead = useCallback(() => {
+        if (isRead || readPending.current) return;
+        readPending.current = true;
+        markRead();
+    }, [isRead, markRead]);
+
+    useEffect(() => {
+        const card = cardRef.current;
+        if (!card || isRead) return;
+
+        let visible = false;
+        const readIfVisible = () => {
+            if (visible && document.visibilityState === 'visible') {
+                handleRead();
+            }
+        };
+        // Virtualized cards can be mounted outside the scroll viewport.
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                visible =
+                    entry.isIntersecting && entry.intersectionRatio >= 0.5;
+                readIfVisible();
+            },
+            {threshold: 0.5},
+        );
+        observer.observe(card);
+        document.addEventListener('visibilitychange', readIfVisible);
+        return () => {
+            observer.disconnect();
+            document.removeEventListener('visibilitychange', readIfVisible);
+        };
+    }, [isRead, handleRead]);
 
     let content;
 
@@ -221,7 +254,7 @@ function ActivityCard({id}: ActivityCardProps) {
             content = (
                 <ReplyActivityCard
                     details={details}
-                    beforeClick={beforeClick}
+                    beforeClick={handleRead}
                 />
             );
             break;
@@ -229,6 +262,7 @@ function ActivityCard({id}: ActivityCardProps) {
 
     return (
         <div
+            ref={cardRef}
             className={cn(
                 'rounded-xl cursor-pointer border border-border',
                 details.isRead ? 'bg-card' : 'bg-primary/10',
