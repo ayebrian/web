@@ -126,7 +126,10 @@ async function runCustomPersister({
         if (elapsed >= throttle) {
             lastSavedMillis = Date.now();
             const state = dehydrate(client);
-            void set(key, state);
+            void set(key, {
+                state,
+                buster,
+            } satisfies PersistedClient);
             return;
         }
         timeout = window.setTimeout(() => {
