@@ -84,7 +84,7 @@ export default defineConfig({
                 // },
                 // WebAPK doesn't support dynamic status bar color without it
                 // theme_color: '#007aff',
-                // background_color: '#222222',
+                background_color: '#222222',
                 icons: [
                     {
                         src: 'pwa-icon.svg',
