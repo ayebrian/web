@@ -1,87 +1,56 @@
-import {QueryClient} from '@tanstack/react-query';
-import {useQueryClient, useIsRestoring} from '@tanstack/react-query';
-import {useAppContext} from '@/app.context';
 import {
-    PersistQueryClientProvider,
-    PersistedClient,
-    Persister,
-} from '@tanstack/react-query-persist-client';
-import {useMemo} from 'react';
+    QueryClient,
+    DehydratedState,
+    dehydrate,
+    hydrate,
+    QueryClientProvider,
+} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
+import {useAppContext} from '@/app.context';
+import {useMemo, useEffect, useState} from 'react';
 import {get, set, del} from 'idb-keyval';
 import {ReactNode} from 'react';
 
-/**
- * Avoid local-storage limits.
- * @see https://github.com/TanStack/query/discussions/3198#discussion-3801221
- */
-export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
-    const throttle = 5000;
-
-    let lastSavedMillis = 0;
-    let lastKnownClient: PersistedClient;
-    let timeout: number | undefined;
-
-    function persistClient(client: PersistedClient) {
-        lastKnownClient = client;
-        if (timeout !== undefined) {
-            return;
-        }
-        const elapsed = Date.now() - lastSavedMillis;
-        if (elapsed >= throttle) {
-            lastSavedMillis = Date.now();
-            void set(idbValidKey, lastKnownClient);
-            return;
-        }
-        timeout = window.setTimeout(() => {
-            timeout = undefined;
-            persistClient(lastKnownClient);
-        }, throttle - elapsed);
-    }
-
-    return {
-        persistClient: async (client: PersistedClient) => {
-            persistClient(client);
-        },
-        restoreClient: async () => {
-            return await get<PersistedClient>(idbValidKey);
-        },
-        removeClient: async () => {
-            await del(idbValidKey);
-        },
-    } satisfies Persister;
-}
-
 export function QueryProvider({children}: {children: React.ReactNode}) {
-    const client = useMemo(() => {
-        const client = new QueryClient({
-            defaultOptions: {
-                queries: {
-                    retry: true,
-                    retryDelay: 1_000,
-                    refetchOnWindowFocus: true,
-                    refetchOnReconnect: true,
-                    refetchOnMount: true,
-                    staleTime: 1_000,
-                    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+    const client = useMemo(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        retry: true,
+                        retryDelay: 1_000,
+                        refetchOnWindowFocus: true,
+                        refetchOnReconnect: true,
+                        refetchOnMount: true,
+                        staleTime: 1_000,
+                        gcTime: Infinity,
+                    },
                 },
-            },
-        });
-        return client;
-    }, []);
+            }),
+        [],
+    );
 
-    const persister = useMemo(() => createIDBPersister(), []);
+    const [hydrated, setHydrated] = useState(false);
+
+    useEffect(() => {
+        const abort = new AbortController();
+        void runCustomPersister({
+            client,
+            setHydrated: () => setHydrated(true),
+            buster: '5',
+            abort: abort.signal,
+        });
+        return () => {
+            abort.abort();
+        };
+    });
+
+    if (!hydrated) return;
 
     return (
-        <PersistQueryClientProvider
-            client={client}
-            persistOptions={{
-                persister,
-                buster: '4',
-                maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-            }}
-        >
+        <QueryClientProvider client={client}>
             <PopulateQueryClient>{children}</PopulateQueryClient>
-        </PersistQueryClientProvider>
+        </QueryClientProvider>
     );
 }
 
@@ -101,7 +70,78 @@ function PopulateQueryClient({children}: PopulateQueryClientProps): ReactNode {
     const client = useQueryClient();
     const app = useAppContext();
     app.queryClient = client;
-    const isRestoring = useIsRestoring();
-    if (isRestoring) return;
     return children;
+}
+
+interface CreateCustomPersisterProps {
+    client: QueryClient;
+    buster: string;
+    abort: AbortSignal;
+    setHydrated: () => void;
+}
+
+interface PersistedClient {
+    state: DehydratedState;
+    buster: string;
+}
+
+/**
+ * Cannot use builtin persister as it is not optimized for high-frequency saves.
+ */
+async function runCustomPersister({
+    client,
+    buster,
+    abort,
+    setHydrated,
+}: CreateCustomPersisterProps) {
+    const key = 'reactQuery';
+    const throttle = 5000;
+
+    let lastSavedMillis = 0;
+    let timeout: number | undefined;
+
+    const restored = await get<PersistedClient>(key);
+    if (abort.aborted) return;
+    if (restored) {
+        if (restored.buster !== buster) {
+            await del(key);
+        } else {
+            hydrate(client, restored.state);
+        }
+    }
+    if (abort.aborted) return;
+
+    // Custom GC that doesn't use timeouts
+    // (which are expensive at our cache scale)
+    const week = 1000 * 60 * 60 * 24 * 7;
+    client.removeQueries({
+        predicate: query => Date.now() - query.state.dataUpdatedAt > week,
+    });
+
+    function onCacheChange() {
+        if (timeout !== undefined) {
+            return;
+        }
+        const elapsed = Date.now() - lastSavedMillis;
+        if (elapsed >= throttle) {
+            lastSavedMillis = Date.now();
+            const state = dehydrate(client);
+            void set(key, state);
+            return;
+        }
+        timeout = window.setTimeout(() => {
+            timeout = undefined;
+            onCacheChange();
+        }, throttle - elapsed);
+    }
+    const unsubscribe = client.getQueryCache().subscribe(onCacheChange);
+
+    abort.onabort = () => {
+        unsubscribe();
+        if (timeout) {
+            window.clearTimeout(timeout);
+        }
+    };
+
+    setHydrated();
 }
