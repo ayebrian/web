@@ -2,7 +2,7 @@ import React, {useMemo, useEffect, useState} from 'react';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
 import ReactMarkdown from 'react-markdown';
 import {useTheme} from '@/components/theme-provider';
 import {cn} from '@/lib/utils';
@@ -17,6 +17,15 @@ const linkClass = cn(
     'decoration-primary/30 transition-colors hover:decoration-primary',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 );
+
+const sanitizeSchema = {
+    ...defaultSchema,
+    tagNames: [...defaultSchema.tagNames || [], 'audio'],
+    attributes: {
+        ...defaultSchema.attributes,
+        audio: ['src'],
+    },
+}
 
 interface MarkdownAreaProps {
     text: string;
@@ -40,7 +49,7 @@ function MarkdownAreaComponent(
             )}>
             <ReactMarkdown
                 remarkPlugins={[remarkBreaks, remarkGfm, injectPlaintext]}
-                rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                 components={{
                     img: ({ node, ...props }) => (
                         <img className="rounded-lg" {...props} />
@@ -79,6 +88,9 @@ function MarkdownAreaComponent(
                                 {children}
                             </table>
                         </div>
+                    ),
+                    audio: ({node, ...props}) => (
+                        <audio controls {...props} />
                     ),
                     code: ({children, className, node, ...rest}) => {
                         console.log(children, className, node, rest);
