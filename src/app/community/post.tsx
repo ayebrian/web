@@ -81,14 +81,6 @@ function CommunityPostCardPlain({
         if (el) setIsTruncated(el.scrollHeight > el.clientHeight);
     }, []);
 
-    async function navigateReplies() {
-        await navigate(`/community/${post.id}/replies`, {
-            state: {
-                popDepth,
-            },
-        });
-    }
-
     async function navigateProfile(event: React.MouseEvent) {
         event.stopPropagation();
         await storage.userAccessHashes.save([
@@ -103,7 +95,10 @@ function CommunityPostCardPlain({
     return (
         <div
             className={cn('p-4 cursor-pointer', className)}
-            onClick={() => void navigateReplies()}
+            onClick={e => void navigateReplies(navigate, post.id, popDepth, e)}
+            onAuxClick={e =>
+                void navigateReplies(navigate, post.id, popDepth, e)
+            }
         >
             <div className="flex gap-3">
                 <StyledAvatar
@@ -192,21 +187,16 @@ function CommunityPostCardDeleted({
     const navigate = useNavigate();
     const postTime = new Date(post.instant);
 
-    async function navigateReplies() {
-        await navigate(`/community/${post.id}/replies`, {
-            state: {
-                popDepth,
-            },
-        });
-    }
-
     return (
         <div
             className={cn(
                 'p-4 cursor-pointer flex items-center justify-between',
                 className,
             )}
-            onClick={() => void navigateReplies()}
+            onClick={e => void navigateReplies(navigate, post.id, popDepth, e)}
+            onAuxClick={e =>
+                void navigateReplies(navigate, post.id, popDepth, e)
+            }
         >
             <p className="italic text-foreground truncate cursor-pointer">
                 {t('deleted')}
@@ -238,4 +228,18 @@ function formatTimeAgo(
     if (diffHours < 24) return t('hours_ago', {count: diffHours});
     if (diffDays < 7) return t('days_ago', {count: diffDays});
     return date.toLocaleDateString();
+}
+
+async function navigateReplies(
+    navigate: ReturnType<typeof useNavigate>,
+    postId: CommunityPostId,
+    popDepth: number,
+    event?: React.MouseEvent,
+) {
+    if (event?.button !== 0 && event?.button !== 1) return;
+    if (event?.button === 1 || event.metaKey || event.ctrlKey) {
+        window.open(`/community/${postId}/replies`, '_blank');
+        return;
+    }
+    await navigate(`/community/${postId}/replies`, {state: {popDepth}});
 }
