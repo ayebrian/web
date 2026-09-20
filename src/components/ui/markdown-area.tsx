@@ -9,6 +9,8 @@ import {cn} from '@/lib/utils';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {oneLight} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import {oneDark} from 'react-syntax-highlighter/dist/esm/styles/prism'
+import type { Root } from 'mdast';
+import { visit } from 'unist-util-visit';
 
 const linkClass = cn(
     'font-medium text-primary underline underline-offset-4',
@@ -37,7 +39,7 @@ function MarkdownAreaComponent(
                 className,
             )}>
             <ReactMarkdown
-                remarkPlugins={[remarkBreaks, remarkGfm]}
+                remarkPlugins={[remarkBreaks, remarkGfm, injectPlaintext]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize]}
                 components={{
                     img: ({ node, ...props }) => (
@@ -79,24 +81,38 @@ function MarkdownAreaComponent(
                         </div>
                     ),
                     code: ({children, className, node, ...rest}) => {
+                        console.log(children, className, node, rest);
+                        console.log("yo", String(children).includes('\n'))
                         const match = /language-(\w+)/.exec(className || '')
-                        return <SyntaxHighlighter
-                            className="overflow-x-auto scrollbar-none text-xs"
-                            language={match?.[1]}
-                            style={codeStyle}
-                            wrapLongLines={true}
-                            customStyle={{
-                                backgroundColor: 'var(--color-muted)',
-                                padding: 8,
-                            }}
-                            lineProps={{
-                                style: {
-                                    display: 'block',
-                                    padding: 0,
-                                },
-                            }}>
-                        {String(children)}
-                        </SyntaxHighlighter>
+                        return match ? (
+                            <SyntaxHighlighter
+                                className={cn(
+                                    "overflow-x-auto scrollbar-none text-xs",
+                                    className,
+                                )}
+                                language={match[1]}
+                                style={codeStyle}
+                                wrapLongLines={true}
+                                customStyle={{
+                                    backgroundColor: 'var(--color-muted)',
+                                    padding: 8,
+                                }}
+                                lineProps={{
+                                    style: {
+                                        display: 'block',
+                                        padding: 0,
+                                    },
+                                }}>
+                                {String(children)}
+                            </SyntaxHighlighter>
+                        ) : (
+                            <code {...rest} className={cn(
+                                "bg-muted text-muted-foreground p-0.5 px-1 h-full text-sm rounded-lg",
+                                className,
+                            )}>
+                                {String(children)}
+                            </code>
+                        )
                     },
                     sub: ({children}) => (
                         <span className="inline-block mb-1">
@@ -110,6 +126,12 @@ function MarkdownAreaComponent(
         </div>
     );
 }
+
+const injectPlaintext = () => (tree: Root) => {
+  visit(tree, 'code', (node) => {
+    node.lang = node.lang ?? 'plaintext';
+  });
+};
 
 function useCodeStyle() {
     const theme = useTheme().theme;
