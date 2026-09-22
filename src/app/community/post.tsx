@@ -14,7 +14,7 @@ import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {communityPosts} from '@/services/community-posts-service';
 import {CommunityPostId} from '@/network/friendly-client';
 import {cn} from '@/lib/utils';
-import {useCallback, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 export interface CommunityPostCardProps {
     className?: string;
@@ -76,10 +76,17 @@ function CommunityPostCardPlain({
         : undefined;
     const postTime = new Date(post.instant);
 
+    const textRef = useRef<HTMLDivElement>(null);
     const [isTruncated, setIsTruncated] = useState(false);
-    const textRef = useCallback((el: HTMLDivElement | null) => {
-        if (el) setIsTruncated(el.scrollHeight > el.clientHeight);
-    }, []);
+    useEffect(() => {
+        const el = textRef.current;
+        if (!el) return;
+        const check = () => setIsTruncated(el.scrollHeight > el.clientHeight);
+        check();
+        const observer = new ResizeObserver(check);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [post.text]);
 
     async function navigateProfile(event: React.MouseEvent) {
         event.stopPropagation();
@@ -124,19 +131,17 @@ function CommunityPostCardPlain({
                             {post.edited ? ' ' + t('edited') : undefined}
                         </span>
                     </div>
-                    <div className="relative">
-                        <MarkdownArea
-                            className={cn(
-                                'text-foreground transition-all duration-300 ease-in-out',
-                                minimizeText && 'line-clamp-10 max-h-[50vh]',
-                            )}
-                            ref={textRef}
-                            text={post.text}
-                        />
-                        {minimizeText && isTruncated && (
-                            <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none bg-gradient-to-t from-card via-card/70 to-transparent" />
+                    <MarkdownArea
+                        className={cn(
+                            'text-foreground transition-all duration-300 ease-in-out',
+                            minimizeText && [
+                                'line-clamp-10 max-h-[50vh]',
+                                isTruncated && 'fade-mask',
+                            ],
                         )}
-                    </div>
+                        ref={textRef}
+                        text={post.text}
+                    />
                 </div>
             </div>
             {!minimizeToolbar && (

@@ -12,6 +12,11 @@
     margin-bottom: env(safe-area-inset-bottom);
 }
 
+@utility fade-mask {
+    -webkit-mask-image: linear-gradient(to top, transparent, #000 4rem);
+    mask-image: linear-gradient(to top, transparent, #000 4rem);
+}
+
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
