@@ -13,8 +13,8 @@
 }
 
 @utility fade-mask {
-    -webkit-mask-image: linear-gradient(to top, transparent, #000 4rem);
-    mask-image: linear-gradient(to top, transparent, #000 4rem);
+    -webkit-mask-image: linear-gradient(to top, transparent, #000 2rem);
+    mask-image: linear-gradient(to top, transparent, #000 2rem);
 }
 
 @theme inline {

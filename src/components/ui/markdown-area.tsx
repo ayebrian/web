@@ -93,8 +93,6 @@ function MarkdownAreaComponent(
                         <audio controls {...props} />
                     ),
                     code: ({children, className, node, ...rest}) => {
-                        console.log(children, className, node, rest);
-                        console.log("yo", String(children).includes('\n'))
                         const match = /language-(\w+)/.exec(className || '')
                         return match ? (
                             <SyntaxHighlighter
