@@ -13,7 +13,7 @@ import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {communityPosts} from '@/services/community-posts-service';
 import {CommunityPostId} from '@/network/friendly-client';
-import {cn} from '@/lib/utils';
+import {cn, navigatePostReplies} from '@/lib/utils';
 import {useEffect, useRef, useState} from 'react';
 
 export interface CommunityPostCardProps {
@@ -102,9 +102,11 @@ function CommunityPostCardPlain({
     return (
         <div
             className={cn('p-4 cursor-pointer', className)}
-            onClick={e => void navigateReplies(navigate, post.id, popDepth, e)}
+            onClick={e =>
+                void navigatePostReplies(navigate, post.id, popDepth, e)
+            }
             onAuxClick={e =>
-                void navigateReplies(navigate, post.id, popDepth, e)
+                void navigatePostReplies(navigate, post.id, popDepth, e)
             }
         >
             <div className="flex gap-3">
@@ -198,9 +200,11 @@ function CommunityPostCardDeleted({
                 'p-4 cursor-pointer flex items-center justify-between',
                 className,
             )}
-            onClick={e => void navigateReplies(navigate, post.id, popDepth, e)}
+            onClick={e =>
+                void navigatePostReplies(navigate, post.id, popDepth, e)
+            }
             onAuxClick={e =>
-                void navigateReplies(navigate, post.id, popDepth, e)
+                void navigatePostReplies(navigate, post.id, popDepth, e)
             }
         >
             <p className="italic text-foreground truncate cursor-pointer">
@@ -233,18 +237,4 @@ function formatTimeAgo(
     if (diffHours < 24) return t('hours_ago', {count: diffHours});
     if (diffDays < 7) return t('days_ago', {count: diffDays});
     return date.toLocaleDateString();
-}
-
-async function navigateReplies(
-    navigate: ReturnType<typeof useNavigate>,
-    postId: CommunityPostId,
-    popDepth: number,
-    event?: React.MouseEvent,
-) {
-    if (event?.button !== 0 && event?.button !== 1) return;
-    if (event?.button === 1 || event.metaKey || event.ctrlKey) {
-        window.open(`/community/${postId}/replies`, '_blank');
-        return;
-    }
-    await navigate(`/community/${postId}/replies`, {state: {popDepth}});
 }

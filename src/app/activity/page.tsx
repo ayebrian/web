@@ -2,14 +2,13 @@ import {useMutation} from '@tanstack/react-query';
 import {useNavigationType, NavigationType} from 'react-router';
 import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
 import {activity} from '@/services/activity-service';
-import {cn} from '@/lib/utils';
+import {cn, createFileLink, navigatePostReplies} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
 import {useState, useEffect, ReactElement, useRef, useMemo} from 'react';
 import {MarkdownSpan} from '@/components/ui/markdown-span';
 import {StyledAvatar} from '@/components/styled-avatar';
-import {createFileLink} from '@/lib/utils';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {Loader2, AlertCircle, Inbox, Clock} from 'lucide-react';
@@ -255,18 +254,18 @@ function ReplyActivityCard({details, beforeClick}: ReplyActivityCardProps) {
         nickname: details.post.owner.nickname,
         b: text => <strong>{text}</strong>,
     });
-    async function navigatePost() {
-        beforeClick();
-        await navigate(`/community/${details.post.id}/replies`, {
-            state: {
-                popDepth: 1,
-            },
-        });
-    }
+
     return (
         <div
             className="flex gap-2 items-center m-4"
-            onClick={() => void navigatePost()}
+            onClick={e => {
+                beforeClick();
+                void navigatePostReplies(navigate, details.post.id, 1, e);
+            }}
+            onAuxClick={e => {
+                beforeClick();
+                void navigatePostReplies(navigate, details.post.id, 1, e);
+            }}
         >
             <StyledAvatar
                 avatarClassName="w-10 h-10"
