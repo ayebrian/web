@@ -1,7 +1,9 @@
 import {backendConfig} from '@/network/backend-config';
+import {CommunityPostId} from '@/network/friendly-client';
 import {FileDescriptor} from '@/types/file-descriptor';
 import {clsx, type ClassValue} from 'clsx';
 import {twMerge} from 'tailwind-merge';
+import {useNavigate} from 'react-router';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -37,4 +39,18 @@ export function getAvatarFallbackForNickname(
         .slice(0, 2)
         .map(word => word[0])
         .join('');
+}
+
+export async function navigatePostReplies(
+    navigate: ReturnType<typeof useNavigate>,
+    postId: CommunityPostId,
+    popDepth: number,
+    event?: React.MouseEvent,
+) {
+    if (event?.button !== 0 && event?.button !== 1) return;
+    if (event?.button === 1 || event.metaKey || event.ctrlKey) {
+        window.open(`/community/${postId}/replies`, '_blank');
+        return;
+    }
+    await navigate(`/community/${postId}/replies`, {state: {popDepth}});
 }

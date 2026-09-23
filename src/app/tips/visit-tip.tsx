@@ -22,11 +22,11 @@ export function VisitTip({children}: VisitTipProps) {
         let cancel = false;
         void (async () => {
             let visits: number = (await idb.get(VISITS)) ?? 0;
-            const visitRecorded = sessionStorage.getItem(VISIT_RECORDED)
+            const visitRecorded = sessionStorage.getItem(VISIT_RECORDED);
             if (visitRecorded) {
                 return;
             }
-            sessionStorage.setItem(VISIT_RECORDED, "true");
+            sessionStorage.setItem(VISIT_RECORDED, 'true');
             visits++;
             if (cancel) return;
             await idb.set(VISITS, visits);
