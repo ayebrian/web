@@ -15,7 +15,7 @@ export function ProfileDescription({description}: {description: string}) {
         const el = descriptionRef.current;
         if (!el) return;
 
-        setCanExpand(el.scrollHeight > el.clientHeight);
+        setCanExpand(el.scrollHeight - el.clientHeight > 1);
     }, [description]);
 
     return (
