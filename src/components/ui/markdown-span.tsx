@@ -7,6 +7,7 @@ import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
+import remarkGemoji from 'remark-gemoji';
 
 const linkClass = cn(
     'font-medium text-primary underline underline-offset-4',
@@ -23,7 +24,7 @@ function MarkdownSpanComponent({text}: MarkdownSpanProps) {
 
     return (
         <ReactMarkdown
-            remarkPlugins={[remarkBreaks, remarkGfm]}
+            remarkPlugins={[remarkBreaks, remarkGfm, remarkGemoji]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             components={{
                 a: ({href, children}) => (
