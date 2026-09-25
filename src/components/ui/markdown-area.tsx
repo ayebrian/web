@@ -1,5 +1,6 @@
 import React, {useMemo, useEffect, useState} from 'react';
 import remarkBreaks from 'remark-breaks';
+import remarkGemoji from 'remark-gemoji';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
@@ -48,7 +49,7 @@ function MarkdownAreaComponent(
                 className,
             )}>
             <ReactMarkdown
-                remarkPlugins={[remarkBreaks, remarkGfm, injectPlaintext]}
+                remarkPlugins={[remarkBreaks, remarkGfm, remarkGemoji, injectPlaintext]}
                 rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                 components={{
                     img: ({ node, ...props }) => (
