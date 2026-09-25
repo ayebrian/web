@@ -64,7 +64,7 @@ export function CommunityPage() {
                 type: 'plain' as const,
                 ...forceUnwrap(result),
                 text,
-                owner: (await users.ensureSelf(app)).user,
+                owner: (await users.ensureCachedSelf(app)).user,
                 instant: new Date().toISOString(),
                 replyPreviews: [],
                 edited: false,

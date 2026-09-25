@@ -31,16 +31,18 @@ function self(app: AppContext): Resource<UserDetailsResponse> {
     return Resource.ofQuery(cache?.state);
 }
 
-function ensureSelf(app: AppContext): Promise<UserDetailsResponse> {
+function ensureCachedSelf(app: AppContext): Promise<UserDetailsResponse> {
     return app.queryClient.ensureQueryData({
         ...selfOptions(app),
         retry: true,
     });
 }
 
-function prefetchSelf(app: AppContext): Promise<void> {
-    return app.queryClient.prefetchQuery({
+function ensureFreshSelf(app: AppContext): Promise<UserDetailsResponse> {
+    return app.queryClient.fetchQuery({
         ...selfOptions(app),
+        retry: true,
+        staleTime: 0,
     });
 }
 
@@ -57,7 +59,7 @@ export const users = {
     use,
     self,
     setSelf,
-    ensureSelf,
-    prefetchSelf,
+    ensureCachedSelf,
+    ensureFreshSelf,
     useSelf,
 };

@@ -566,7 +566,7 @@ function useCreateMutation({
                     ...forceUnwrap(result),
                     replyPreviews: [],
                     instant: new Date().toISOString(),
-                    owner: (await users.ensureSelf(app)).user,
+                    owner: (await users.ensureCachedSelf(app)).user,
                     edited: false,
                 },
                 replies: {data: [], nextId: null},

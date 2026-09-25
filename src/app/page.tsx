@@ -15,13 +15,11 @@ export function AppPage() {
     const navigate = useNavigate();
     const session = useSession();
     const location = useLocation();
-    const app = useAppContext();
 
     useEffect(() => {
         if (location.pathname === '/') {
             void navigate('/community');
         }
-        void users.prefetchSelf(app);
     }, []);
 
     useEffect(() => {
@@ -46,6 +44,7 @@ export function AppPage() {
 }
 
 export function AuthorizedGuard() {
+    const app = useAppContext();
     const navigate = useNavigate();
     const session = useSession();
     const blockingQR = useBlockingQR();
@@ -61,6 +60,11 @@ export function AuthorizedGuard() {
             void navigate('/blocking-qr');
         }
     }, [navigate, session.status, initialStatus, blockingQR.shouldBlock]);
+
+    useEffect(() => {
+        if (session.status !== 'authed') return;
+        void users.ensureFreshSelf(app);
+    }, []);
 
     if (initialStatus === 'authed') {
         return <Outlet />;

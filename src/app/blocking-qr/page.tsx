@@ -142,7 +142,12 @@ export function BlockingQR(): ReactNode {
                 open={openLogout}
                 onOpenChange={setOpenLogout}
                 suggestBindEmail={false}
-                onLogout={() => void session.logOut()}
+                onLogout={() =>
+                    void (async () => {
+                        session.logOut();
+                        await navigate('/');
+                    })()
+                }
             />
         </>
     );
