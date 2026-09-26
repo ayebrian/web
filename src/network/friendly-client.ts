@@ -193,6 +193,7 @@ export class FriendlyClientImpl implements FriendlyClient {
                 .post<FileDescriptor>('/files/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
+                        'X-File-Size': file.size.toString(),
                     },
                 })
                 .then(r => r.data),
