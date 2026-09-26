@@ -82,7 +82,6 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
         description,
         socialLink,
         interests,
-        avatar,
         setNicknameError,
         setDescriptionError,
         setSocialLinkError,
@@ -150,8 +149,11 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                     nickname={nickname}
                     loading={avatarLoading}
                     setLoading={setAvatarLoading}
-                    avatar={avatar}
-                    setAvatar={setAvatar}
+                    avatarProps={{
+                        type: 'upload',
+                        avatar,
+                        setAvatar,
+                    }}
                 />
                 <FieldGroup className="gap-4">
                     <Field>

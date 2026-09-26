@@ -1,5 +1,4 @@
 import {useCallback} from 'react';
-import {FileDescriptor} from '@/types/file-descriptor';
 import {useTranslations} from 'use-intl';
 
 // This regex is not meant to be a valid check for URL.
@@ -15,7 +14,6 @@ interface UserValidatorProps {
     description: string;
     socialLink: string;
     interests: string;
-    avatar: FileDescriptor | null;
     setNicknameError: (value: string | null) => void;
     setDescriptionError: (value: string | null) => void;
     setSocialLinkError: (value: string | null) => void;

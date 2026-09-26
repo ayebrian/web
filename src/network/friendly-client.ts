@@ -18,6 +18,9 @@ export interface FriendlyClient {
     ): Promise<Result<UserDetailsResponse, NetworkError>>;
     usersEdit(request: UsersEditRequest): Promise<Result<void, NetworkError>>;
     uploadFile(file: File): Promise<Result<FileDescriptor, NetworkError>>;
+    preuploadFile(
+        file: File,
+    ): Promise<Result<FilePreuploadDescriptor, NetworkError>>;
     downloadFile(
         id: number,
         accessHash: string,
@@ -180,6 +183,24 @@ export class FriendlyClientImpl implements FriendlyClient {
         request: UsersEditRequest,
     ): Promise<Result<void, NetworkError>> {
         return this.safeRequest(this.client.patch('/users/edit', request));
+    }
+
+    async preuploadFile(
+        file: File,
+    ): Promise<Result<FilePreuploadDescriptor, NetworkError>> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.safeRequest(
+            this.client
+                .post<FilePreuploadDescriptor>('/files/preupload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-File-Size': file.size.toString(),
+                    },
+                })
+                .then(r => r.data),
+        );
     }
 
     async uploadFile(
@@ -665,4 +686,10 @@ export interface ActivityDetailsUnknown {
     id: ActivityId;
     instant: string;
     isRead: boolean;
+}
+
+export interface FilePreuploadDescriptor {
+    id: number;
+    accessHash: string;
+    readonly __brand: unique symbol;
 }

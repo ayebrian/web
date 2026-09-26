@@ -1,5 +1,6 @@
 import {Spinner} from '@/components/ui/spinner';
 import {authService} from '@/services/auth-service';
+import {FilePreuploadDescriptor} from '@/network/friendly-client';
 import {useAppContext} from '@/app.context';
 import {Textarea} from '@/components/ui/textarea';
 import {User, Link, Heart} from 'lucide-react';
@@ -10,7 +11,6 @@ import {
     InputGroupInput,
 } from '@/components/ui/input-group';
 import {Field, FieldError, FieldGroup, FieldLabel} from '@/components/ui/field';
-import {FileDescriptor} from '@/types/file-descriptor';
 import {MutableAvatarContent} from '@/components/mutable-avatar';
 import {toast} from 'sonner';
 import {useUserValidator} from '../edit/user-validation';
@@ -48,7 +48,7 @@ export default function SignUpPage() {
     const [interests, setInterests] = useState('');
     const [interestsError, setInterestsError] = useState<string | null>();
 
-    const [avatar, setAvatar] = useState<FileDescriptor | null>(null);
+    const [avatar, setAvatar] = useState<FilePreuploadDescriptor | null>(null);
 
     const backend = useBackend();
 
@@ -57,7 +57,6 @@ export default function SignUpPage() {
         description,
         socialLink,
         interests,
-        avatar,
         setNicknameError,
         setDescriptionError,
         setSocialLinkError,
@@ -136,8 +135,11 @@ export default function SignUpPage() {
                         nickname={nickname}
                         loading={avatarLoading}
                         setLoading={setAvatarLoading}
-                        avatar={avatar}
-                        setAvatar={setAvatar}
+                        avatarProps={{
+                            type: 'preupload',
+                            avatar,
+                            setAvatar,
+                        }}
                     />
                     <FieldGroup className="gap-4">
                         <Field>

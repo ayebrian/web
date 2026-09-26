@@ -1,5 +1,6 @@
 import {AdjusterPayload, Adjuster, AdjusterCrop} from '@/components/adjuster';
 import {FileDescriptor} from '@/types/file-descriptor';
+import {FilePreuploadDescriptor} from '@/network/friendly-client';
 import {resizeImage} from '@/network/image';
 import {createFileLink} from '@/lib/utils';
 import {toast} from 'sonner';
@@ -12,7 +13,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {ReactNode, useState, useRef} from 'react';
+import {ReactNode, useState, useRef, useEffect} from 'react';
 import {useTranslations} from 'use-intl';
 import {StyledAvatar} from './styled-avatar';
 
@@ -20,8 +21,17 @@ interface MutableAvatarContentProps {
     nickname: string;
     loading: boolean;
     setLoading: (value: boolean) => void;
-    avatar: FileDescriptor | null;
-    setAvatar: (value: FileDescriptor | null) => void;
+    avatarProps:
+        | {
+              type: 'upload';
+              avatar: FileDescriptor | null;
+              setAvatar: (value: FileDescriptor | null) => void;
+          }
+        | {
+              type: 'preupload';
+              avatar: FilePreuploadDescriptor | null;
+              setAvatar: (value: FilePreuploadDescriptor | null) => void;
+          };
 }
 
 /**
@@ -39,18 +49,28 @@ export function MutableAvatarContent({
     nickname,
     loading,
     setLoading,
-    avatar,
-    setAvatar,
+    avatarProps,
 }: MutableAvatarContentProps): ReactNode {
     const backend = useBackend();
     const t = useTranslations('edit_profile_dialog');
 
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
     const [avatarUrl, setAvatarUrl] = useState<string | null>(
-        avatar ? createFileLink(avatar) : null,
+        avatarProps.type === 'upload' && avatarProps.avatar
+            ? createFileLink(avatarProps.avatar)
+            : null,
     );
 
     const [adjuster, setAdjuster] = useState<AdjusterPayload>({type: 'close'});
+
+    useEffect(() => {
+        return () => {
+            if (avatarUrl) {
+                URL.revokeObjectURL(avatarUrl);
+            }
+        };
+    }, [avatarUrl]);
 
     function adjusterSetOpen(open: boolean) {
         if (open) return;
@@ -68,21 +88,41 @@ export function MutableAvatarContent({
     }
 
     async function onAdjusted(file: File | null, crop: AdjusterCrop) {
+        const previousAvatarUrl = avatarUrl;
         if (!file) {
-            setAvatar(null);
+            avatarProps.setAvatar(null);
             setAvatarUrl(null);
             return;
         }
-        const previousAvatarUrl = avatarUrl;
         setLoading(true);
         try {
             const compressed = await resizeImage(file, crop);
-            const result = await backend.uploadFile(compressed);
-            if (result.ok) {
-                setAvatar(result.data);
-                setAvatarUrl(createFileLink(result.data));
-                if (previousAvatarUrl) URL.revokeObjectURL(previousAvatarUrl);
-            } else {
+
+            const src = URL.createObjectURL(compressed);
+            setAvatarUrl(src);
+
+            let ok = false;
+            switch (avatarProps.type) {
+                case 'upload': {
+                    const result = await backend.uploadFile(compressed);
+                    if (result.ok) {
+                        ok = true;
+                        avatarProps.setAvatar(result.data);
+                    }
+                    break;
+                }
+                case 'preupload': {
+                    const result = await backend.preuploadFile(compressed);
+                    if (result.ok) {
+                        ok = true;
+                        avatarProps.setAvatar(result.data);
+                    }
+                    break;
+                }
+                default:
+                    avatarProps satisfies never;
+            }
+            if (!ok) {
                 toast.error(t('error-connection'));
                 setAvatarUrl(previousAvatarUrl);
             }
@@ -103,7 +143,7 @@ export function MutableAvatarContent({
                     void onAdjusted(null, {x: 0, y: 0, width: 0, height: 0})
                 }
                 onSelect={() => avatarInputRef?.current?.click()}
-                show={!!avatar}
+                show={!!avatarProps.avatar}
             >
                 <div className="relative cursor-pointer">
                     <StyledAvatar

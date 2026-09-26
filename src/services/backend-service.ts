@@ -22,6 +22,7 @@ import {
     SendFriendRequest,
     CommunityPostDescriptor,
     CommunityPostId,
+    FilePreuploadDescriptor,
 } from '@/network/friendly-client';
 import {NetworkError} from '@/network/errors';
 import {err, ok, Result} from '@/network/result';
@@ -161,6 +162,12 @@ export class BackendService {
         file: File,
     ): Promise<Result<FileDescriptor, NetworkError>> {
         return await this.client.uploadFile(file);
+    }
+
+    async preuploadFile(
+        file: File,
+    ): Promise<Result<FilePreuploadDescriptor, NetworkError>> {
+        return await this.client.preuploadFile(file);
     }
 
     async communityPost(
