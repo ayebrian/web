@@ -244,7 +244,7 @@ export function CommunityPage() {
 interface CreatePostCardProps {
     text: string;
     className?: string;
-    onTextChange: (text: string) => void;
+    onTextChange: Dispatch<SetStateAction<string>>;
     onSubmit: () => void;
     isSubmitting: boolean;
 }

@@ -23,6 +23,7 @@ export function QueryProvider({children}: {children: React.ReactNode}) {
                         refetchOnReconnect: true,
                         refetchOnMount: true,
                         staleTime: 1_000,
+                        networkMode: 'always',
                         gcTime: Infinity,
                     },
                 },
