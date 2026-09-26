@@ -470,7 +470,7 @@ function isMobile(): boolean {
     ) {
         return !!navigator.userAgentData.mobile;
     }
-    return false;
+    return /Mobi/.test(navigator.userAgent);
 }
 
 interface UseDeleteMutationProps {
