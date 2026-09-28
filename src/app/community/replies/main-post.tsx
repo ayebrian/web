@@ -218,6 +218,7 @@ export function MainPostCard({
     useEffect(() => {
         const input = inputRef.current;
         if (!input) return;
+
         const observer = new ResizeObserver(([entry]) => {
             const height = entry.contentRect.height;
             if (height > 70) {
@@ -225,7 +226,18 @@ export function MainPostCard({
             }
         });
         observer.observe(input);
-        return () => observer.disconnect();
+
+        input.readOnly = true;
+        input.focus();
+
+        const timeout = window.setTimeout(() => {
+            input.readOnly = false;
+        }, 1);
+
+        return () => {
+            observer.disconnect();
+            window.clearTimeout(timeout);
+        };
     }, []);
 
     return (
@@ -256,7 +268,6 @@ export function MainPostCard({
                         onKeyDown={onKeyDown}
                         onChange={e => setDisplayText(e.target.value)}
                         placeholder={t('reply-placeholder')}
-                        autoFocus
                     />
                     <div className="w-full flex">
                         {textTooLong ? (
