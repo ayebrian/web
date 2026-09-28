@@ -13,7 +13,7 @@ import {communityPosts} from '@/services/community-posts-service';
 import {forceUnwrap} from '@/network/result';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import {
     Loader2,
     AlertCircle,
@@ -23,31 +23,21 @@ import {
     Paperclip,
 } from 'lucide-react';
 import {useTranslations} from 'use-intl';
-import React, {
-    ReactElement,
-    useCallback,
-    useMemo,
-    useRef,
-    useEffect,
-    useState,
-    Dispatch,
-    SetStateAction,
-} from 'react';
+import React, {ReactElement, useMemo, useRef, useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import {newPost} from '@/services/new-post-service';
 import {StyledAvatar} from '@/components/styled-avatar';
 import {createFileLink} from '@/lib/utils';
 import {CommunityPostCard} from './post';
 
 export function CommunityPage() {
     const t = useTranslations('community');
-    const backend = useBackend();
-    const queryClient = useQueryClient();
     const app = useAppContext();
 
-    const [newPostText, setNewPostText] = newPost.useText();
-
     const postsQuery = communityPosts.useCachedQuery(app);
+
+    function onPostCreated() {
+        virtualizer.scrollToOffset(0);
+    }
 
     useEffect(() => {
         if (!postsQuery.data) return;
@@ -67,47 +57,6 @@ export function CommunityPage() {
         };
     }, [postsQuery.data]);
 
-    const createPostMutation = useMutation({
-        mutationFn: async (text: string) => {
-            const result = await backend.communityPost({text});
-            const details = {
-                type: 'plain' as const,
-                ...forceUnwrap(result),
-                text,
-                owner: (await users.ensureCachedSelf(app)).user,
-                instant: new Date().toISOString(),
-                replyPreviews: [],
-                edited: false,
-            };
-            await communityPosts.setDetails(app, [
-                {
-                    post: details,
-                    replies: {
-                        data: [],
-                        nextId: null,
-                    },
-                    upstream: [],
-                },
-            ]);
-            await queryClient.invalidateQueries({
-                queryKey: ['communityPosts'],
-            });
-            return details;
-        },
-        onSuccess: () => {
-            setNewPostText('');
-            virtualizer.scrollToOffset(0);
-        },
-        onError: error => {
-            toast.error(error.message ?? t('post_create_error'));
-        },
-    });
-
-    const handleCreatePost = useCallback(() => {
-        if (!newPostText.trim()) return;
-        createPostMutation.mutate(newPostText);
-    }, [newPostText, createPostMutation]);
-
     const posts = useMemo(() => {
         const pages = postsQuery.data?.pages ?? [];
         return pages.flatMap(p => p.data);
@@ -116,14 +65,7 @@ export function CommunityPage() {
     const items = [
         {
             key: 'create-post',
-            Component: (
-                <CreatePostCard
-                    text={newPostText}
-                    onTextChange={setNewPostText}
-                    onSubmit={handleCreatePost}
-                    isSubmitting={createPostMutation.isPending}
-                />
-            ),
+            Component: <CreatePostCard onPostCreated={onPostCreated} />,
         },
     ];
 
@@ -164,10 +106,7 @@ export function CommunityPage() {
             <div className="h-full w-full flex flex-col max-w-2xl">
                 <CreatePostCard
                     className="my-4"
-                    text={newPostText}
-                    onTextChange={setNewPostText}
-                    onSubmit={handleCreatePost}
-                    isSubmitting={createPostMutation.isPending}
+                    onPostCreated={onPostCreated}
                 />
                 <div className="flex flex-1 w-full items-center justify-center">
                     <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
@@ -179,10 +118,7 @@ export function CommunityPage() {
             <div className="h-full w-full flex flex-col max-w-2xl">
                 <CreatePostCard
                     className="my-4"
-                    text={newPostText}
-                    onTextChange={setNewPostText}
-                    onSubmit={handleCreatePost}
-                    isSubmitting={createPostMutation.isPending}
+                    onPostCreated={onPostCreated}
                 />
                 <div className="flex flex-col flex-1 gap-4 w-full items-center justify-center">
                     <AlertCircle className="h-10 w-10 animate-pulse text-foreground/80" />
@@ -205,10 +141,7 @@ export function CommunityPage() {
                 <div className="h-full w-full flex flex-col max-w-2xl">
                     <CreatePostCard
                         className="my-4"
-                        text={newPostText}
-                        onTextChange={setNewPostText}
-                        onSubmit={handleCreatePost}
-                        isSubmitting={createPostMutation.isPending}
+                        onPostCreated={onPostCreated}
                     />
                     <div className="flex flex-col flex-1 gap-4 w-full items-center justify-center px-6 text-center">
                         <Newspaper className="w-12 h-12 text-muted-foreground" />
@@ -242,22 +175,16 @@ export function CommunityPage() {
 }
 
 interface CreatePostCardProps {
-    text: string;
     className?: string;
-    onTextChange: Dispatch<SetStateAction<string>>;
-    onSubmit: () => void;
-    isSubmitting: boolean;
+    onPostCreated: () => void;
 }
 
-function CreatePostCard({
-    text,
-    className,
-    onTextChange,
-    onSubmit,
-    isSubmitting,
-}: CreatePostCardProps) {
+function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
+    const [text, setText] = useState('');
+
     const t = useTranslations('community');
     const postRef = useRef<HTMLTextAreaElement>(null);
+    const app = useAppContext();
     const backend = useBackend();
     const userQuery = useQuery({
         queryKey: ['userDetails'],
@@ -275,7 +202,43 @@ function CreatePostCard({
         [userQuery],
     );
 
-    const avatarInputRef = useRef<HTMLInputElement | null>(null);
+    const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+    const createMutation = useMutation({
+        mutationFn: async (text: string) => {
+            const result = await backend.communityPost({text});
+            const details = {
+                type: 'plain' as const,
+                ...forceUnwrap(result),
+                text,
+                owner: (await users.ensureCachedSelf(app)).user,
+                instant: new Date().toISOString(),
+                replyPreviews: [],
+                edited: false,
+            };
+            await communityPosts.setDetails(app, [
+                {
+                    post: details,
+                    replies: {
+                        data: [],
+                        nextId: null,
+                    },
+                    upstream: [],
+                },
+            ]);
+            await app.queryClient.invalidateQueries({
+                queryKey: ['communityPosts'],
+            });
+            return details;
+        },
+        onSuccess: () => {
+            setText('');
+            onPostCreated();
+        },
+        onError: error => {
+            toast.error(error.message ?? t('post_create_error'));
+        },
+    });
 
     const attachImageMutation = useMutation({
         mutationFn: async (file: File) => {
@@ -288,7 +251,7 @@ function CreatePostCard({
             const descriptor = forceUnwrap(
                 await backend.uploadFile(compressed),
             );
-            onTextChange(current => {
+            setText(current => {
                 let result = current;
                 if (!current.endsWith('\n')) {
                     result += '\n';
@@ -301,18 +264,18 @@ function CreatePostCard({
     });
 
     const forbidSend =
-        isSubmitting ||
+        createMutation.isPending ||
+        attachImageMutation.isPending ||
         !text.trim() ||
-        textTooLong ||
-        attachImageMutation.isPending;
+        textTooLong;
 
     function attachImage() {
-        avatarInputRef.current?.click();
+        imageInputRef.current?.click();
     }
 
     function onImageSelected(file: File) {
-        if (avatarInputRef.current) {
-            avatarInputRef.current.value = '';
+        if (imageInputRef.current) {
+            imageInputRef.current.value = '';
         }
 
         attachImageMutation.mutate(file);
@@ -339,7 +302,7 @@ function CreatePostCard({
                             'outline-none resize-none field-sizing-content',
                         )}
                         value={text}
-                        onChange={e => onTextChange(e.target.value)}
+                        onChange={e => setText(e.target.value)}
                         placeholder={t('placeholder')}
                     />
                     <div className="mt-1 w-full flex items-center">
@@ -355,10 +318,7 @@ function CreatePostCard({
                         ) : undefined}
                         <div className="flex-1" />
                         {text.length > 0 && (
-                            <Button
-                                onClick={() => onTextChange('')}
-                                variant="ghost"
-                            >
+                            <Button onClick={() => setText('')} variant="ghost">
                                 <Trash />
                             </Button>
                         )}
@@ -374,7 +334,7 @@ function CreatePostCard({
                             )}
                             <input
                                 className="hidden"
-                                ref={avatarInputRef}
+                                ref={imageInputRef}
                                 type="file"
                                 accept="image/*"
                                 placeholder="Avatar"
@@ -388,10 +348,12 @@ function CreatePostCard({
                         </Button>
                         <div className="flex flex-col">
                             <Button
-                                onClick={() => forbidSend || onSubmit()}
+                                onClick={() =>
+                                    forbidSend || createMutation.mutate(text)
+                                }
                                 disabled={forbidSend}
                             >
-                                {isSubmitting ? (
+                                {createMutation.isPending ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
                                     <div className="flex items-center gap-1.5">

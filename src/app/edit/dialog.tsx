@@ -241,7 +241,7 @@ function EditProfileDialogContent({setOpen}: EditProfileProps): ReactNode {
                         {!loading && (
                             <>
                                 <Save className="w-4 h-4" />
-                                <p className="hidden sm:block">{t('save')}</p>
+                                <p>{t('save')}</p>
                             </>
                         )}
                         {loading && <Spinner />}

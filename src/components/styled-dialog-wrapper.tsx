@@ -29,13 +29,13 @@ export function StyledDialogWrapper({
                     })}
                     className={cn(
                         'z-2 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
-                        'w-full max-w-lg max-h-dvh overflow-y-auto',
-                        'p-8 scrollbar-none',
+                        'w-full sm:max-w-lg max-h-dvh overflow-y-auto',
+                        'sm:p-8 scrollbar-none',
                     )}
                 >
                     <div
                         className={cn(
-                            'flex flex-col w-full rounded-2xl',
+                            'flex flex-col w-full sm:rounded-2xl',
                             popoverBackground ? 'bg-popover shadow-lg' : '',
                             contentClassName,
                         )}
