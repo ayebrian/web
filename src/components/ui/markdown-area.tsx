@@ -53,7 +53,7 @@ function MarkdownAreaComponent(
                 rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                 components={{
                     img: ({ node, ...props }) => (
-                        <img className="rounded-lg" {...props} />
+                        <img className="rounded-lg max-h-[70vh]" {...props} />
                     ),
                     a: ({href, children}) => (
                         <a
