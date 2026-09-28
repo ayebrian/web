@@ -242,6 +242,8 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
 
     const attachImageMutation = useMutation({
         mutationFn: async (file: File) => {
+            const post = postRef.current;
+            if (!post) return;
             const compressed = await resizeImage(file, {
                 x: 0,
                 y: 0,
@@ -251,6 +253,7 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
             const descriptor = forceUnwrap(
                 await backend.uploadFile(compressed),
             );
+            const selection = [post.selectionStart, post.selectionEnd] as const;
             setText(current => {
                 let result = current;
                 if (!current.endsWith('\n')) {
@@ -260,6 +263,9 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                 result += `![](${url})\n`;
                 return result;
             });
+            setTimeout(() => {
+                post.setSelectionRange(...selection);
+            }, 1);
         },
     });
 
@@ -324,6 +330,7 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                         )}
                         <Button
                             onClick={attachImage}
+                            onMouseDown={event => event.preventDefault()}
                             variant="ghost"
                             className="me-2"
                         >

@@ -1,5 +1,7 @@
 import {Button} from '@/components/ui/button';
+import {resizeImage} from '@/network/image';
 import {toast} from 'sonner';
+import {FileDescriptor} from '@/types/file-descriptor';
 import {CommunityPostDescriptor} from '@/network/friendly-client';
 import {communityPosts} from '@/services/community-posts-service';
 import {forceUnwrap} from '@/network/result';
@@ -7,7 +9,7 @@ import {CommunityDetailsResponse} from '@/network/friendly-client';
 import {newPost} from '@/services/new-post-service';
 import {useMutation} from '@tanstack/react-query';
 import {MainPostMenu} from '@/app/community/replies/main-post-menu';
-import {Send, Loader2, Pen, X} from 'lucide-react';
+import {Send, Loader2, Pen, X, Paperclip} from 'lucide-react';
 import {cn} from '@/lib/utils';
 import {users} from '@/services/users-service';
 import {useAppContext} from '@/app.context';
@@ -19,7 +21,7 @@ import {createFileLink} from '@/lib/utils';
 import {MarkdownArea} from '@/components/ui/markdown-area';
 import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
-import {RefObject, useRef, useState, useMemo} from 'react';
+import React, {RefObject, useRef, useState, useMemo, useEffect} from 'react';
 
 interface MainPostCardProps {
     first: boolean;
@@ -57,14 +59,14 @@ export function MainPostCard({
     const app = useAppContext();
 
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const [text, setText] = newPost.useReplyText();
+    const [newText, setNewText] = newPost.useReplyText();
     const [editText, setEditText] = useState('');
     const [action, setAction] = useState<InputAction>('send');
 
-    const displayText = action === 'send' ? text : editText;
-    function setDisplayText(value: string) {
+    const displayText = action === 'send' ? newText : editText;
+    function setDisplayText(value: string | ((value: string) => string)) {
         if (action === 'send') {
-            setText(value);
+            setNewText(value);
         } else {
             setEditText(value);
         }
@@ -88,8 +90,35 @@ export function MainPostCard({
         onSuccess: stopEditing,
     });
 
+    const attachImageMutation = useAttachImageMutation({
+        onSuccess: descriptor => {
+            const input = inputRef.current;
+            if (!input) return;
+            const selection = [
+                input.selectionStart,
+                input.selectionEnd,
+            ] as const;
+            setDisplayText(current => {
+                let result = current;
+                if (!current.endsWith('\n')) {
+                    result += '\n';
+                }
+                const url = createFileLink(descriptor);
+                result += `![](${url})\n`;
+                return result;
+            });
+            setTimeout(() => {
+                input.setSelectionRange(...selection);
+            }, 1);
+        },
+    });
+
     const isSubmitting = createMutation.isPending || editMutation.isPending;
-    const forbidSubmit = isSubmitting || !displayText.trim() || textTooLong;
+    const forbidSubmit =
+        isSubmitting ||
+        attachImageMutation.isPending ||
+        !displayText.trim() ||
+        textTooLong;
 
     function startEditing() {
         if (isSubmitting) return;
@@ -103,6 +132,9 @@ export function MainPostCard({
             throw new Error('Can only edit plain posts');
         }
         setEditText(details.post.text);
+        setTimeout(() => {
+            inputRef.current?.focus({preventScroll: true});
+        }, 1);
     }
 
     function stopEditing() {
@@ -177,6 +209,25 @@ export function MainPostCard({
                 break;
         }
 
+    const [verticalMenu, setVerticalMenu] = useState(false);
+
+    useEffect(() => {
+        setVerticalMenu(false);
+    }, [action]);
+
+    useEffect(() => {
+        const input = inputRef.current;
+        if (!input) return;
+        const observer = new ResizeObserver(([entry]) => {
+            const height = entry.contentRect.height;
+            if (height > 70) {
+                setVerticalMenu(true);
+            }
+        });
+        observer.observe(input);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div className="scroll-m-40" ref={postRef}>
             {card}
@@ -205,6 +256,7 @@ export function MainPostCard({
                         onKeyDown={onKeyDown}
                         onChange={e => setDisplayText(e.target.value)}
                         placeholder={t('reply-placeholder')}
+                        autoFocus
                     />
                     <div className="w-full flex">
                         {textTooLong ? (
@@ -225,51 +277,35 @@ export function MainPostCard({
                         ) : undefined}
                     </div>
                 </div>
-                {action === 'edit' ? (
-                    <Button
-                        className="mt-1 w-8 h-8"
-                        onClick={stopEditing}
-                        variant="ghost"
-                    >
-                        <X />
-                    </Button>
-                ) : undefined}
-                <Button
-                    className="mt-1 w-8 h-8"
-                    onClick={() => handleSubmit(displayText)}
-                    disabled={forbidSubmit}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : action === 'send' ? (
-                        <Send />
-                    ) : (
-                        <Pen />
-                    )}
-                </Button>
+                <Menu
+                    vertical={verticalMenu}
+                    action={action}
+                    forbidSubmit={forbidSubmit}
+                    isSubmitting={isSubmitting}
+                    isAttaching={attachImageMutation.isPending}
+                    onStopEdit={stopEditing}
+                    onAttach={attachImageMutation.mutate}
+                    onSubmit={() => handleSubmit(displayText)}
+                />
             </div>
             <div className="h-2" />
-            <div
-                className={cn(
-                    'flex gap-1 overflow-x-auto scrollbar-none',
-                    action === 'edit'
-                        ? 'pointer-events-none opacity-50 select-none'
-                        : '',
-                )}
-            >
+            <div className={cn('flex gap-1 overflow-x-auto scrollbar-none')}>
                 {emojis.map((emoji, index) => (
                     <Emoji
                         key={index}
                         emoji={emoji}
                         disabled={isSubmitting}
                         onClick={() => {
-                            if (text.trim().length === 0) {
+                            if (
+                                displayText.trim().length === 0 &&
+                                action === 'send'
+                            ) {
                                 createMutation.mutate({
                                     text: emoji,
                                     redirect: true,
                                 });
                             } else {
-                                setText(text => `${text}${emoji}`);
+                                setDisplayText(text => `${text}${emoji}`);
                             }
                         }}
                     />
@@ -282,17 +318,18 @@ export function MainPostCard({
 
 interface EmojiProps {
     emoji: string;
-    onClick: () => void;
+    onClick: (value: React.UIEvent) => void;
     disabled: boolean;
 }
 
 function Emoji({emoji, onClick, disabled}: EmojiProps) {
     return (
         <span
-            onClick={() => {
+            onClick={event => {
                 if (disabled) return;
-                onClick();
+                onClick(event);
             }}
+            onMouseDown={event => event.preventDefault()}
             className={cn(
                 'flex bg-card rounded-xl',
                 'border border-border flex-row gap-2 px-2 py-1 hover:bg-accent/50',
@@ -528,6 +565,28 @@ function useDeleteMutation({details, popDepth}: UseDeleteMutationProps) {
     });
 }
 
+interface UseAttachImageMutationProps {
+    onSuccess: (descriptor: FileDescriptor) => void;
+}
+
+function useAttachImageMutation({onSuccess}: UseAttachImageMutationProps) {
+    const app = useAppContext();
+    return useMutation({
+        mutationFn: async (file: File) => {
+            const compressed = await resizeImage(file, {
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
+            });
+            const descriptor = forceUnwrap(
+                await app.backend.uploadFile(compressed),
+            );
+            onSuccess(descriptor);
+        },
+    });
+}
+
 interface UseCreateMutationProps {
     details: CommunityDetailsResponse;
     popDepth: number;
@@ -625,4 +684,139 @@ function useEditMutation({details, onSuccess}: UseEditMutationProps) {
         onSuccess,
         onError: () => toast.error(t('unknown_error')),
     });
+}
+
+interface MenuProps {
+    vertical: boolean;
+    action: InputAction;
+    forbidSubmit: boolean;
+    isSubmitting: boolean;
+    isAttaching: boolean;
+    onStopEdit: () => void;
+    onSubmit: () => void;
+    onAttach: (file: File) => void;
+}
+
+function Menu({
+    onStopEdit,
+    onSubmit,
+    onAttach,
+    vertical,
+    action,
+    forbidSubmit,
+    isSubmitting,
+    isAttaching,
+}: MenuProps) {
+    const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+    function onImageSelected(file: File) {
+        if (imageInputRef.current) {
+            imageInputRef.current.value = '';
+        }
+        onAttach(file);
+    }
+
+    function attachImage() {
+        imageInputRef.current?.click();
+    }
+
+    return (
+        <>
+            <div className={cn('flex-row', vertical ? 'hidden' : 'flex')}>
+                {action === 'edit' ? (
+                    <Button
+                        className="mt-1 w-8 h-8"
+                        onClick={onStopEdit}
+                        variant="ghost"
+                    >
+                        <X />
+                    </Button>
+                ) : undefined}
+                <Button
+                    className="mt-1 w-8 h-8 me-1"
+                    disabled={isAttaching}
+                    onClick={attachImage}
+                    onMouseDown={event => event.preventDefault()}
+                    variant="ghost"
+                >
+                    {isAttaching ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                        <Paperclip />
+                    )}
+                    <input
+                        className="hidden"
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        placeholder="Avatar"
+                        onChange={e => {
+                            const files = e.target.files;
+                            if (files) {
+                                void onImageSelected(files[0]);
+                            }
+                        }}
+                    />
+                </Button>
+                <Button
+                    className="mt-1 w-8 h-8"
+                    onClick={() => onSubmit()}
+                    disabled={forbidSubmit}
+                >
+                    {isSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : action === 'send' ? (
+                        <Send />
+                    ) : (
+                        <Pen />
+                    )}
+                </Button>
+            </div>
+            <div className={cn('flex flex-col', vertical ? 'flex' : 'hidden')}>
+                <Button
+                    className="mt-1 w-8 h-8"
+                    onClick={onSubmit}
+                    disabled={forbidSubmit}
+                >
+                    {isSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : action === 'send' ? (
+                        <Send />
+                    ) : (
+                        <Pen />
+                    )}
+                </Button>
+                <Button
+                    className="mt-1 w-8 h-8"
+                    onClick={attachImage}
+                    onMouseDown={event => event.preventDefault()}
+                    variant="ghost"
+                >
+                    <Paperclip />
+                    <input
+                        className="hidden"
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        placeholder="Avatar"
+                        onChange={e => {
+                            const files = e.target.files;
+                            if (files) {
+                                void onImageSelected(files[0]);
+                            }
+                        }}
+                    />
+                </Button>
+                {action === 'edit' ? (
+                    <Button
+                        className="w-8 h-8"
+                        onClick={onStopEdit}
+                        variant="ghost"
+                    >
+                        <X />
+                    </Button>
+                ) : undefined}
+            </div>
+        </>
+    );
 }
