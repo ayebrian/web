@@ -1,4 +1,5 @@
 import {MainPostCard} from '@/app/community/replies/main-post';
+import {RepliesState} from '@/app/community/replies/state';
 import {CommunityPostDetails} from '@/network/friendly-client';
 import {useLocation} from 'react-router';
 import {useScaffoldContext} from '@/app/scaffold';
@@ -32,8 +33,9 @@ export function RepliesPage() {
 
     const replyTo = communityPosts.useDetails(app, idInt);
 
-    const location = useLocation().state as {popDepth: number} | undefined;
+    const location = useLocation().state as RepliesState | undefined;
     const popDepth = location?.popDepth ?? 0;
+    const showKeyboard = location?.showKeyboard ?? false;
 
     function navigateUp() {
         if (popDepth) {
@@ -94,6 +96,7 @@ export function RepliesPage() {
                 id={idInt}
                 replyTo={replyTo.data!}
                 popDepth={popDepth + 1}
+                showKeyboard={showKeyboard}
             />
         );
     }
@@ -124,9 +127,15 @@ interface ReplyContentProps {
     id: CommunityPostId;
     replyTo: CommunityDetailsResponse;
     popDepth: number;
+    showKeyboard: boolean;
 }
 
-function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
+function ReplyContent({
+    id,
+    replyTo,
+    popDepth,
+    showKeyboard,
+}: ReplyContentProps) {
     const app = useAppContext();
     const t = useTranslations('replies');
 
@@ -313,6 +322,7 @@ function ReplyContent({id, replyTo, popDepth}: ReplyContentProps) {
                         postRef={postRef}
                         details={replyTo}
                         popDepth={popDepth}
+                        showKeyboard={showKeyboard}
                     />
                     {repliesContent}
                     <div hidden={!postsQuery.hasNextPage}>

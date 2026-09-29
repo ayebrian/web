@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import {isMobile} from '@/lib/is-mobile';
 import {resizeImage} from '@/network/image';
 import {toast} from 'sonner';
 import {FileDescriptor} from '@/types/file-descriptor';
@@ -28,6 +29,7 @@ interface MainPostCardProps {
     details: CommunityDetailsResponse;
     postRef: RefObject<HTMLDivElement | null>;
     popDepth: number;
+    showKeyboard: boolean;
 }
 
 const emojis = [
@@ -55,6 +57,7 @@ export function MainPostCard({
     details,
     postRef,
     popDepth,
+    showKeyboard,
 }: MainPostCardProps) {
     const app = useAppContext();
 
@@ -76,6 +79,12 @@ export function MainPostCard({
     const showTextLength = displayText.length > 4000;
 
     const self = users.useSelf(app);
+
+    useEffect(() => {
+        if (showKeyboard) {
+            inputRef.current?.focus();
+        }
+    }, []);
 
     const deleteMutation = useDeleteMutation({details, popDepth: popDepth - 1});
 
@@ -165,10 +174,9 @@ export function MainPostCard({
     }
 
     function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-        if (isSubmitting) return;
         if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
             event.preventDefault();
-            handleSubmit(event.currentTarget.value.trim());
+            handleSubmit(event.currentTarget.value);
         }
     }
 
@@ -227,16 +235,8 @@ export function MainPostCard({
         });
         observer.observe(input);
 
-        input.readOnly = true;
-        input.focus();
-
-        const timeout = window.setTimeout(() => {
-            input.readOnly = false;
-        }, 1);
-
         return () => {
             observer.disconnect();
-            window.clearTimeout(timeout);
         };
     }, []);
 
@@ -509,18 +509,6 @@ function formatTimeAgo(
     return date.toLocaleDateString();
 }
 
-function isMobile(): boolean {
-    if (
-        'userAgentData' in navigator &&
-        typeof navigator.userAgentData === 'object' &&
-        navigator.userAgentData !== null &&
-        'mobile' in navigator.userAgentData
-    ) {
-        return !!navigator.userAgentData.mobile;
-    }
-    return /Mobi/.test(navigator.userAgent);
-}
-
 interface UseDeleteMutationProps {
     details: CommunityDetailsResponse;
     popDepth: number;
@@ -615,12 +603,17 @@ function useCreateMutation({
 
     async function navigateReplies(descriptor: CommunityPostDescriptor) {
         await navigate(`/community/${descriptor.id}/replies`, {
-            state: {popDepth} as unknown,
+            state: {
+                popDepth,
+                showKeyboard: true,
+            } as unknown,
         });
     }
 
     return useMutation({
         mutationFn: async (props: {text: string; redirect?: boolean}) => {
+            props.text = props.text.trim();
+
             const post = {
                 replyTo: {
                     id: details.post.id,
@@ -672,6 +665,8 @@ function useEditMutation({details, onSuccess}: UseEditMutationProps) {
 
     return useMutation({
         mutationFn: async (text: string) => {
+            text = text.trim();
+
             if (details.post.type !== 'plain') {
                 throw new Error('Can only edit plain posts');
             }

@@ -1,3 +1,5 @@
+import {newPost} from '@/services/new-post-service';
+import {isMobile} from '@/lib/is-mobile';
 import {
     useVirtualizer,
     VirtualItem,
@@ -180,7 +182,7 @@ interface CreatePostCardProps {
 }
 
 function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
-    const [text, setText] = useState('');
+    const [text, setText] = newPost.useNewText();
 
     const t = useTranslations('community');
     const postRef = useRef<HTMLTextAreaElement>(null);
@@ -275,6 +277,14 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
         !text.trim() ||
         textTooLong;
 
+    function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+        if (event.key === 'Enter' && !event.shiftKey && !isMobile()) {
+            event.preventDefault();
+            if (forbidSend) return;
+            createMutation.mutate(event.currentTarget.value);
+        }
+    }
+
     function attachImage() {
         imageInputRef.current?.click();
     }
@@ -309,6 +319,7 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                         )}
                         value={text}
                         onChange={e => setText(e.target.value)}
+                        onKeyDown={onKeyDown}
                         placeholder={t('placeholder')}
                     />
                     <div className="mt-1 w-full flex items-center">

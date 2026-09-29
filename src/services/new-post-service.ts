@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 
-function useText() {
+function useNewText() {
     const [text, setText] = useState(
         () => localStorage.getItem('main-post.text') ?? '',
     );
@@ -21,6 +21,6 @@ function useReplyText() {
 }
 
 export const newPost = {
-    useText,
+    useNewText,
     useReplyText,
 };
