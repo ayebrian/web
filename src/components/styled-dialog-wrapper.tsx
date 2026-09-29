@@ -7,6 +7,7 @@ interface StyledDialogWrapperProps {
     onOpenChange?: (open: boolean) => void;
     preventDefault?: boolean;
     popoverBackground?: boolean;
+    fullscreen?: boolean;
     contentClassName?: string;
     children: ReactNode;
 }
@@ -16,6 +17,7 @@ export function StyledDialogWrapper({
     onOpenChange,
     preventDefault = false,
     popoverBackground = true,
+    fullscreen = false,
     contentClassName,
     children,
 }: StyledDialogWrapperProps) {
@@ -29,8 +31,9 @@ export function StyledDialogWrapper({
                     })}
                     className={cn(
                         'z-2 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
-                        'w-full sm:max-w-lg max-h-dvh overflow-y-auto',
-                        'sm:p-8 scrollbar-none',
+                        'w-full max-h-dvh overflow-y-auto',
+                        'sm:p-8 scrollbar-none box-border',
+                        fullscreen ? '' : 'sm:max-w-lg',
                     )}
                 >
                     <div

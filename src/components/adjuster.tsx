@@ -35,23 +35,30 @@ export interface AdjusterCrop {
 
 export interface AdjusterProps {
     payload: AdjusterPayload;
-    setOpen: (value: boolean) => void;
+    setPayload: (value: AdjusterPayload) => void;
+    aspect?: number;
     onAdjusted: (file: File, result: AdjusterCrop) => void;
 }
 
 export function Adjuster({
     payload,
-    setOpen,
+    setPayload,
+    aspect,
     onAdjusted,
 }: AdjusterProps): ReactNode {
     const open = useMemo(() => payload.type === 'open', [payload]);
 
     return (
-        <StyledDialogWrapper open={open} onOpenChange={setOpen}>
+        <StyledDialogWrapper
+            open={open}
+            onOpenChange={() => setPayload({type: 'close'})}
+            fullscreen
+        >
             {payload.type === 'open' && (
                 <AdjusterContent
                     payload={payload}
-                    setOpen={setOpen}
+                    setPayload={setPayload}
+                    aspect={aspect}
                     onAdjusted={onAdjusted}
                 />
             )}
@@ -61,13 +68,15 @@ export function Adjuster({
 
 interface AdjusterContentProps {
     payload: AdjusterPayload & {type: 'open'};
-    setOpen: (value: boolean) => void;
+    setPayload: (value: AdjusterPayload) => void;
+    aspect?: number;
     onAdjusted: (file: File, result: AdjusterCrop) => void;
 }
 
 function AdjusterContent({
     payload,
-    setOpen,
+    setPayload,
+    aspect,
     onAdjusted,
 }: AdjusterContentProps): ReactNode {
     const t = useTranslations('adjuster');
@@ -81,11 +90,11 @@ function AdjusterContent({
     }, [payload.data]);
 
     function onCancel() {
-        setOpen(false);
+        setPayload({type: 'close'});
     }
 
     async function onContinue() {
-        setOpen(false);
+        setPayload({type: 'close'});
         if (!crop) return;
 
         onAdjusted(payload.data, {
@@ -123,9 +132,9 @@ function AdjusterContent({
             <div className="flex items-center m-4">
                 {src && (
                     <ReactCrop
-                        className="w-full"
+                        className="w-full max-h-[70vh]"
                         crop={crop}
-                        aspect={1}
+                        aspect={aspect}
                         onChange={(_, crop) => setCrop(crop)}
                     >
                         <img

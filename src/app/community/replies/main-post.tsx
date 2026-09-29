@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import {AdjusterPayload, Adjuster, AdjusterCrop} from '@/components/adjuster';
 import {isMobile} from '@/lib/is-mobile';
 import {resizeImage} from '@/network/image';
 import {toast} from 'sonner';
@@ -65,6 +66,7 @@ export function MainPostCard({
     const [newText, setNewText] = newPost.useReplyText();
     const [editText, setEditText] = useState('');
     const [action, setAction] = useState<InputAction>('send');
+    const [adjuster, setAdjuster] = useState<AdjusterPayload>({type: 'close'});
 
     const displayText = action === 'send' ? newText : editText;
     function setDisplayText(value: string | ((value: string) => string)) {
@@ -180,6 +182,18 @@ export function MainPostCard({
         }
     }
 
+    function onAttach(data: File) {
+        setAdjuster({type: 'open', data});
+    }
+
+    function onPaste(event: React.ClipboardEvent) {
+        const file = event.clipboardData.files[0];
+        if (file && file.type.startsWith('image')) {
+            event.preventDefault();
+            onAttach(file);
+        }
+    }
+
     const t = useTranslations('replies');
 
     const selfAvatar = useMemo(
@@ -267,6 +281,7 @@ export function MainPostCard({
                         value={displayText}
                         onKeyDown={onKeyDown}
                         onChange={e => setDisplayText(e.target.value)}
+                        onPaste={onPaste}
                         placeholder={t('reply-placeholder')}
                     />
                     <div className="w-full flex">
@@ -295,7 +310,7 @@ export function MainPostCard({
                     isSubmitting={isSubmitting}
                     isAttaching={attachImageMutation.isPending}
                     onStopEdit={stopEditing}
-                    onAttach={attachImageMutation.mutate}
+                    onAttach={onAttach}
                     onSubmit={() => handleSubmit(displayText)}
                 />
             </div>
@@ -323,6 +338,13 @@ export function MainPostCard({
                 ))}
             </div>
             <div className="h-4" />
+            <Adjuster
+                payload={adjuster}
+                setPayload={setAdjuster}
+                onAdjusted={(file, crop) =>
+                    void attachImageMutation.mutate({file, crop})
+                }
+            />
         </div>
     );
 }
@@ -571,13 +593,9 @@ interface UseAttachImageMutationProps {
 function useAttachImageMutation({onSuccess}: UseAttachImageMutationProps) {
     const app = useAppContext();
     return useMutation({
-        mutationFn: async (file: File) => {
-            const compressed = await resizeImage(file, {
-                x: 0,
-                y: 0,
-                width: 100,
-                height: 100,
-            });
+        mutationFn: async (props: {file: File; crop: AdjusterCrop}) => {
+            const {file, crop} = props;
+            const compressed = await resizeImage(file, crop);
             const descriptor = forceUnwrap(
                 await app.backend.uploadFile(compressed),
             );

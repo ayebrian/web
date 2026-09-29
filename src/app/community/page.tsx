@@ -1,3 +1,4 @@
+import {AdjusterPayload, Adjuster, AdjusterCrop} from '@/components/adjuster';
 import {newPost} from '@/services/new-post-service';
 import {isMobile} from '@/lib/is-mobile';
 import {
@@ -183,6 +184,7 @@ interface CreatePostCardProps {
 
 function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
     const [text, setText] = newPost.useNewText();
+    const [adjuster, setAdjuster] = useState<AdjusterPayload>({type: 'close'});
 
     const t = useTranslations('community');
     const postRef = useRef<HTMLTextAreaElement>(null);
@@ -243,15 +245,11 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
     });
 
     const attachImageMutation = useMutation({
-        mutationFn: async (file: File) => {
+        mutationFn: async (props: {file: File; crop: AdjusterCrop}) => {
+            const {file, crop} = props;
             const post = postRef.current;
             if (!post) return;
-            const compressed = await resizeImage(file, {
-                x: 0,
-                y: 0,
-                width: 100,
-                height: 100,
-            });
+            const compressed = await resizeImage(file, crop);
             const descriptor = forceUnwrap(
                 await backend.uploadFile(compressed),
             );
@@ -285,16 +283,27 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
         }
     }
 
+    function onPaste(event: React.ClipboardEvent) {
+        const file = event.clipboardData.files[0];
+        if (file && file.type.startsWith('image')) {
+            event.preventDefault();
+            onImageSelected(file);
+        }
+    }
+
     function attachImage() {
         imageInputRef.current?.click();
     }
 
-    function onImageSelected(file: File) {
+    function onImageSelected(data: File) {
         if (imageInputRef.current) {
             imageInputRef.current.value = '';
         }
+        setAdjuster({type: 'open', data});
+    }
 
-        attachImageMutation.mutate(file);
+    function onImageAdjusted(file: File, crop: AdjusterCrop) {
+        attachImageMutation.mutate({file, crop});
     }
 
     return (
@@ -320,6 +329,7 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                         value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={onKeyDown}
+                        onPaste={onPaste}
                         placeholder={t('placeholder')}
                     />
                     <div className="mt-1 w-full flex items-center">
@@ -384,6 +394,13 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                     </div>
                 </div>
             </div>
+            <Adjuster
+                payload={adjuster}
+                setPayload={setAdjuster}
+                onAdjusted={(file, result) =>
+                    void onImageAdjusted(file, result)
+                }
+            />
         </div>
     );
 }

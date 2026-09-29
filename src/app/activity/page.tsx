@@ -1,8 +1,9 @@
 import {useMutation} from '@tanstack/react-query';
+import {openBlankShortcut} from '@/lib/open-blank-shortcut';
 import {useNavigationType, NavigationType} from 'react-router';
 import {useVirtualizer, VirtualItem} from '@tanstack/react-virtual';
 import {activity} from '@/services/activity-service';
-import {cn, createFileLink, navigatePostReplies} from '@/lib/utils';
+import {cn, createFileLink} from '@/lib/utils';
 import {useAppContext} from '@/app.context';
 import {communityPosts} from '@/services/community-posts-service';
 import {useNavigate} from 'react-router';
@@ -255,16 +256,23 @@ function ReplyActivityCard({details, beforeClick}: ReplyActivityCardProps) {
         b: text => <strong>{text}</strong>,
     });
 
+    function navigateReplies(event: React.MouseEvent) {
+        openBlankShortcut(event, {
+            url: `/community/${details.post.id}/replies`,
+            onNavigate: url => void navigate(url),
+        });
+    }
+
     return (
         <div
             className="flex gap-2 items-center m-4"
             onClick={e => {
                 beforeClick();
-                void navigatePostReplies(navigate, details.post.id, 1, e);
+                void navigateReplies(e);
             }}
             onAuxClick={e => {
                 beforeClick();
-                void navigatePostReplies(navigate, details.post.id, 1, e);
+                void navigateReplies(e);
             }}
         >
             <StyledAvatar

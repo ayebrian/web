@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import {openBlankShortcut} from '@/lib/open-blank-shortcut';
 import {AvatarGroup} from '@/components/ui/avatar';
 import {MessageCircle, Clock} from 'lucide-react';
 import {useTranslations} from 'use-intl';
@@ -13,7 +14,7 @@ import {useNavigate} from 'react-router';
 import {useFriendlyStorage} from '@/components/friendly-storage-provider';
 import {communityPosts} from '@/services/community-posts-service';
 import {CommunityPostId} from '@/network/friendly-client';
-import {cn, navigatePostReplies} from '@/lib/utils';
+import {cn} from '@/lib/utils';
 import {useEffect, useRef, useState} from 'react';
 
 export interface CommunityPostCardProps {
@@ -100,15 +101,29 @@ function CommunityPostCardPlain({
         await navigate(`/user/${post.owner.id}`);
     }
 
+    interface NavigateRepliesProps {
+        showKeyboard: boolean;
+    }
+
+    function navigateReplies(
+        event: React.MouseEvent,
+        {showKeyboard}: NavigateRepliesProps,
+    ) {
+        event.stopPropagation();
+        openBlankShortcut(event, {
+            url: `/community/${post.id}/replies`,
+            onNavigate: url =>
+                void navigate(url, {
+                    state: {popDepth, showKeyboard} as unknown,
+                }),
+        });
+    }
+
     return (
         <div
             className={cn('p-4 cursor-pointer', className)}
-            onClick={e =>
-                void navigatePostReplies(navigate, post.id, popDepth, e)
-            }
-            onAuxClick={e =>
-                void navigatePostReplies(navigate, post.id, popDepth, e)
-            }
+            onClick={e => navigateReplies(e, {showKeyboard: false})}
+            onAuxClick={e => navigateReplies(e, {showKeyboard: false})}
         >
             <div className="flex gap-3">
                 <StyledAvatar
@@ -167,6 +182,7 @@ function CommunityPostCardPlain({
                         </AvatarGroup>
                     )}
                     <Button
+                        onClick={e => navigateReplies(e, {showKeyboard: true})}
                         variant="ghost"
                         size="sm"
                         className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -195,18 +211,25 @@ function CommunityPostCardDeleted({
     const navigate = useNavigate();
     const postTime = new Date(post.instant);
 
+    function navigateReplies(event: React.MouseEvent) {
+        event.stopPropagation();
+        openBlankShortcut(event, {
+            url: `/community/${post.id}/replies`,
+            onNavigate: url =>
+                void navigate(url, {
+                    state: {popDepth} as unknown,
+                }),
+        });
+    }
+
     return (
         <div
             className={cn(
                 'p-4 cursor-pointer flex items-center justify-between',
                 className,
             )}
-            onClick={e =>
-                void navigatePostReplies(navigate, post.id, popDepth, e)
-            }
-            onAuxClick={e =>
-                void navigatePostReplies(navigate, post.id, popDepth, e)
-            }
+            onClick={e => navigateReplies(e)}
+            onAuxClick={e => navigateReplies(e)}
         >
             <p className="italic text-foreground truncate cursor-pointer">
                 {t('deleted')}

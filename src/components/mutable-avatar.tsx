@@ -72,11 +72,6 @@ export function MutableAvatarContent({
         };
     }, [avatarUrl]);
 
-    function adjusterSetOpen(open: boolean) {
-        if (open) return;
-        setAdjuster({type: 'close'});
-    }
-
     async function onSelected(file: File) {
         setAdjuster({
             type: 'open',
@@ -135,7 +130,8 @@ export function MutableAvatarContent({
         <div className="w-full flex justify-center">
             <Adjuster
                 payload={adjuster}
-                setOpen={adjusterSetOpen}
+                setPayload={setAdjuster}
+                aspect={1}
                 onAdjusted={(file, result) => void onAdjusted(file, result)}
             />
             <AvatarDropdown
