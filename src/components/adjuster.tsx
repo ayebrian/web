@@ -37,6 +37,7 @@ export interface AdjusterProps {
     payload: AdjusterPayload;
     setPayload: (value: AdjusterPayload) => void;
     aspect?: number;
+    title: string;
     onAdjusted: (file: File, result: AdjusterCrop) => void;
 }
 
@@ -44,6 +45,7 @@ export function Adjuster({
     payload,
     setPayload,
     aspect,
+    title,
     onAdjusted,
 }: AdjusterProps): ReactNode {
     const open = useMemo(() => payload.type === 'open', [payload]);
@@ -56,6 +58,7 @@ export function Adjuster({
         >
             {payload.type === 'open' && (
                 <AdjusterContent
+                    title={title}
                     payload={payload}
                     setPayload={setPayload}
                     aspect={aspect}
@@ -70,6 +73,7 @@ interface AdjusterContentProps {
     payload: AdjusterPayload & {type: 'open'};
     setPayload: (value: AdjusterPayload) => void;
     aspect?: number;
+    title: string;
     onAdjusted: (file: File, result: AdjusterCrop) => void;
 }
 
@@ -77,6 +81,7 @@ function AdjusterContent({
     payload,
     setPayload,
     aspect,
+    title,
     onAdjusted,
 }: AdjusterContentProps): ReactNode {
     const t = useTranslations('adjuster');
@@ -108,7 +113,12 @@ function AdjusterContent({
     const onImageLoad: ReactEventHandler<HTMLImageElement> = e => {
         const {naturalWidth: width, naturalHeight: height} = e.currentTarget;
         const crop = centerCrop(
-            makeAspectCrop({unit: '%', width: 90}, 1, width, height),
+            makeAspectCrop(
+                {unit: '%', width: 90, height: 90},
+                1,
+                width,
+                height,
+            ),
             width,
             height,
         );
@@ -119,7 +129,7 @@ function AdjusterContent({
         <>
             <div className="relative flex items-center mt-1 mx-1">
                 <Dialog.Title className="w-full text-base font-semibold text-center pt-2">
-                    {t('title')}
+                    {title}
                 </Dialog.Title>
 
                 <Dialog.Close className="absolute right-0 top-0" asChild>
@@ -129,10 +139,10 @@ function AdjusterContent({
                 </Dialog.Close>
             </div>
 
-            <div className="flex items-center m-4">
+            <div className="flex items-center justify-center m-4">
                 {src && (
                     <ReactCrop
-                        className="w-full max-h-[70vh]"
+                        className="max-h-[70vh]"
                         crop={crop}
                         aspect={aspect}
                         onChange={(_, crop) => setCrop(crop)}
@@ -142,8 +152,6 @@ function AdjusterContent({
                             src={src}
                             onLoad={onImageLoad}
                             alt={'Image'}
-                            width="512"
-                            height="512"
                         />
                     </ReactCrop>
                 )}

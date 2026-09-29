@@ -339,6 +339,7 @@ export function MainPostCard({
             </div>
             <div className="h-4" />
             <Adjuster
+                title={t('adjuster')}
                 payload={adjuster}
                 setPayload={setAdjuster}
                 onAdjusted={(file, crop) =>

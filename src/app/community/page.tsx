@@ -395,6 +395,7 @@ function CreatePostCard({className, onPostCreated}: CreatePostCardProps) {
                 </div>
             </div>
             <Adjuster
+                title={t('adjuster')}
                 payload={adjuster}
                 setPayload={setAdjuster}
                 onAdjusted={(file, result) =>

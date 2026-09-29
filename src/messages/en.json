@@ -115,7 +115,8 @@
         "email-unlink-sure": "Are you sure?",
         "email-unlink-sure-verbose": "To undo this action you will need to go through the confirmation process again",
         "cancel": "Cancel",
-        "continue": "Continue"
+        "continue": "Continue",
+        "adjuster": "Crop avatar"
     },
     "user": {
         "validation": {
@@ -132,7 +133,6 @@
         }
     },
     "adjuster": {
-        "title": "Crop Avatar",
         "cancel": "Cancel",
         "continue": "Continue"
     },
@@ -192,7 +192,8 @@
         "unknown_error": "Something went wrong",
         "empty_title": "No posts yet",
         "empty_desc": "Be the first to share something with the community!",
-        "load-more": "Load more"
+        "load-more": "Load more",
+        "adjuster": "Crop image"
     },
     "activity": {
         "retry": "Retry",
@@ -239,7 +240,8 @@
         },
         "go-back": "Go back",
         "upstream": "Upstream",
-        "too-long": "Post can't be longer than 4096 chars"
+        "too-long": "Post can't be longer than 4096 chars",
+        "adjuster": "Crop image"
     },
     "chat": {
         "title": "Work in progress...",

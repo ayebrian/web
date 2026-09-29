@@ -131,6 +131,7 @@ export function MutableAvatarContent({
             <Adjuster
                 payload={adjuster}
                 setPayload={setAdjuster}
+                title={t('adjuster')}
                 aspect={1}
                 onAdjusted={(file, result) => void onAdjusted(file, result)}
             />
