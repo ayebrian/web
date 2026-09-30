@@ -33,7 +33,8 @@ export function StyledDialogWrapper({
                         'z-2 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
                         'w-full max-h-dvh overflow-y-auto',
                         'sm:p-8 scrollbar-none box-border',
-                        fullscreen ? 'sm:w-auto sm:min-w-lg' : 'sm:w-lg',
+                        'sm:min-w-lg',
+                        fullscreen ? 'sm:w-auto' : 'sm:w-lg',
                     )}
                 >
                     <div

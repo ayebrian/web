@@ -157,10 +157,7 @@ export function MainPostCard({
         if (forbidSubmit) return;
         switch (action) {
             case 'send':
-                createMutation.mutate({
-                    text,
-                    redirect: true,
-                });
+                createMutation.mutate({text, showKeyboard: true});
                 break;
             case 'edit':
                 editMutation.mutate(text);
@@ -303,7 +300,7 @@ export function MainPostCard({
                         ) : undefined}
                     </div>
                 </div>
-                <Menu
+                <SubmitMenu
                     vertical={verticalMenu}
                     action={action}
                     forbidSubmit={forbidSubmit}
@@ -322,13 +319,15 @@ export function MainPostCard({
                         emoji={emoji}
                         disabled={isSubmitting}
                         onClick={() => {
+                            const showKeyboard =
+                                inputRef?.current === document.activeElement;
                             if (
                                 displayText.trim().length === 0 &&
                                 action === 'send'
                             ) {
                                 createMutation.mutate({
                                     text: emoji,
-                                    redirect: true,
+                                    showKeyboard,
                                 });
                             } else {
                                 setDisplayText(text => `${text}${emoji}`);
@@ -620,17 +619,17 @@ function useCreateMutation({
     const navigate = useNavigate();
     const t = useTranslations('replies');
 
-    async function navigateReplies(descriptor: CommunityPostDescriptor) {
+    async function navigateReplies(
+        descriptor: CommunityPostDescriptor,
+        showKeyboard: boolean,
+    ) {
         await navigate(`/community/${descriptor.id}/replies`, {
-            state: {
-                popDepth,
-                showKeyboard: true,
-            } as unknown,
+            state: {popDepth, showKeyboard} as unknown,
         });
     }
 
     return useMutation({
-        mutationFn: async (props: {text: string; redirect?: boolean}) => {
+        mutationFn: async (props: {text: string; showKeyboard: boolean}) => {
             props.text = props.text.trim();
 
             const post = {
@@ -655,17 +654,11 @@ function useCreateMutation({
                 upstream: [...details.upstream, details.post],
             } satisfies CommunityDetailsResponse;
             await communityPosts.setDetails(app, [response]);
-            if (props.redirect) {
-                void app.queryClient.invalidateQueries({
-                    queryKey: ['communityReplies', details.post.id],
-                });
-                await navigateReplies(response.post);
-                onSuccess();
-            } else {
-                await app.queryClient.invalidateQueries({
-                    queryKey: ['communityReplies', details.post.id],
-                });
-            }
+            void app.queryClient.invalidateQueries({
+                queryKey: ['communityReplies', details.post.id],
+            });
+            onSuccess();
+            await navigateReplies(response.post, props.showKeyboard);
         },
         onError: error => {
             toast.error(error.message ?? t('post_create_error'));
@@ -722,7 +715,7 @@ interface MenuProps {
     onAttach: (file: File) => void;
 }
 
-function Menu({
+function SubmitMenu({
     onStopEdit,
     onSubmit,
     onAttach,
@@ -785,6 +778,7 @@ function Menu({
                 </Button>
                 <Button
                     className="mt-1 w-8 h-8"
+                    onMouseDown={event => event.preventDefault()}
                     onClick={() => onSubmit()}
                     disabled={forbidSubmit}
                 >

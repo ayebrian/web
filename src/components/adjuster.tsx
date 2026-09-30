@@ -186,12 +186,7 @@ function AdjusterContent({
                         aspect={aspect}
                         onChange={(_, crop) => setCrop(crop)}
                     >
-                        <img
-                            className="w-full"
-                            src={src}
-                            onLoad={onImageLoad}
-                            alt={'Image'}
-                        />
+                        <img src={src} onLoad={onImageLoad} alt={'Image'} />
                     </ReactCrop>
                 )}
             </div>
