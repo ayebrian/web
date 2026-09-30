@@ -32,10 +32,11 @@ interface MarkdownAreaProps {
     text: string;
     className?: string;
     ref?: React.Ref<HTMLDivElement>;
+    onImageClick?: (event: React.MouseEvent<HTMLImageElement>) => void;
 }
 
 function MarkdownAreaComponent(
-    {text, className, ref}: MarkdownAreaProps,
+    {text, className, ref, onImageClick}: MarkdownAreaProps,
 ) {
     const codeStyle = useCodeStyle();
 
@@ -53,7 +54,13 @@ function MarkdownAreaComponent(
                 rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                 components={{
                     img: ({ node, ...props }) => (
-                        <img className="rounded-lg max-h-[70vh]" {...props} />
+                        <img
+                            onClick={onImageClick}
+                            className={cn(
+                                "rounded-lg max-h-[70vh]",
+                                onImageClick ? 'cursor-pointer' : '',
+                            )}
+                            {...props} />
                     ),
                     a: ({href, children}) => (
                         <a
@@ -65,7 +72,7 @@ function MarkdownAreaComponent(
                             {children}
                         </a>
                     ),
-                    blockquote: ({children}) => <blockquote className="text-sm">{children}</blockquote>,
+                    blockquote: ({children}) => <blockquote className="text-sm space-y-[1em] leading-5">{children}</blockquote>,
                     ol: ({children}) => <ol className="list-decimal list-inside">
                         {children}
                     </ol>,

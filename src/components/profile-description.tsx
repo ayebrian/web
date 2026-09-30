@@ -1,3 +1,7 @@
+import {
+    ImagePreviewer,
+    ImagePreviewerPayload,
+} from '@/components/image-previewer';
 import {cn} from '@/lib/utils';
 import {useTranslations} from 'use-intl';
 import {ChevronDown, ChevronUp} from 'lucide-react';
@@ -7,6 +11,9 @@ import {MarkdownArea} from '@/components/ui/markdown-area';
 export function ProfileDescription({description}: {description: string}) {
     const [expanded, setExpanded] = useState(false);
     const [canExpand, setCanExpand] = useState(false);
+    const [imagePreviewer, setImagePreviewer] = useState<ImagePreviewerPayload>(
+        {type: 'close'},
+    );
 
     const descriptionRef = useRef<HTMLDivElement>(null);
     const t = useTranslations('profile');
@@ -27,6 +34,10 @@ export function ProfileDescription({description}: {description: string}) {
                 )}
                 ref={descriptionRef}
                 text={description}
+                onImageClick={e => {
+                    e.stopPropagation();
+                    setImagePreviewer({type: 'open', src: e.currentTarget.src});
+                }}
             />
 
             {canExpand && (
@@ -47,6 +58,10 @@ export function ProfileDescription({description}: {description: string}) {
                     )}
                 </button>
             )}
+            <ImagePreviewer
+                payload={imagePreviewer}
+                setPayload={setImagePreviewer}
+            />
         </>
     );
 }

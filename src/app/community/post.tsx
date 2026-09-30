@@ -1,3 +1,7 @@
+import {
+    ImagePreviewer,
+    ImagePreviewerPayload,
+} from '@/components/image-previewer';
 import {Button} from '@/components/ui/button';
 import {openBlankShortcut} from '@/lib/open-blank-shortcut';
 import {AvatarGroup} from '@/components/ui/avatar';
@@ -79,6 +83,7 @@ function CommunityPostCardPlain({
 
     const textRef = useRef<HTMLDivElement>(null);
     const [isTruncated, setIsTruncated] = useState(false);
+
     useEffect(() => {
         const el = textRef.current;
         if (!el) return;
@@ -89,6 +94,10 @@ function CommunityPostCardPlain({
         observer.observe(el);
         return () => observer.disconnect();
     }, [post.text]);
+
+    const [imagePreviewer, setImagePreviewer] = useState<ImagePreviewerPayload>(
+        {type: 'close'},
+    );
 
     async function navigateProfile(event: React.MouseEvent) {
         event.stopPropagation();
@@ -121,7 +130,7 @@ function CommunityPostCardPlain({
 
     return (
         <div
-            className={cn('p-4 cursor-pointer', className)}
+            className={cn('p-4', className)}
             onClick={e => navigateReplies(e, {showKeyboard: false})}
             onAuxClick={e => navigateReplies(e, {showKeyboard: false})}
         >
@@ -159,6 +168,13 @@ function CommunityPostCardPlain({
                         )}
                         ref={textRef}
                         text={post.text}
+                        onImageClick={e => {
+                            e.stopPropagation();
+                            setImagePreviewer({
+                                type: 'open',
+                                src: e.currentTarget.src,
+                            });
+                        }}
                     />
                 </div>
             </div>
@@ -192,6 +208,10 @@ function CommunityPostCardPlain({
                     </Button>
                 </div>
             )}
+            <ImagePreviewer
+                payload={imagePreviewer}
+                setPayload={setImagePreviewer}
+            />
         </div>
     );
 }
