@@ -6,13 +6,7 @@ import ReactCrop, {
     makeAspectCrop,
 } from 'react-image-crop';
 import {X} from 'lucide-react';
-import {
-    ReactNode,
-    ReactEventHandler,
-    useState,
-    useMemo,
-    useEffect,
-} from 'react';
+import {ReactNode, useState, useMemo, useEffect} from 'react';
 import {useTranslations} from 'use-intl';
 import {Button} from '@/components/ui/button';
 import {StyledDialogWrapper} from './styled-dialog-wrapper';
@@ -89,10 +83,14 @@ function AdjusterContent({
     const [src, setSrc] = useState<string | null>(null);
 
     useEffect(() => {
-        const url = URL.createObjectURL(payload.data);
-        setSrc(url);
-        return () => URL.revokeObjectURL(url);
+        const src = URL.createObjectURL(payload.data);
+        setSrc(src);
     }, [payload.data]);
+
+    useEffect(() => {
+        if (!src) return;
+        return () => URL.revokeObjectURL(src);
+    }, [src]);
 
     function onCancel() {
         setPayload({type: 'close'});
@@ -110,8 +108,49 @@ function AdjusterContent({
         });
     }
 
-    const onImageLoad: ReactEventHandler<HTMLImageElement> = e => {
-        const {naturalWidth: width, naturalHeight: height} = e.currentTarget;
+    interface UpscaleIfSmallResult {
+        height: number;
+        width: number;
+    }
+
+    function upscaleIfSmall(
+        event: React.UIEvent<HTMLImageElement>,
+    ): UpscaleIfSmallResult {
+        const {naturalWidth: width, naturalHeight: height} =
+            event.currentTarget;
+        if (width >= 200 || height >= 200) return {width, height};
+        const ratio = width / height;
+        let upscaledWidth, upscaledHeight;
+        if (width < height) {
+            upscaledWidth = 200;
+            upscaledHeight = upscaledWidth / ratio;
+        } else {
+            upscaledHeight = 200;
+            upscaledWidth = upscaledHeight * ratio;
+        }
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas is not supported');
+        canvas.width = upscaledWidth;
+        canvas.height = upscaledHeight;
+        context.drawImage(
+            event.currentTarget,
+            0,
+            0,
+            upscaledWidth,
+            upscaledHeight,
+        );
+        canvas.toBlob(blob => {
+            if (!blob) return;
+            const src = URL.createObjectURL(blob);
+            setSrc(src);
+        });
+        // return old values, then toBlob substituted image url and this re-runs
+        return {width, height};
+    }
+
+    function onImageLoad(event: React.UIEvent<HTMLImageElement>) {
+        const {width, height} = upscaleIfSmall(event);
         const crop = centerCrop(
             makeAspectCrop(
                 {unit: '%', width: 90, height: 90},
@@ -123,7 +162,7 @@ function AdjusterContent({
             height,
         );
         setCrop(crop);
-    };
+    }
 
     return (
         <>
